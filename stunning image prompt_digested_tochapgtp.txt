@@ -1,0 +1,103 @@
+Create ONE premium Instagram feed post design in vertical 4:5 format (1080 × 1350 px).
+
+Theme:
+A refined Instagram editorial post sharing a deeply enjoyable high-end omakase dining experience in Central / Sheung Wan, Hong Kong. The post should express the feeling of satisfaction, elegance, calmness, and discovery after enjoying an exceptional Japanese chef’s tasting experience.
+
+Core Purpose:
+This is an Instagram post for sharing a personal omakase experience with Instagram users. It should feel like a sophisticated editorial dining post, not a restaurant flyer, not a casual collage, and not a generic food advertisement.
+
+Layout:
+Use an asymmetrical editorial layout with 5 food photo frames in total.
+- 1 dominant hero frame with the strongest visual weight
+- 4 smaller supporting frames arranged with balance and negative space
+The layout must feel custom-designed, elegant, and refined.
+Avoid a traditional grid, avoid a basic collage, avoid scrapbook clutter.
+The composition should have breathing room and a premium visual hierarchy.
+
+Content:
+The 5 frames should feature different omakase dishes / moments from the dining experience, such as refined sushi, sashimi, seasonal bites, delicate plated dishes, or elegant Japanese tasting courses.
+The overall feeling should reflect both:
+- the discipline and craftsmanship of traditional Japanese omakase
+- the spirit of culinary innovation and creativity
+
+Visual Style:
+The mood should be elegant, minimal, calm, pure, and distinctly Japanese.
+It should evoke the atmosphere of sitting inside a high-end Japanese omakase restaurant in Central / Sheung Wan.
+The design language should feel like a blend of:
+- premium lifestyle editorial
+- Japanese restaurant tasting notes
+- understated luxury
+- minimal visual poetry
+
+Color Palette:
+Use a soft, light, restrained palette built around:
+- pale green
+- warm beige
+- ivory
+- cream
+- very soft muted natural tones
+The colors should feel airy, harmonious, quiet, and premium.
+Avoid neon colors, avoid overly saturated tones, avoid flashy gold-heavy styling.
+
+Typography and Labels:
+Each of the 5 food frames must have a short descriptive label.
+Keep all text short, clean, and legible.
+Use elegant editorial typography:
+- refined serif for title or key heading
+- clean sans-serif for labels and small notes
+The labels should feel like tasting notes or dish annotations.
+Do not use long paragraphs.
+Do not overcrowd the design with text.
+Do not place labels in a way that blocks the food.
+If text is rendered, keep it minimal and clean, with short phrases such as dish names, tasting notes, or concise descriptors.
+Avoid random unreadable typography.
+
+Decorative Elements:
+Add subtle Japanese decorative accents only as secondary supporting details.
+Use very light and restrained hand-drawn or scanned-style visual motifs, such as:
+- seigaiha wave patterns
+- delicate rice bowl wave patterns
+- washi paper texture
+- fine-line Japanese decorative marks
+- a subtle wind chime motif
+These elements should appear soft, understated, and lightly integrated into the background or margins.
+They must not overpower the food imagery.
+
+Atmosphere:
+The post should communicate:
+- refined Japanese dining experience
+- a quiet sense of luxury
+- craftsmanship
+- elegance
+- innovation within tradition
+- an emotional feeling of “this meal was worth it”
+
+Image Quality:
+High-end, polished, visually cohesive, editorial-quality, highly aesthetic, premium Instagram-ready composition.
+The food should look refined, appetizing, elegant, and realistic.
+The whole image should feel thoughtfully art-directed.
+
+Strict Output Rule:
+Generate ONE single Instagram post design only.
+Do not generate multiple variations.
+Do not create a moodboard.
+Do not create separate slides.
+Do not create a collage of different layouts.
+Create one complete, cohesive, premium Instagram editorial post.
+
+Avoid:
+- messy collage
+- basic grid layout
+- cheap restaurant flyer look
+- overly commercial ad style
+- cartoon style
+- busy or noisy background
+- neon colors
+- overly decorative Japanese clichés
+- excessive text
+- unreadable text
+- random Chinese text clutter
+- low-end social media template look
+
+Final Goal:
+The final result should look like a premium Instagram editorial post about a memorable omakase experience in Central / Sheung Wan — elegant, minimal, Japanese-inspired, innovative yet disciplined, with 5 beautifully composed food frames, subtle labels, soft pale green and beige tones, and delicate Japanese decorative accents.

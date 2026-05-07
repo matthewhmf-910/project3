@@ -1,0 +1,212 @@
+1. Canvas Summary
+
+Canvas: 1080 × 1350 px
+Format: Instagram editorial portrait post, 4:5 ratio
+Safe margin: 72 px
+Background: warm off-white washi paper texture
+Layout type: asymmetrical editorial grid
+Image placeholders: 5
+Text remains editable; no text should be flattened into raster artwork.
+Decorative motifs remain separate from text and image placeholders.
+Note: the referenced contract files were not present in the active workspace, so this follows the explicit requirements in your prompt as the active checklist.
+
+2. Visual Hierarchy Analysis
+
+Primary focus is the large arched sushi image in the upper-right/middle area. The second strongest element is the oversized serif headline on the left. Supporting dish cards form a lower editorial grid: sashimi left, chawanmushi center, two smaller plated dishes right. Small uppercase captions and Japanese vertical text create a quiet premium restaurant tone. Negative space is preserved mostly in the upper-left, center gutters, and lower background areas.
+
+3. Component Table
+
+ID	Type	Role	X	Y	W	H	Editable
+bg_01	background	paper texture	0	0	1080	1350	no
+img_hero	image placeholder	main dish photo	397	63	531	587	replaceable
+txt_location	text	location label	57	130	145	64	yes
+deco_line_01	decoration	divider	58	219	47	1	no
+txt_headline	text	main headline	55	255	315	240	yes
+txt_jp_left	text	vertical Japanese subcopy	73	526	38	131	yes
+deco_seal_01	decoration	small circular seal	72	691	32	32	no
+deco_circle_top	decoration	pale green circle	213	-37	190	190	no
+deco_leaf	decoration	botanical line art	292	65	110	80	no
+deco_wind_chime	decoration	hanging illustration	948	0	88	357	no
+txt_jp_right	text	vertical side label	966	403	42	203	yes
+txt_hero_caption	text	hero caption	415	674	228	37	yes
+img_sashimi	image placeholder	lower-left dish	47	752	303	274	replaceable
+txt_sashimi_caption	text	dish caption	98	1043	220	42	yes
+img_chawanmushi	image placeholder	lower-center dish	397	757	283	412	replaceable
+txt_chawanmushi_caption	text	dish caption	414	1192	276	43	yes
+img_seasonal	image placeholder	upper-right dish	711	692	302	207	replaceable
+txt_seasonal_caption	text	dish caption	711	923	266	43	yes
+img_chef	image placeholder	lower-right dish	711	981	302	231	replaceable
+txt_chef_caption	text	dish caption	711	1233	275	42	yes
+deco_wave_left	decoration	wave pattern	0	896	235	307	no
+deco_circle_bottom	decoration	pale green circle	-22	1115	392	392	no
+txt_bottom_jp	text	bottom Japanese note	110	1207	145	66	yes
+txt_footer	text	footer note	408	1321	223	18	yes
+deco_red_seal	decoration	red square stamp	644	1315	19	24	no
+deco_bottom_blob	decoration	beige organic footer shape	760	1288	320	62	no
+4. Image Placeholder List
+
+ID	Shape	Crop Behavior	Notes
+img_hero	arched-top rectangle	cover crop, center focal	Largest visual anchor; preserve arch mask.
+img_sashimi	rectangle with rounded top-right corner	cover crop	Lower-left supporting dish.
+img_chawanmushi	rectangle	cover crop	Tall center image.
+img_seasonal	rectangle with rounded top-right corner	cover crop	Upper-right dish image.
+img_chef	rectangle with rounded top-right corner	cover crop	Lower-right dish image.
+5. Editable Text Box List
+
+ID	Text	Style
+txt_location	CENTRAL / SHEUNG WAN, HONG KONG	uppercase sans, small, letter-spaced
+txt_headline	A Quiet Omakase Evening	elegant serif, dark olive, large
+txt_jp_left	静かな美味	vertical Japanese, muted ochre
+txt_jp_right	一期一会 ICHIGO ICHIE	vertical, small sans/Japanese
+txt_hero_caption	OTORO NIGIRI / silky • rich • melt-in-the-mouth	uppercase caption + small descriptor
+txt_sashimi_caption	SEASONAL SASHIMI / fresh • clean • briny	caption block
+txt_chawanmushi_caption	SILKEN CHAWANMUSHI / smooth • delicate • umami	caption block
+txt_seasonal_caption	SEASONAL BITE / subtle • aromatic • refined	caption block
+txt_chef_caption	CHEF’S SELECTION / creative • layered • memorable	caption block
+txt_bottom_jp	味わう時間、心を整える。	Japanese note
+txt_footer	GRATEFUL FOR THE MOMENT	tiny uppercase footer
+6. Fixed Decoration List
+
+Off-white paper texture background
+Pale green circle top-center
+Botanical line illustration over top circle
+Thin divider under location label
+Small circular mon/seal icon under left Japanese text
+Pale hanging wind chime illustration at top-right
+Thin vertical caption rules beside dish captions
+Pale wave pattern at lower-left
+Large pale green circle at bottom-left
+Beige organic footer shape at bottom-right
+Small red square stamp near footer
+7. JSON-Style Template Contract
+
+{
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "safeMargin": 72,
+    "background": {
+      "type": "texture",
+      "color": "#f4f0e7",
+      "description": "warm off-white washi paper"
+    }
+  },
+  "rules": {
+    "maxImagePlaceholders": 5,
+    "textMustRemainEditable": true,
+    "decorationsSeparate": true,
+    "preserveNegativeSpace": true,
+    "doNotInventNewLayout": true
+  },
+  "imagePlaceholders": [
+    {
+      "id": "img_hero",
+      "x": 397,
+      "y": 63,
+      "w": 531,
+      "h": 587,
+      "mask": "arch-top",
+      "fit": "cover"
+    },
+    {
+      "id": "img_sashimi",
+      "x": 47,
+      "y": 752,
+      "w": 303,
+      "h": 274,
+      "mask": "rounded-top-right",
+      "fit": "cover"
+    },
+    {
+      "id": "img_chawanmushi",
+      "x": 397,
+      "y": 757,
+      "w": 283,
+      "h": 412,
+      "mask": "rectangle",
+      "fit": "cover"
+    },
+    {
+      "id": "img_seasonal",
+      "x": 711,
+      "y": 692,
+      "w": 302,
+      "h": 207,
+      "mask": "rounded-top-right",
+      "fit": "cover"
+    },
+    {
+      "id": "img_chef",
+      "x": 711,
+      "y": 981,
+      "w": 302,
+      "h": 231,
+      "mask": "rounded-top-right",
+      "fit": "cover"
+    }
+  ],
+  "textBoxes": [
+    { "id": "txt_location", "x": 57, "y": 130, "w": 145, "h": 64 },
+    { "id": "txt_headline", "x": 55, "y": 255, "w": 315, "h": 240 },
+    { "id": "txt_jp_left", "x": 73, "y": 526, "w": 38, "h": 131 },
+    { "id": "txt_jp_right", "x": 966, "y": 403, "w": 42, "h": 203 },
+    { "id": "txt_hero_caption", "x": 415, "y": 674, "w": 228, "h": 37 },
+    { "id": "txt_sashimi_caption", "x": 98, "y": 1043, "w": 220, "h": 42 },
+    { "id": "txt_chawanmushi_caption", "x": 414, "y": 1192, "w": 276, "h": 43 },
+    { "id": "txt_seasonal_caption", "x": 711, "y": 923, "w": 266, "h": 43 },
+    { "id": "txt_chef_caption", "x": 711, "y": 1233, "w": 275, "h": 42 },
+    { "id": "txt_bottom_jp", "x": 110, "y": 1207, "w": 145, "h": 66 },
+    { "id": "txt_footer", "x": 408, "y": 1321, "w": 223, "h": 18 }
+  ]
+}
+8. Canva Rebuild Notes
+
+Use a 1080 × 1350 px custom canvas. Add all five photos as frames, not static images. Use an arch frame for the hero. Use separate text boxes for each caption title and descriptor if finer editing is needed. Keep paper texture, wave motifs, circles, wind chime, seal, and divider lines as independent locked elements.
+
+9. Figma Rebuild Notes
+
+Create a 1080 × 1350 frame with a 72 px safe-margin guide. Use image fills inside vector masks for the five placeholders. Build captions as editable text layers, grouped near but not merged with their corresponding image frame. Lock decorative background layers in a separate Decor / Fixed group.
+
+10. PPTX Rebuild Notes
+
+Set slide size to 10.8 × 13.5 in or proportional 4:5 portrait. Use picture placeholders with custom masks where supported; otherwise use cropped images clipped to shapes. Keep each text block as a separate editable textbox. Use transparent PNG/SVG assets for botanical, wind chime, wave, and seal decorations.
+
+11. HTML Rebuild Notes
+
+Use a fixed-ratio container:
+
+.template {
+  width: 1080px;
+  height: 1350px;
+  position: relative;
+  background: #f4f0e7;
+  overflow: hidden;
+}
+
+.placeholder,
+.text,
+.decoration {
+  position: absolute;
+}
+
+.hero-mask {
+  border-radius: 265px 265px 0 0;
+  overflow: hidden;
+}
+Use absolutely positioned editable content blocks. Use object-fit: cover for all images. Keep decoration layers non-interactive with pointer-events: none.
+
+12. Validation Checklist
+
+Canvas normalized to 1080 × 1350 px
+72 px safe margin respected for primary editable content
+Exactly 5 image placeholders used
+All photo areas converted to replaceable placeholders
+Text areas remain editable
+Decorative elements separated from text and images
+Negative space preserved
+No component merging required
+No flattened text
+No invented layout changes
+Hero arch mask preserved
+Supporting image grid preserved
+Captions remain linked visually but editable independently
