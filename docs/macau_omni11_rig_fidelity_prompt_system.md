@@ -26,7 +26,11 @@ Omni 1.1（以及同代所有 image/reference-to-video 模型）**沒有 rig，�
 
 ---
 
-## 1. Previz 逐幀拆解（我從你的 5s reference 讀出來的）
+## 1. Previz 逐幀拆解
+
+> ⚠️ **本節的時間碼已被實測數據取代。以 [`previz_measured_beatmap.md`](previz_measured_beatmap.md) 為準。**
+> 下表是初版目測結果，實測顯示 0.85 / 2.20 / 2.85 都不是真正的剪接點，
+> 而且全片是 **8 個鏡頭**不是 5 個。保留下表僅供對照。
 
 規格：5.00s，540×960（9:16），30fps，低多邊形 greybox，主角＝紅球身 + 白球頭，騎滑板車，場景＝窄街走廊，兩側掛招牌板。
 
@@ -312,11 +316,21 @@ street enters the edges, coming to rest in the far middle distance.
 - [ ] 無 lens flare / vignette / 顆粒疊加
 - [ ] 招牌文字未被模型亂寫（H6）
 
-**運動（對照 previz）**
-- [ ] 動作時長與 §1 時間碼吻合（±2 幀內）
-- [ ] 主體在畫面中的大小變化曲線與 previz 相符
+**運動（對照 previz — 用 `tools/motion_match.py` 量測，不要只靠肉眼）**
+```bash
+python3 tools/motion_match.py extract previz.mp4 --in <beat_in> --duration <len> --out ref.csv
+python3 tools/motion_match.py extract take.mp4 --out gen.csv
+python3 tools/motion_match.py compare ref.csv gen.csv --beat <A|B|C|D|E1|E2>
+```
+- [ ] `主體尺度曲線 (area)` PASS
+- [ ] `水平走位 (cx)` PASS
+- [ ] `垂直走位 (cy)` PASS
+- [ ] `運動方向` PASS（推/拉/平沒有搞反）
 - [ ] 無鏡頭滾動、無晃動、地平線水平
 - [ ] 靜物完全靜止
+
+> 量測只驗運動軌跡。形狀崩壞、色溫漂移、招牌亂字這三類**量測抓不到**，
+> 仍須人眼過上面的保真與風格兩組。
 
 **技術**
 - [ ] 9:16，30fps，無跳幀
