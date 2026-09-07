@@ -1,6 +1,6 @@
 {
   "project": "Project Macau — Omni 1.1 rig-fidelity shot contract",
-  "version": "1.2",
+  "version": "1.3",
   "source_previz": {
     "file": "Still5_to_10s_Project_Macau_Motion_Reference_Part_2",
     "duration_s": 5.0,
@@ -73,7 +73,7 @@
       "generate_seconds": 2,
       "subject": "daruma",
       "prompt_body": "omni11_beat_prompts.md#beat-C",
-      "reference_image": "character_sheet/daruma_back_rucksack.png",
+      "reference_image": "character_sheet/daruma_scooter_rear.png",
       "action": "The daruma rides away from the viewer down the centre of the street, seen from behind. The brown rucksack and bedroll are the dominant silhouette. The scooter tracks a perfectly straight line.",
       "camera": "The subject shrinks steadily toward the vanishing point as more street enters the frame edges. The walls stay parallel to frame edges. No roll.",
       "measured": {
@@ -89,7 +89,9 @@
         "compare_beat_flag": "C",
         "scale_tolerance": 0.18,
         "pos_tolerance": 0.08
-      }
+      },
+      "reference_image_status": "MISSING — fallback character_sheet/daruma_standing_back.png",
+      "motion_reference": "previz_part2.mp4 --in 0.0 --duration 0.67"
     },
     {
       "id": "A3",
@@ -99,7 +101,7 @@
       "generate_seconds": 2,
       "subject": "daruma",
       "prompt_body": "omni11_beat_prompts.md#beat-A",
-      "reference_image": "character_sheet/daruma_front_scooter.png",
+      "reference_image": "character_sheet/daruma_scooter_front.png",
       "action": "The daruma rides a black kick scooter straight down the centre of the street toward the viewer at a steady walking pace, one foot planted on the deck, the other pushing off the ground in a slow repeating cycle. Both hands stay gripping the handlebar and never leave it. The rucksack sways only slightly with each push.",
       "camera": "The subject starts small in the middle distance and grows steadily larger, staying on the centre line of the street. The building walls converge to a vanishing point directly behind the subject. The ground line sits low in frame. The horizon stays level; no camera roll, no shake.",
       "measured": {
@@ -115,7 +117,9 @@
         "compare_beat_flag": "A",
         "scale_tolerance": 0.18,
         "pos_tolerance": 0.08
-      }
+      },
+      "reference_image_status": "MISSING — must be produced",
+      "motion_reference": "previz_part2.mp4 --in 0.67 --duration 0.5"
     },
     {
       "id": "B",
@@ -125,7 +129,7 @@
       "generate_seconds": 2,
       "subject": "daruma",
       "prompt_body": "omni11_beat_prompts.md#beat-B",
-      "reference_image": "character_sheet/daruma_front_closeup_camera.png",
+      "reference_image": "character_sheet/daruma_scooter_front.png",
       "action": "The daruma continues riding directly at the viewer, body tilted very slightly forward, hands locked on the handlebar. The printed eyes stay fixed forward and do not blink or change expression.",
       "camera": "The subject fills the frame rapidly until the head and upper body occupy roughly the upper third and the red shell dominates the centre. The background compresses and softens behind it. Framing stays centred and level.",
       "measured": {
@@ -141,7 +145,9 @@
         "compare_beat_flag": "B",
         "scale_tolerance": 0.22,
         "pos_tolerance": 0.1
-      }
+      },
+      "reference_image_status": "MISSING — fallback character_sheet/daruma_standing_front_camera.png",
+      "motion_reference": "previz_part2.mp4 --in 1.17 --duration 0.33"
     },
     {
       "id": "C",
@@ -151,7 +157,7 @@
       "generate_seconds": 2,
       "subject": "daruma",
       "prompt_body": "omni11_beat_prompts.md#beat-E1",
-      "reference_image": "character_sheet/daruma_front_scooter.png",
+      "reference_image": "character_sheet/daruma_scooter_front.png",
       "action": "The daruma rides toward the viewer at a steady pace, holding a constant position in the centre of the frame. The push-off cycle repeats evenly. Hands never leave the handlebar.",
       "camera": "The subject stays centred and the same size throughout, while the building walls slide backwards past the left and right frame edges at a constant rate. This must read as a smooth, continuous move with no acceleration and no shake.",
       "measured": {
@@ -167,7 +173,9 @@
         "compare_beat_flag": "E1",
         "scale_tolerance": 0.1,
         "pos_tolerance": 0.06
-      }
+      },
+      "reference_image_status": "MISSING — must be produced",
+      "motion_reference": "previz_part2.mp4 --in 1.5 --duration 0.5"
     },
     {
       "id": "D",
@@ -177,7 +185,7 @@
       "generate_seconds": 2,
       "subject": "daruma",
       "prompt_body": "omni11_beat_prompts.md#beat-B",
-      "reference_image": "character_sheet/daruma_front_closeup_camera.png",
+      "reference_image": "character_sheet/daruma_scooter_front.png",
       "action": "The daruma continues riding directly at the viewer, body tilted very slightly forward, hands locked on the handlebar. The printed eyes stay fixed forward and do not blink or change expression.",
       "camera": "slow steady push-in rather than a rapid fill",
       "measured": {
@@ -193,7 +201,9 @@
         "compare_beat_flag": "B",
         "scale_tolerance": 0.22,
         "pos_tolerance": 0.1
-      }
+      },
+      "reference_image_status": "MISSING — must be produced",
+      "motion_reference": "previz_part2.mp4 --in 2.0 --duration 0.7"
     },
     {
       "id": "E1",
@@ -203,7 +213,7 @@
       "generate_seconds": 2,
       "subject": "daruma",
       "prompt_body": "omni11_beat_prompts.md#beat-D",
-      "reference_image": "character_sheet/daruma_three_quarter_back_scooter.png",
+      "reference_image": "character_sheet/daruma_scooter_three_quarter_back.png",
       "action": "The daruma is in extreme close-up in the left foreground, seen from behind and slightly above; only the curved red shell, the rucksack straps and the edge of the white head are visible. The shell surface texture stays crisp and does not smear.",
       "camera": "The red shell occupies the left third of the frame in the near foreground and slides slowly toward the left edge, while the street beyond stays sharp and opens up on the right. Parallax is gentle and continuous. The horizon stays level.",
       "measured": {
@@ -221,7 +231,9 @@
         "pos_tolerance": 0.14
       },
       "extra_negative": "no foreground smearing, no ghosting, no texture sliding on the shell, no duplicated limbs",
-      "fallback": "2.5D composite — generate the daruma layer alone on transparent background, animate the plate as a parallax push, composite in the NLE."
+      "fallback": "2.5D composite — generate the daruma layer alone on transparent background, animate the plate as a parallax push, composite in the NLE.",
+      "reference_image_status": "AVAILABLE",
+      "motion_reference": "previz_part2.mp4 --in 2.7 --duration 0.7"
     },
     {
       "id": "E2",
@@ -231,7 +243,7 @@
       "generate_seconds": 2,
       "subject": "daruma",
       "prompt_body": "omni11_beat_prompts.md#beat-E2",
-      "reference_image": "last_frame_of_E1.png",
+      "reference_image": "generated/E1_last_frame.png",
       "action": "The daruma continues riding forward, unchanged.",
       "camera": "The subject shrinks slowly toward the centre of frame as more of the street enters the edges, coming to rest in the far middle distance.",
       "measured": {
@@ -248,7 +260,9 @@
         "scale_tolerance": 0.18,
         "pos_tolerance": 0.08
       },
-      "note": "Chained from E1 via last-frame -> first-frame continuation."
+      "note": "Chained from E1 via last-frame -> first-frame continuation.",
+      "reference_image_status": "DERIVED — requires E1 first",
+      "motion_reference": "previz_part2.mp4 --in 3.4 --duration 1.17"
     },
     {
       "id": "F",
@@ -258,7 +272,7 @@
       "generate_seconds": 2,
       "subject": "daruma",
       "prompt_body": "omni11_beat_prompts.md#beat-C",
-      "reference_image": "character_sheet/daruma_back_rucksack.png",
+      "reference_image": "character_sheet/daruma_scooter_rear.png",
       "action": "The daruma rides away from the viewer down the centre of the street, seen from behind. The brown rucksack and bedroll are the dominant silhouette. The scooter tracks a perfectly straight line.",
       "camera": "the camera is locked off; the subject holds its position and size",
       "measured": {
@@ -274,7 +288,9 @@
         "compare_beat_flag": "C",
         "scale_tolerance": 0.18,
         "pos_tolerance": 0.08
-      }
+      },
+      "reference_image_status": "MISSING — fallback character_sheet/daruma_standing_back.png",
+      "motion_reference": "previz_part2.mp4 --in 4.67 --duration 0.33"
     }
   ],
   "qc": {
@@ -319,5 +335,52 @@
       "invented signage text",
       "printed-face deformation"
     ]
+  },
+  "assets": {
+    "attachment_rule": "exactly one reference image + one trimmed motion-reference clip per generation",
+    "never_attach": [
+      "the full character sheet",
+      "multiple angle images at once",
+      "the street plate as a reference image",
+      "the full 5s previz"
+    ],
+    "missing": [
+      {
+        "id": "daruma_scooter_front",
+        "blocks": [
+          "A3",
+          "B",
+          "C",
+          "D"
+        ],
+        "priority": 1
+      },
+      {
+        "id": "daruma_scooter_rear",
+        "blocks": [
+          "A1_A2",
+          "F"
+        ],
+        "priority": 2
+      }
+    ],
+    "composites_use_as_single_rigid_body": [
+      "lego_female_on_motorcycle",
+      "lego_male_on_motorcycle_with_egg_tart"
+    ],
+    "plate": {
+      "goes_in": "prompt Environment block, never the reference-image slot",
+      "pick_one_master_plate": true,
+      "signage": "crop signage regions from the master plate to transparent PNG and comp back in post"
+    },
+    "image_spec": {
+      "format": "PNG",
+      "min_short_edge": 1024,
+      "background": "transparent or neutral grey",
+      "subject_frame_coverage": "60-80% with margin on all sides",
+      "lighting": "top diffuse, matched to the plate",
+      "single_subject": true
+    },
+    "doc": "docs/asset_attachment_list.md"
   }
 }
