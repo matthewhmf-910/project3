@@ -1,0 +1,143 @@
+{
+  "project": "Project Macau — Omni 1.1 rig-fidelity shot contract",
+  "version": "1.0",
+  "source_previz": {
+    "file": "Still5_to_10s_Project_Macau_Motion_Reference_Part_2",
+    "duration_s": 5.0,
+    "resolution": "540x960",
+    "aspect": "9:16",
+    "fps": 30,
+    "type": "low-poly greybox previz"
+  },
+
+  "model_constraints": {
+    "single_continuous_shot_per_generation": true,
+    "max_clip_seconds": 3,
+    "camera_specified_as_result_not_as_rig": true,
+    "identity_drift_mitigation": "one reference image per beat, re-fed every generation",
+    "text_generation_unreliable": true,
+    "multi_subject_unstable": true,
+    "previz_style_bleed_risk": "high",
+    "note": "H2 / H4 / H9 numeric limits must be re-checked against the actual Omni 1.1 tier in use."
+  },
+
+  "output": {
+    "aspect": "9:16",
+    "fps": 30,
+    "target_resolution": "720p then upscale + grain match to plate"
+  },
+
+  "locks": {
+    "subject_lock": {
+      "daruma": "The subject is the red daruma traveler from the reference image: a single egg-shaped red body with a matte ceramic surface and fine crackle texture, gold floral motif on the lower body, large printed cartoon eyes with thick black brows, short stubby limbs, brown leather rucksack with bedroll on the back, vintage camera on a strap, dark canvas sneakers. Proportions, colours and every strap position are identical to the reference and never change.",
+      "lego": "The subject is the LEGO minifigure from the reference image: injection-moulded ABS plastic, yellow cylindrical head with a flat printed face, black torso with moulded arm sockets, C-clip claw hands, solid one-piece legs, moulded hair piece. Plastic seams, sprue marks and surface sheen are identical to the reference and never change."
+    },
+    "rigidity_block": {
+      "daruma": "The body is a single rigid ovoid shell. It does not bend, squash, stretch, breathe or twist at the waist — it has no waist. All motion comes from whole-body tilt about the base and from the short limbs. The head is fused to the body and cannot rotate independently. Do not add a neck, a torso, shoulders, articulated fingers or a human silhouette.",
+      "lego": "The figure is rigid moulded plastic with exactly six points of articulation: neck, two shoulders, two hips, and wrists that rotate only. Limbs are straight cylinders and do not bend at elbow or knee. The face is a flat printed decal that never deforms. Do not add cloth folds, skin, muscle deformation or human-like weight shift."
+    },
+    "environment_lock": "A narrow Macau old-town street exactly as in the plate — colonial shophouse facades in cream, ochre, sage and pale blue, green iron railings, a wrought-iron street lamp, red-and-white crowd barriers and a dark mesh gate across the far end, patterned paving with yellow grid markings. The street is completely empty: no pedestrians, no traffic, no crowd. Barriers, scaffolding, sandbags and all street furniture remain perfectly static.",
+    "light_palette_lock": "Overcast diffuse daylight from the upper frame, soft contact shadows, no hard sun. Warm desaturated pastel palette — cream, ochre, sage, muted teal — unchanged from first to last frame.",
+    "style": "Photoreal miniature-diorama render, shallow tilt-shift depth of field with the subject sharp, physically based materials, 9:16 vertical, 30fps.",
+    "negative": "no untextured grey blockout, no low-poly faceting, no previz look, no legible signage text, no speed lines, no motion streaks, no lens flare, no added vignette, no film grain overlay, no extra characters, no crowd, no camera roll, no morphing of the body shape, no human proportions, no neck, no articulated fingers, no cloth folds, no blinking, no facial expression change, no colour temperature shift, no cuts, no transitions, no text overlay"
+  },
+
+  "shots": [
+    {
+      "id": "A",
+      "previz_in": 0.0,
+      "previz_out": 0.85,
+      "generate_seconds": 2,
+      "subject": "daruma",
+      "reference_image": "character_sheet/daruma_front_scooter.png",
+      "action": "The daruma rides a black kick scooter straight down the centre of the street toward the viewer at a steady walking pace, one foot planted on the deck, the other pushing off the ground in a slow repeating cycle. Both hands stay gripping the handlebar and never leave it. The rucksack sways only slightly with each push.",
+      "camera": "The subject starts small in the middle distance and grows steadily larger, staying on the centre line of the street. The building walls converge to a vanishing point directly behind the subject. The ground line sits low in frame. The horizon stays level; no camera roll, no shake.",
+      "risk": "low"
+    },
+    {
+      "id": "B",
+      "previz_in": 0.85,
+      "previz_out": 1.5,
+      "generate_seconds": 2,
+      "subject": "daruma",
+      "reference_image": "character_sheet/daruma_front_closeup_camera.png",
+      "action": "The daruma continues riding directly at the viewer, body tilted very slightly forward, hands locked on the handlebar. The printed eyes stay fixed forward and do not blink or change expression.",
+      "camera": "The subject fills the frame rapidly until the head and upper body occupy roughly the upper third and the red shell dominates the centre. The background compresses and softens behind it. Framing stays centred and level.",
+      "risk": "medium"
+    },
+    {
+      "id": "C",
+      "previz_in": 1.5,
+      "previz_out": 2.2,
+      "generate_seconds": 2,
+      "subject": "daruma",
+      "reference_image": "character_sheet/daruma_back_rucksack.png",
+      "action": "The daruma rides away from the viewer down the centre of the street, seen from behind. The brown rucksack and bedroll are the dominant silhouette. The scooter tracks a perfectly straight line.",
+      "camera": "The subject shrinks steadily toward the vanishing point as more street enters the frame edges. The walls stay parallel to frame edges. No roll.",
+      "risk": "low"
+    },
+    {
+      "id": "D",
+      "previz_in": 2.2,
+      "previz_out": 2.85,
+      "generate_seconds": 2,
+      "subject": "daruma",
+      "reference_image": "character_sheet/daruma_three_quarter_back_scooter.png",
+      "action": "The daruma is in extreme close-up in the left foreground, seen from behind and slightly above; only the curved red shell, the rucksack straps and the edge of the white head are visible. The shell surface texture stays crisp and does not smear.",
+      "camera": "The red shell occupies the left third of the frame in the near foreground and slides slowly toward the left edge, while the street beyond stays sharp and opens up on the right. Parallax is gentle and continuous. The horizon stays level.",
+      "extra_negative": "no foreground smearing, no ghosting, no texture sliding on the shell, no duplicated limbs",
+      "risk": "high",
+      "fallback": "2.5D composite — generate the daruma layer alone on transparent background, animate the plate as a parallax push, composite in the NLE."
+    },
+    {
+      "id": "E1",
+      "previz_in": 2.85,
+      "previz_out": 4.0,
+      "generate_seconds": 2,
+      "subject": "daruma",
+      "reference_image": "character_sheet/daruma_front_scooter.png",
+      "action": "The daruma rides toward the viewer at a steady pace, holding a constant position in the centre of the frame. The push-off cycle repeats evenly. Hands never leave the handlebar.",
+      "camera": "The subject stays centred and the same size throughout, while the building walls slide backwards past the left and right frame edges at a constant rate. This must read as a smooth, continuous move with no acceleration and no shake.",
+      "risk": "medium"
+    },
+    {
+      "id": "E2",
+      "previz_in": 4.0,
+      "previz_out": 5.0,
+      "generate_seconds": 2,
+      "subject": "daruma",
+      "reference_image": "last_frame_of_E1.png",
+      "action": "The daruma continues riding forward, unchanged.",
+      "camera": "The subject shrinks slowly toward the centre of frame as more of the street enters the edges, coming to rest in the far middle distance.",
+      "risk": "medium",
+      "note": "Chained from E1 via last-frame → first-frame continuation."
+    }
+  ],
+
+  "qc": {
+    "fidelity": [
+      "silhouette matches reference, no gain/loss of mass",
+      "daruma has no neck, shoulders or human silhouette",
+      "lego hands remain C-clip claws",
+      "printed face does not deform, blink or emote",
+      "both hands gripping handlebar for the full clip",
+      "rucksack, camera and strap positions unchanged"
+    ],
+    "style": [
+      "no greybox / low-poly residue",
+      "colour temperature matches plate, first frame vs last frame",
+      "no lens flare, vignette or grain overlay",
+      "no invented signage text"
+    ],
+    "motion": [
+      "duration matches previz timecode within 2 frames",
+      "on-screen subject scale curve matches previz",
+      "horizon level, no roll, no shake",
+      "static props fully static"
+    ],
+    "technical": [
+      "9:16, 30fps, no dropped frames",
+      "first/last frame joins cleanly to adjacent beat"
+    ]
+  }
+}
