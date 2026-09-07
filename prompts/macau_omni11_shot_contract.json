@@ -1,6 +1,6 @@
 {
   "project": "Project Macau — Omni 1.1 rig-fidelity shot contract",
-  "version": "1.1",
+  "version": "1.2",
   "source_previz": {
     "file": "Still5_to_10s_Project_Macau_Motion_Reference_Part_2",
     "duration_s": 5.0,
@@ -38,6 +38,7 @@
     "target_resolution": "720p then upscale + grain match to plate"
   },
   "locks": {
+    "motion_blueprint": "Motion blueprint: the attached driving video is a greybox previz and is the authority on MOTION ONLY. Follow it exactly for timing, trajectory and framing — the subject's speed and rhythm, the instant it enters and leaves frame, how large it sits in frame at every moment, its path across the frame, and the direction of travel. Take NOTHING of its appearance: its untextured grey surfaces, flat shading, low-polygon faceting, placeholder proportions and empty blockout environment must not reach the output. All appearance — shape, materials, colour, texture, costume, proportions and environment — comes solely from the reference image and the description below. Where the blueprint and the reference image disagree, motion follows the blueprint and appearance follows the reference image.",
     "subject_lock": {
       "daruma": "The subject is the red daruma traveler from the reference image: a single egg-shaped red body with a matte ceramic surface and fine crackle texture, gold floral motif on the lower body, large printed cartoon eyes with thick black brows, short stubby limbs, brown leather rucksack with bedroll on the back, vintage camera on a strap, dark canvas sneakers. Proportions, colours and every strap position are identical to the reference and never change.",
       "lego": "The subject is the LEGO minifigure from the reference image: injection-moulded ABS plastic, yellow cylindrical head with a flat printed face, black torso with moulded arm sockets, C-clip claw hands, solid one-piece legs, moulded hair piece. Plastic seams, sprue marks and surface sheen are identical to the reference and never change."
@@ -49,7 +50,19 @@
     "environment_lock": "A narrow Macau old-town street exactly as in the plate — colonial shophouse facades in cream, ochre, sage and pale blue, green iron railings, a wrought-iron street lamp, red-and-white crowd barriers and a dark mesh gate across the far end, patterned paving with yellow grid markings. The street is completely empty: no pedestrians, no traffic, no crowd. Barriers, scaffolding, sandbags and all street furniture remain perfectly static.",
     "light_palette_lock": "Overcast diffuse daylight from the upper frame, soft contact shadows, no hard sun. Warm desaturated pastel palette — cream, ochre, sage, muted teal — unchanged from first to last frame.",
     "style": "Photoreal miniature-diorama render, shallow tilt-shift depth of field with the subject sharp, physically based materials, 9:16 vertical, 30fps.",
-    "negative": "no untextured grey blockout, no low-poly faceting, no previz look, no legible signage text, no speed lines, no motion streaks, no lens flare, no added vignette, no film grain overlay, no extra characters, no crowd, no camera roll, no morphing of the body shape, no human proportions, no neck, no articulated fingers, no cloth folds, no blinking, no facial expression change, no colour temperature shift, no cuts, no transitions, no text overlay"
+    "negative": "no untextured grey blockout, no low-poly faceting, no previz look, no legible signage text, no speed lines, no motion streaks, no lens flare, no added vignette, no film grain overlay, no extra characters, no crowd, no camera roll, no morphing of the body shape, no human proportions, no neck, no articulated fingers, no cloth folds, no blinking, no facial expression change, no colour temperature shift, no cuts, no transitions, no text overlay",
+    "_block_order": [
+      "shot type + duration",
+      "subject_lock",
+      "rigidity_block",
+      "motion_blueprint",
+      "action",
+      "camera",
+      "environment_lock",
+      "light_palette_lock",
+      "style",
+      "negative"
+    ]
   },
   "shots": [
     {

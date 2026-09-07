@@ -3,6 +3,11 @@
 每個 beat 一個獨立生成。**整段複製貼上，不要刪減 Rigidity / Negative 段。**
 配套：`macau_omni11_shot_contract.json`（機器可讀版）、`../docs/macau_omni11_rig_fidelity_prompt_system.md`（原理與限制表）
 
+> **本檔是「prompt 本體」庫，不是分鏡表。**
+> 哪一段 prompt 用在 previz 的哪個時間碼、生成多長、取用多長，
+> 一律看 [`../docs/previz_measured_beatmap.md`](../docs/previz_measured_beatmap.md) 的實測 beat map。
+> 舊標題上的目測時間碼已移除，因為實測顯示那些剪接點不成立。
+
 ---
 
 ## 0. 每次生成前的設定（Omni 1.1 面板）
@@ -20,9 +25,8 @@
 
 ---
 
-## BEAT A — 接近（previz 0.00–0.85s）
+## PROMPT BODY A — 接近（推近）
 **Reference image：** Daruma 正面・騎滑板車
-**生成 2s，取用前 0.85s**
 
 ```
 A 2-second continuous shot, no cuts.
@@ -39,6 +43,18 @@ breathe or twist at the waist — it has no waist. All motion comes from
 whole-body tilt about the base and from the short limbs. The head is fused to
 the body and cannot rotate independently. Do not add a neck, a torso,
 shoulders, articulated fingers or a human silhouette.
+
+Motion blueprint: the attached driving video is a greybox previz and is the
+authority on MOTION ONLY. Follow it exactly for timing, trajectory and
+framing — the subject's speed and rhythm, the instant it enters and leaves
+frame, how large it sits in frame at every moment, its path across the frame,
+and the direction of travel. Take NOTHING of its appearance: its untextured
+grey surfaces, flat shading, low-polygon faceting, placeholder proportions and
+empty blockout environment must not reach the output. All appearance — shape,
+materials, colour, texture, costume, proportions and environment — comes
+solely from the reference image and the description below. Where the blueprint
+and the reference image disagree, motion follows the blueprint and appearance
+follows the reference image.
 
 Action: the daruma rides a black kick scooter straight down the centre of the
 street toward the viewer at a steady walking pace, one foot planted on the
@@ -75,9 +91,8 @@ change, no colour temperature shift, no cuts, no transitions, no text overlay.
 
 ---
 
-## BEAT B — 逼近特寫（previz 0.85–1.50s）
+## PROMPT BODY B — 逼近特寫（快速推近）
 **Reference image：** Daruma 正面近景・相機掛胸
-**生成 2s，取用 0.65s**
 
 ```
 A 2-second continuous shot, no cuts.
@@ -94,6 +109,18 @@ breathe or twist at the waist — it has no waist. All motion comes from
 whole-body tilt about the base and from the short limbs. The head is fused to
 the body and cannot rotate independently. Do not add a neck, a torso,
 shoulders, articulated fingers or a human silhouette.
+
+Motion blueprint: the attached driving video is a greybox previz and is the
+authority on MOTION ONLY. Follow it exactly for timing, trajectory and
+framing — the subject's speed and rhythm, the instant it enters and leaves
+frame, how large it sits in frame at every moment, its path across the frame,
+and the direction of travel. Take NOTHING of its appearance: its untextured
+grey surfaces, flat shading, low-polygon faceting, placeholder proportions and
+empty blockout environment must not reach the output. All appearance — shape,
+materials, colour, texture, costume, proportions and environment — comes
+solely from the reference image and the description below. Where the blueprint
+and the reference image disagree, motion follows the blueprint and appearance
+follows the reference image.
 
 Action: the daruma rides directly at the viewer, body tilted very slightly
 forward, both hands locked on the handlebar and never leaving it. The printed
@@ -130,9 +157,8 @@ no face enlargement, no head detaching from body.
 
 ---
 
-## BEAT C — 背向遠離（previz 1.50–2.20s）
+## PROMPT BODY C — 背向遠離（拉遠）
 **Reference image：** Daruma 背面・背包全見
-**生成 2s，取用 0.70s**
 
 ```
 A 2-second continuous shot, no cuts.
@@ -149,6 +175,18 @@ breathe or twist at the waist — it has no waist. All motion comes from
 whole-body tilt about the base and from the short limbs. The head is fused to
 the body and cannot rotate independently. Do not add a neck, a torso,
 shoulders, articulated fingers or a human silhouette.
+
+Motion blueprint: the attached driving video is a greybox previz and is the
+authority on MOTION ONLY. Follow it exactly for timing, trajectory and
+framing — the subject's speed and rhythm, the instant it enters and leaves
+frame, how large it sits in frame at every moment, its path across the frame,
+and the direction of travel. Take NOTHING of its appearance: its untextured
+grey surfaces, flat shading, low-polygon faceting, placeholder proportions and
+empty blockout environment must not reach the output. All appearance — shape,
+materials, colour, texture, costume, proportions and environment — comes
+solely from the reference image and the description below. Where the blueprint
+and the reference image disagree, motion follows the blueprint and appearance
+follows the reference image.
 
 Action: the daruma rides away from the viewer down the centre of the street,
 seen from directly behind. The brown rucksack and bedroll are the dominant
@@ -185,9 +223,8 @@ behind, no strap drifting.
 
 ---
 
-## BEAT D — 越肩極近景（previz 2.20–2.85s）⚠️ 高風險
+## PROMPT BODY D — 越肩極近景 / 由左入畫 ⚠️ 高風險
 **Reference image：** Daruma 3/4 背側・騎滑板車（你提供的第 5 張）
-**生成 2s，取用 0.65s**
 **建議：先跑一輪單次生成；若崩則直接改走底下的 2.5D 方案。**
 
 ```
@@ -204,6 +241,18 @@ breathe or twist — it has no waist. The head is fused to the body. Do not add
 a neck, shoulders, articulated fingers or a human silhouette. The shell
 surface texture is painted on and moves rigidly with the shell; it must not
 slide, smear or crawl across the surface.
+
+Motion blueprint: the attached driving video is a greybox previz and is the
+authority on MOTION ONLY. Follow it exactly for timing, trajectory and
+framing — the subject's speed and rhythm, the instant it enters and leaves
+frame, how large it sits in frame at every moment, its path across the frame,
+and the direction of travel. Take NOTHING of its appearance: its untextured
+grey surfaces, flat shading, low-polygon faceting, placeholder proportions and
+empty blockout environment must not reach the output. All appearance — shape,
+materials, colour, texture, costume, proportions and environment — comes
+solely from the reference image and the description below. Where the blueprint
+and the reference image disagree, motion follows the blueprint and appearance
+follows the reference image.
 
 Action: only the curved red shell, the rucksack straps and the right edge of
 the white head are visible in the near foreground. The daruma continues
@@ -246,9 +295,8 @@ no cuts, no transitions, no text overlay.
 
 ---
 
-## BEAT E1 — 前導追蹤（previz 2.85–4.00s）
+## PROMPT BODY E1 — 前導追蹤（等距）
 **Reference image：** 與 Beat A **同一張**（維持 identity 連續）
-**生成 2s，取用 1.15s**
 
 ```
 A 2-second continuous shot, no cuts.
@@ -265,6 +313,18 @@ breathe or twist at the waist — it has no waist. All motion comes from
 whole-body tilt about the base and from the short limbs. The head is fused to
 the body and cannot rotate independently. Do not add a neck, a torso,
 shoulders, articulated fingers or a human silhouette.
+
+Motion blueprint: the attached driving video is a greybox previz and is the
+authority on MOTION ONLY. Follow it exactly for timing, trajectory and
+framing — the subject's speed and rhythm, the instant it enters and leaves
+frame, how large it sits in frame at every moment, its path across the frame,
+and the direction of travel. Take NOTHING of its appearance: its untextured
+grey surfaces, flat shading, low-polygon faceting, placeholder proportions and
+empty blockout environment must not reach the output. All appearance — shape,
+materials, colour, texture, costume, proportions and environment — comes
+solely from the reference image and the description below. Where the blueprint
+and the reference image disagree, motion follows the blueprint and appearance
+follows the reference image.
 
 Action: the daruma rides toward the viewer at a steady pace, holding a
 constant position in the centre of the frame. The push-off cycle repeats
@@ -301,9 +361,8 @@ transitions, no text overlay.
 
 ---
 
-## BEAT E2 — 拉遠收尾（previz 4.00–5.00s）
+## PROMPT BODY E2 — 拉遠收尾
 **Reference image：** **E1 的最後一幀**（last-frame → first-frame 續接）
-**生成 2s，取用 1.00s**
 
 ```
 A 2-second continuous shot, no cuts, continuing seamlessly from the reference
@@ -319,6 +378,18 @@ The body is a single rigid ovoid shell. It does not bend, squash, stretch,
 breathe or twist at the waist — it has no waist. The head is fused to the
 body. Do not add a neck, shoulders, articulated fingers or a human
 silhouette.
+
+Motion blueprint: the attached driving video is a greybox previz and is the
+authority on MOTION ONLY. Follow it exactly for timing, trajectory and
+framing — the subject's speed and rhythm, the instant it enters and leaves
+frame, how large it sits in frame at every moment, its path across the frame,
+and the direction of travel. Take NOTHING of its appearance: its untextured
+grey surfaces, flat shading, low-polygon faceting, placeholder proportions and
+empty blockout environment must not reach the output. All appearance — shape,
+materials, colour, texture, costume, proportions and environment — comes
+solely from the reference image and the description below. Where the blueprint
+and the reference image disagree, motion follows the blueprint and appearance
+follows the reference image.
 
 Action: the daruma continues riding forward, unchanged, the push-off cycle
 carrying on at the same rhythm. Both hands stay on the handlebar.
@@ -378,6 +449,18 @@ straight cylinders and do not bend at elbow or knee. The face is a flat
 printed decal that never deforms, blinks or emotes. The rider, the motorcycle
 and the egg tart move together as one locked assembly. Do not add cloth
 folds, skin, muscle deformation or human-like weight shift.
+
+Motion blueprint: the attached driving video is a greybox previz and is the
+authority on MOTION ONLY. Follow it exactly for timing, trajectory and
+framing — the subject's speed and rhythm, the instant it enters and leaves
+frame, how large it sits in frame at every moment, its path across the frame,
+and the direction of travel. Take NOTHING of its appearance: its untextured
+grey surfaces, flat shading, low-polygon faceting, placeholder proportions and
+empty blockout environment must not reach the output. All appearance — shape,
+materials, colour, texture, costume, proportions and environment — comes
+solely from the reference image and the description below. Where the blueprint
+and the reference image disagree, motion follows the blueprint and appearance
+follows the reference image.
 
 Action: the rider and motorcycle travel straight down the centre of the
 street toward the viewer at a steady pace. Only the wheels rotate. The egg

@@ -1,7 +1,7 @@
 # Project Macau — Omni 1.1 Rig Animation 高保真還原系統
 ### 把「模型生成限制」寫進 video prompt 的建構規範
 
-版本：v1.0
+版本：v1.2
 適用素材：Macau 街景 plate、Daruma 主角（紅色達摩背包客）、LEGO 雙人 + 摩托車、蛋撻、竹棚 / 圍欄 / 沙包等道具
 Motion reference：`Still5_to_10s_Project_Macau_Motion_Reference_Part_2`（5.00s / 540×960 / 9:16 / 30fps / greybox previz）
 
@@ -80,7 +80,7 @@ Omni 1.1（以及同代所有 image/reference-to-video 模型）**沒有 rig，�
 
 ---
 
-## 3. Prompt 建構模板（限制感知型九段式）
+## 3. Prompt 建構模板（限制感知型十段式）
 
 每一個 beat 的 prompt 都用同一個骨架。**順序不能調**——前段權重高，把不可妥協的東西放前面。
 
@@ -88,13 +88,32 @@ Omni 1.1（以及同代所有 image/reference-to-video 模型）**沒有 rig，�
 [1] SHOT TYPE + DURATION
 [2] SUBJECT LOCK        ← identity，引用 reference 圖
 [3] RIGIDITY BLOCK      ← 對抗 H7 人形先驗（本專案最關鍵）
-[4] ACTION              ← 只描述 previz 的單一動作
-[5] CAMERA AS RESULT    ← 對抗 H3，寫結果不寫機位
-[6] ENVIRONMENT LOCK    ← plate 一致性
-[7] LIGHT + PALETTE LOCK
-[8] RENDER STYLE
-[9] NEGATIVE
+[4] MOTION BLUEPRINT    ← 明講 reference video 的角色：跟動作、不跟外觀
+[5] ACTION              ← 只描述 previz 的單一動作
+[6] CAMERA AS RESULT    ← 對抗 H3，寫結果不寫機位
+[7] ENVIRONMENT LOCK    ← plate 一致性
+[8] LIGHT + PALETTE LOCK
+[9] RENDER STYLE
+[10] NEGATIVE
 ```
+
+### 為什麼一定要有 [4] MOTION BLUEPRINT
+
+把 previz 塞進面板的 motion reference 欄位，**只是把訊號接上去，沒有告訴模型怎麼用它**。
+模型收到的是一段灰白低多邊形影片，它不知道那是「動作藍圖」還是「風格參考」——
+預設兩者都吃，於是灰白質感就滲進成品（H10）。
+
+更糟的是：如果 negative 只寫 `no previz look`，等於一邊餵它一邊否定它，
+模型收到的是矛盾訊號，可能連動作一起丟掉。
+
+正確做法是**明確切開兩個來源**：
+
+| 來源 | 負責 | 
+|---|---|
+| Reference **video**（面板 motion 欄位） | 時序、軌跡、構圖大小、進出畫時機、運動方向 |
+| Reference **image**（面板 image 欄位） | 造型、材質、顏色、比例、服裝、場景 |
+
+並且要寫明衝突時誰贏：`motion follows the blueprint, appearance follows the reference image`。
 
 ### 3.1 Subject Lock（逐角色固定文本，複製貼上不要改字）
 
@@ -149,124 +168,15 @@ human-like weight shift.
 
 ---
 
-## 4. 五個 Beat 的成品 Prompt
+## 4. 成品 Prompt
 
-> 每段獨立生成。Reference image 用途已標明。生成後在 NLE 依 §1 時間碼剪接。
+> **已移出本檔，避免兩份文件漂移。**
+> Prompt 本體（含 [4] MOTION BLUEPRINT 段）：[`../prompts/omni11_beat_prompts.md`](../prompts/omni11_beat_prompts.md)
+> 哪一段用在哪個時間碼：[`previz_measured_beatmap.md`](previz_measured_beatmap.md)
+> 機器可讀版：[`../prompts/macau_omni11_shot_contract.json`](../prompts/macau_omni11_shot_contract.json)
 
-### Beat A — 接近（0.00–0.85s，生成 2s 取用 0.85s）
-
-```
-A 2-second continuous shot, no cuts.
-
-The subject is the red daruma traveler from the reference image: a single
-egg-shaped red body with a matte ceramic surface and fine crackle texture,
-gold floral motif on the lower body, large printed cartoon eyes with thick
-black brows, brown leather rucksack with bedroll on the back, vintage camera
-on a strap, dark canvas sneakers. Proportions, colours and every strap
-position are identical to the reference and never change.
-
-The body is a single rigid ovoid shell. It does not bend, squash, stretch,
-breathe or twist at the waist — it has no waist. All motion comes from whole-
-body tilt about the base and from the short limbs. The head is fused to the
-body and cannot rotate independently. Do not add a neck, shoulders,
-articulated fingers or a human silhouette.
-
-Action: the daruma rides a black kick scooter straight down the centre of the
-street toward the viewer at a steady walking pace, one foot planted on the
-deck, the other pushing off the ground in a slow repeating cycle. Both hands
-stay gripping the handlebar and never leave it. The rucksack sways only
-slightly with each push.
-
-Camera: the subject starts small in the middle distance and grows steadily
-larger, staying on the centre line of the street. The building walls converge
-to a vanishing point directly behind the subject. The ground line sits low in
-frame. The horizon stays level; no camera roll, no shake.
-
-Environment: a narrow Macau old-town street exactly as in the plate — colonial
-shophouse facades in cream, ochre, sage and pale blue, green iron railings,
-a wrought-iron street lamp, red-and-white crowd barriers and a dark mesh gate
-across the far end, patterned paving with yellow grid markings. The street is
-completely empty: no pedestrians, no traffic, no crowd. Barriers, scaffolding,
-sandbags and all street furniture remain perfectly static.
-
-Light: overcast diffuse daylight from the upper frame, soft contact shadows
-under the scooter and body, no hard sun. Warm desaturated pastel palette —
-cream, ochre, sage, muted teal — unchanged from first to last frame.
-
-Style: photoreal miniature-diorama render, shallow tilt-shift depth of field
-with the subject sharp, physically based materials, 9:16 vertical, 30fps.
-
-Negative: no untextured grey blockout, no low-poly faceting, no previz look,
-no legible signage text, no speed lines, no motion streaks, no lens flare,
-no added vignette, no film grain overlay, no extra characters, no crowd,
-no camera roll, no morphing of the body shape, no human proportions, no neck,
-no articulated fingers, no cloth folds, no blinking, no facial expression
-change, no colour temperature shift, no cuts, no transitions, no text overlay.
-```
-
-### Beat B — 逼近特寫（0.85–1.50s，生成 2s）
-
-同上，**只改 Action 與 Camera 兩段**：
-
-```
-Action: the daruma continues riding directly at the viewer, body tilted very
-slightly forward, hands locked on the handlebar. The printed eyes stay fixed
-forward and do not blink or change expression.
-
-Camera: the subject fills the frame rapidly until the head and upper body
-occupy roughly the upper third and the red shell dominates the centre. The
-background compresses and softens behind it. Framing stays centred and level.
-```
-
-### Beat C — 遠離（1.50–2.20s，生成 2s）
-
-```
-Action: the daruma rides away from the viewer down the centre of the street,
-seen from behind. The brown rucksack and bedroll are the dominant silhouette.
-The scooter tracks a perfectly straight line.
-
-Camera: the subject shrinks steadily toward the vanishing point as more street
-enters the frame edges. The walls stay parallel to frame edges. No roll.
-```
-
-### Beat D — 越肩極近景（2.20–2.85s，生成 2s）⚠️ 高風險
-
-> 這一鏡最容易崩（前景剛體 + 大位移 + 背景視差）。建議**兩層合成**：前景 daruma 單獨生成走綠幕/透明底，背景 plate 做 2.5D 推鏡，後期合成。若堅持單次生成，用下列 prompt：
-
-```
-Action: the daruma is in extreme close-up in the left foreground, seen from
-behind and slightly above; only the curved red shell, the rucksack straps and
-the edge of the white head are visible. The shell surface texture stays crisp
-and does not smear.
-
-Camera: the red shell occupies the left third of the frame in the near
-foreground and slides slowly toward the left edge, while the street beyond
-stays sharp and opens up on the right. Parallax is gentle and continuous.
-The horizon stays level.
-```
-額外 negative 追加：`no foreground smearing, no ghosting, no texture sliding on the shell, no duplicated limbs`
-
-### Beat E — 前導追蹤長鏡（2.85–5.00s）→ **拆成 E1 / E2**
-
-E1（2.85–4.00s）：
-```
-Action: the daruma rides toward the viewer at a steady pace, holding a
-constant position in the centre of the frame. The push-off cycle repeats
-evenly. Hands never leave the handlebar.
-
-Camera: the subject stays centred and the same size throughout, while the
-building walls slide backwards past the left and right frame edges at a
-constant rate. This must read as a smooth, continuous move with no
-acceleration and no shake.
-```
-
-E2（4.00–5.00s，用 E1 末幀作 first-frame 續接）：
-```
-Action: the daruma continues riding forward, unchanged.
-
-Camera: the subject shrinks slowly toward the centre of frame as more of the
-street enters the edges, coming to rest in the far middle distance.
-```
+七個 prompt body：**A** 推近 / **B** 快速推近特寫 / **C** 拉遠 / **D** 越肩入畫（高風險，附 2.5D fallback）
+/ **E1** 等距追蹤 / **E2** 拉遠收尾 / **附錄** LEGO 騎士＋機車＋蛋撻合成剛體。
 
 ---
 
