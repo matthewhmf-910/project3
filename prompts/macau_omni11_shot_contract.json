@@ -1,6 +1,6 @@
 {
   "project": "Project Macau — Omni 1.1 rig-fidelity shot contract",
-  "version": "1.3",
+  "version": "2.0",
   "source_previz": {
     "file": "Still5_to_10s_Project_Macau_Motion_Reference_Part_2",
     "duration_s": 5.0,
@@ -73,7 +73,7 @@
       "generate_seconds": 2,
       "subject": "daruma",
       "prompt_body": "omni11_beat_prompts.md#beat-C",
-      "reference_image": "character_sheet/daruma_scooter_rear.png",
+      "reference_image": "assets/prepped/daruma_standing_back_rucksack.png",
       "action": "The daruma rides away from the viewer down the centre of the street, seen from behind. The brown rucksack and bedroll are the dominant silhouette. The scooter tracks a perfectly straight line.",
       "camera": "The subject shrinks steadily toward the vanishing point as more street enters the frame edges. The walls stay parallel to frame edges. No roll.",
       "measured": {
@@ -90,7 +90,7 @@
         "scale_tolerance": 0.18,
         "pos_tolerance": 0.08
       },
-      "reference_image_status": "MISSING — fallback character_sheet/daruma_standing_back.png",
+      "reference_image_status": "AVAILABLE",
       "motion_reference": "previz_part2.mp4 --in 0.0 --duration 0.67"
     },
     {
@@ -101,7 +101,7 @@
       "generate_seconds": 2,
       "subject": "daruma",
       "prompt_body": "omni11_beat_prompts.md#beat-A",
-      "reference_image": "character_sheet/daruma_scooter_front.png",
+      "reference_image": "assets/prepped/daruma_standing_front_camera.png",
       "action": "The daruma rides a black kick scooter straight down the centre of the street toward the viewer at a steady walking pace, one foot planted on the deck, the other pushing off the ground in a slow repeating cycle. Both hands stay gripping the handlebar and never leave it. The rucksack sways only slightly with each push.",
       "camera": "The subject starts small in the middle distance and grows steadily larger, staying on the centre line of the street. The building walls converge to a vanishing point directly behind the subject. The ground line sits low in frame. The horizon stays level; no camera roll, no shake.",
       "measured": {
@@ -118,7 +118,7 @@
         "scale_tolerance": 0.18,
         "pos_tolerance": 0.08
       },
-      "reference_image_status": "MISSING — must be produced",
+      "reference_image_status": "AVAILABLE",
       "motion_reference": "previz_part2.mp4 --in 0.67 --duration 0.5"
     },
     {
@@ -129,7 +129,7 @@
       "generate_seconds": 2,
       "subject": "daruma",
       "prompt_body": "omni11_beat_prompts.md#beat-B",
-      "reference_image": "character_sheet/daruma_scooter_front.png",
+      "reference_image": "assets/prepped/daruma_standing_front_camera.png",
       "action": "The daruma continues riding directly at the viewer, body tilted very slightly forward, hands locked on the handlebar. The printed eyes stay fixed forward and do not blink or change expression.",
       "camera": "The subject fills the frame rapidly until the head and upper body occupy roughly the upper third and the red shell dominates the centre. The background compresses and softens behind it. Framing stays centred and level.",
       "measured": {
@@ -146,7 +146,7 @@
         "scale_tolerance": 0.22,
         "pos_tolerance": 0.1
       },
-      "reference_image_status": "MISSING — fallback character_sheet/daruma_standing_front_camera.png",
+      "reference_image_status": "AVAILABLE",
       "motion_reference": "previz_part2.mp4 --in 1.17 --duration 0.33"
     },
     {
@@ -157,7 +157,7 @@
       "generate_seconds": 2,
       "subject": "daruma",
       "prompt_body": "omni11_beat_prompts.md#beat-E1",
-      "reference_image": "character_sheet/daruma_scooter_front.png",
+      "reference_image": "assets/prepped/daruma_standing_back_rucksack.png",
       "action": "The daruma rides toward the viewer at a steady pace, holding a constant position in the centre of the frame. The push-off cycle repeats evenly. Hands never leave the handlebar.",
       "camera": "The subject stays centred and the same size throughout, while the building walls slide backwards past the left and right frame edges at a constant rate. This must read as a smooth, continuous move with no acceleration and no shake.",
       "measured": {
@@ -174,8 +174,9 @@
         "scale_tolerance": 0.1,
         "pos_tolerance": 0.06
       },
-      "reference_image_status": "MISSING — must be produced",
-      "motion_reference": "previz_part2.mp4 --in 1.5 --duration 0.5"
+      "reference_image_status": "AVAILABLE",
+      "motion_reference": "previz_part2.mp4 --in 1.5 --duration 0.5",
+      "orientation_confidence": "medium — subject small; confirm front vs back against the original previz"
     },
     {
       "id": "D",
@@ -185,7 +186,7 @@
       "generate_seconds": 2,
       "subject": "daruma",
       "prompt_body": "omni11_beat_prompts.md#beat-B",
-      "reference_image": "character_sheet/daruma_scooter_front.png",
+      "reference_image": "assets/prepped/daruma_standing_back_rucksack.png",
       "action": "The daruma continues riding directly at the viewer, body tilted very slightly forward, hands locked on the handlebar. The printed eyes stay fixed forward and do not blink or change expression.",
       "camera": "slow steady push-in rather than a rapid fill",
       "measured": {
@@ -202,7 +203,7 @@
         "scale_tolerance": 0.22,
         "pos_tolerance": 0.1
       },
-      "reference_image_status": "MISSING — must be produced",
+      "reference_image_status": "AVAILABLE",
       "motion_reference": "previz_part2.mp4 --in 2.0 --duration 0.7"
     },
     {
@@ -213,7 +214,7 @@
       "generate_seconds": 2,
       "subject": "daruma",
       "prompt_body": "omni11_beat_prompts.md#beat-D",
-      "reference_image": "character_sheet/daruma_scooter_three_quarter_back.png",
+      "reference_image": "assets/prepped/daruma_scooter_three_quarter_back.png",
       "action": "The daruma is in extreme close-up in the left foreground, seen from behind and slightly above; only the curved red shell, the rucksack straps and the edge of the white head are visible. The shell surface texture stays crisp and does not smear.",
       "camera": "The red shell occupies the left third of the frame in the near foreground and slides slowly toward the left edge, while the street beyond stays sharp and opens up on the right. Parallax is gentle and continuous. The horizon stays level.",
       "measured": {
@@ -272,7 +273,7 @@
       "generate_seconds": 2,
       "subject": "daruma",
       "prompt_body": "omni11_beat_prompts.md#beat-C",
-      "reference_image": "character_sheet/daruma_scooter_rear.png",
+      "reference_image": "assets/prepped/daruma_standing_back_rucksack.png",
       "action": "The daruma rides away from the viewer down the centre of the street, seen from behind. The brown rucksack and bedroll are the dominant silhouette. The scooter tracks a perfectly straight line.",
       "camera": "the camera is locked off; the subject holds its position and size",
       "measured": {
@@ -289,8 +290,9 @@
         "scale_tolerance": 0.18,
         "pos_tolerance": 0.08
       },
-      "reference_image_status": "MISSING — fallback character_sheet/daruma_standing_back.png",
-      "motion_reference": "previz_part2.mp4 --in 4.67 --duration 0.33"
+      "reference_image_status": "AVAILABLE",
+      "motion_reference": "previz_part2.mp4 --in 4.67 --duration 0.33",
+      "orientation_confidence": "medium — subject small; confirm front vs back against the original previz"
     }
   ],
   "qc": {
@@ -344,26 +346,7 @@
       "the street plate as a reference image",
       "the full 5s previz"
     ],
-    "missing": [
-      {
-        "id": "daruma_scooter_front",
-        "blocks": [
-          "A3",
-          "B",
-          "C",
-          "D"
-        ],
-        "priority": 1
-      },
-      {
-        "id": "daruma_scooter_rear",
-        "blocks": [
-          "A1_A2",
-          "F"
-        ],
-        "priority": 2
-      }
-    ],
+    "missing": [],
     "composites_use_as_single_rigid_body": [
       "lego_female_on_motorcycle",
       "lego_male_on_motorcycle_with_egg_tart"
@@ -379,8 +362,19 @@
       "background": "transparent or neutral grey",
       "subject_frame_coverage": "60-80% with margin on all sides",
       "lighting": "top diffuse, matched to the plate",
-      "single_subject": true
+      "single_subject": true,
+      "min_subject_native_long_edge": 870
     },
-    "doc": "docs/asset_attachment_list.md"
+    "doc": "docs/asset_attachment_list.md",
+    "resolved": "Standing front and back hi-res art received. Frame-level review of the previz shows the scooter is a thin stem and two small wheels, mostly occluded by the legs and out of frame in the close-up, so standing poses serve as reference for the non-3/4 shots.",
+    "open_questions": [
+      "C and F subject orientation (front vs back) — currently read as back",
+      "Arms: previz blockout has them hanging at the sides with no handlebar; hero asset grips a handlebar. Prompts keep the handlebar grip (H5: occupied hands break less). Confirm or override.",
+      "Standing pair native subject long edge is 737px, under the 870px detail floor — re-export higher resolution if generated materials read soft."
+    ]
+  },
+  "previz_corrections": {
+    "no_push_off_cycle": "The subject glides with both feet together on the deck; the earlier prompts invented a stepping cycle.",
+    "scooter_is_minor": "A thin stem and two small wheels below the body, mostly hidden behind the legs; absent from frame in the close-up."
   }
 }

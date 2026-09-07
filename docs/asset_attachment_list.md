@@ -1,6 +1,7 @@
 # Project Macau — 每鏡要附上什麼 Asset
 
 搭配：`previz_measured_beatmap.md`（時間碼）、`../prompts/omni11_beat_prompts.md`（prompt 本體）
+狀態：**v2 — 已收到站姿正面／正背面兩張高解圖，缺口大幅收窄**
 
 ---
 
@@ -12,147 +13,130 @@
 | **Motion reference** | previz **只截該 beat 的秒數** | 1 段 |
 | **Prompt** | 對應的 prompt body（含 Motion Blueprint 段） | 1 段文字 |
 
-**三個常見錯誤附法：**
-- ❌ 附整張 character sheet → 模型會把六個角色平均掉，identity 直接爛
-- ❌ 附多張角度圖想「讓它理解 3D」→ Omni 1.1 不會建模，只會混合，比例反而漂
-- ❌ 把街景 plate 當 reference image 附上去 → 那是環境，屬於 prompt 的 Environment 段，不是 identity 來源
+**四個會毀掉 identity 的錯附法：**
+- ❌ 附整張 character sheet → 六個角色被平均掉
+- ❌ 附多張角度圖想「讓它理解 3D」→ 不會建模，只會混合，比例反而漂
+- ❌ 把街景 plate 當 reference image → plate 屬於 prompt 的 Environment 段
 - ❌ 附整段 5 秒 previz → 會把下一鏡的運動帶進來
 
 ---
 
-## 1. ⚠️ 先講缺口：最常用的那張 asset 你沒有
+## 1. ⚠️ previz 逐幀放大後的兩個發現（會改動 prompt）
 
-previz 裡主角**正面朝鏡頭騎滑板車**，8 個鏡頭中有 **4 個**（A3 / B / C / D）是這個角度。
+把 previz 每個 beat 的下半畫面放大檢查後，發現原本的 Action 段有兩處是憑空寫的：
 
-但你 sheet 上唯一的滑板車 asset（第三行最後一格，也就是你單獨給我的第 5 張高解圖）
-是 **3/4 背面** —— 看到的是背包，角色朝畫面右後方。
+### 1.1 沒有「蹬地循環」
 
-**正面騎滑板車的 asset，目前不存在。**
+原 prompt 寫 `one foot planted on the deck, the other pushing off the ground in
+a slow repeating cycle`。**previz 全程雙腳併攏站在踏板上等速滑行，沒有任何蹬地動作。**
 
-| 需求角度 | 用在哪些鏡 | 現況 |
-|---|---|---|
-| 滑板車・**正面**（朝鏡頭） | A3, B, C, D（4/8 鏡） | ❌ **缺** |
-| 滑板車・3/4 背面 | E1 | ✅ 有（第 5 張高解圖） |
-| 滑板車・**正背面** | A1/A2, F | ❌ 缺（只有站姿背面，沒騎車） |
-| 站姿正面 | — | ✅ 有（第一行第一格，掛相機） |
-| 站姿正背面 | 可暫代 A1/A2, F | ✅ 有（第一行第三格，背包全見） |
+已修正為 `both feet together on the deck` + `there is no stepping or push-off cycle`。
+這條若不改，模型會生出 previz 沒有的動作，`motion_match.py` 也驗不出來（面積曲線一樣）。
 
-### 兩個選項
+### 1.2 滑板車是很小的元素
 
-**選項一（推薦）：補做兩張 asset。**
-用你現有的 3/4 背面滑板車圖 + 站姿正面圖，在 Omni 1.1 之外先用 image 模型生成
-「正面騎滑板車」與「正背面騎滑板車」兩張靜態圖，去背後當 reference。
-兩張圖就補齊 6/8 鏡，成本最低。
+previz 裡滑板車只是**身體下方一根細桿 + 兩個小輪**，大部分被雙腿擋住；
+在特寫鏡（B）根本不在畫面內。已在 prompt 註明
+`a thin stem and two small wheels below the body, mostly hidden behind the legs`。
 
-**選項二：改用站姿代替。**
-A3/B/C/D 用站姿正面圖，靠 prompt 的 Action 段描述滑板車。
-風險：模型要自己「發明」滑板車，形狀每鏡不同，跨鏡剪在一起會穿幫。
-**只有在趕時間時才用，而且要把滑板車描述寫得極具體。**
+**這代表站姿 asset 的可用性比原先評估高很多** —— 滑板車不是主體造型的一部分，
+模型只需要在腳下補一根細桿，錯了也幾乎看不見。
 
-> 補做的兩張圖，光線方向必須跟現有 sheet 一致（頂部漫射、正面微側），
-> 否則每鏡都在重打光，會閃。
+### 1.3 一個待你拍板的分歧
+
+previz blockout 裡角色**雙臂垂在身側，沒有握把手**（blockout 沒做手臂動畫）。
+但你的滑板車 hero asset 是**雙手握把手**的。
+
+我的處理：**保留握把手**。理由是 H5——手處於握持狀態時崩壞率最低，放空的手指最容易爛；
+而且 blockout 沒做手臂動畫，不該當成美術指示。
+如果你要照 previz 的雙臂下垂，跟我講，我把 `hands rest on the handlebar` 改掉。
 
 ---
 
-## 2. 逐鏡附件表
+## 2. Asset 狀態（v2）
 
-時間碼來自實測 beat map。全部生成 2s，取用長度見表。
+| Asset | 檔案 | 主體原生像素 | 狀態 |
+|---|---|---|---|
+| 達摩・站姿正面（掛相機） | `assets/prepped/daruma_standing_front_camera.png` | 737px △ | ✅ **新到** |
+| 達摩・站姿正背面（背包） | `assets/prepped/daruma_standing_back_rucksack.png` | 737px △ | ✅ **新到** |
+| 達摩・滑板車 3/4 背 | `assets/prepped/daruma_scooter_three_quarter_back.png` | 973px ✓ | ✅ |
+| LEGO 男＋機車＋蛋撻 | `assets/prepped/lego_male_motorcycle_egg_tart.png` | 910px ✓ | ✅ 附錄鏡 |
+| LEGO 女＋機車 | `assets/prepped/lego_female_motorcycle.png` | 922px ✓ | ✅ 附錄鏡 |
+| Character sheet | — | 主體僅 140×195px | ❌ 差規格 7.3x，**不可當 reference** |
+| 街景 plate ×4 | — | 941×1672，無 alpha | ➡️ 走 prompt Environment，不附 |
 
-| # | Beat | previz 區段 | 取用 | Reference image | Motion reference | Prompt body |
-|---|---|---|---|---|---|---|
-| 1 | **A1_A2** | 0.00–0.67 | 0.67s | 滑板車・正背面 ⚠️缺<br>（暫代：站姿正背面，第一行第三格） | `--in 0.00 --duration 0.67` | **C** 拉遠 |
-| 2 | **A3** | 0.67–1.17 | 0.50s | 滑板車・正面 ⚠️**缺** | `--in 0.67 --duration 0.50` | **A** 推近 |
-| 3 | **B** | 1.17–1.50 | 0.33s | 滑板車・正面 ⚠️**缺**<br>（暫代：站姿正面掛相機，第一行第一格） | `--in 1.17 --duration 0.33` | **B** 快速推近 |
-| 4 | **C** | 1.50–2.00 | 0.50s | 滑板車・正面 ⚠️**缺** | `--in 1.50 --duration 0.50` | **E1** 等距追蹤 |
-| 5 | **D** | 2.00–2.70 | 0.70s | 滑板車・正面 ⚠️**缺** | `--in 2.00 --duration 0.70` | **B**（Camera 段改緩速推進） |
-| 6 | **E1** | 2.70–3.40 | 0.70s | ✅ **滑板車・3/4 背面**（第 5 張高解圖） | `--in 2.70 --duration 0.70` | **D** 越肩入畫 |
-| 7 | **E2** | 3.40–4.57 | 1.17s | 🔄 **E1 的最後一幀**（生成後才有） | `--in 3.40 --duration 1.17` | **E2** 拉遠收尾 |
-| 8 | **F** | 4.67–5.00 | 0.33s | 滑板車・正背面 ⚠️缺<br>（暫代：站姿正背面） | `--in 4.67 --duration 0.33` | **C**（Camera 改靜止） |
+**△ 記號**：新到那兩張主體原生長邊只有 737px（規格 ≥1024，且比滑板車那張的 973px 低 24%）。
+補白後畫布達標，但**細節沒有增加**——陶瓷裂紋、皮革縫線、金色花紋可能偏軟。
+可以先開跑；若成品材質不夠實，回頭要更高解析度的出稿，這是唯一要補的一項。
 
-**生成順序有依賴：E1 必須先於 E2**（E2 要用 E1 末幀）。其餘六鏡可任意順序或並行。
+---
 
-截 motion reference 的指令：
+## 3. 逐鏡附件表（v2）
+
+方位判定依據：`area` 上升＝靠近、下降＝遠離，再對照放大幀確認。
+
+| # | Beat | previz 區段 | 取用 | Reference image | Motion reference |
+|---|---|---|---|---|---|
+| 1 | **A1_A2** | 0.00–0.67 | 0.67s | ✅ `daruma_standing_back_rucksack` | `--in 0.00 --duration 0.67` |
+| 2 | **A3** | 0.67–1.17 | 0.50s | ✅ `daruma_standing_front_camera` | `--in 0.67 --duration 0.50` |
+| 3 | **B** | 1.17–1.50 | 0.33s | ✅ `daruma_standing_front_camera` | `--in 1.17 --duration 0.33` |
+| 4 | **C** | 1.50–2.00 | 0.50s | ✅ `daruma_standing_back_rucksack` ※ | `--in 1.50 --duration 0.50` |
+| 5 | **D** | 2.00–2.70 | 0.70s | ✅ `daruma_standing_back_rucksack` | `--in 2.00 --duration 0.70` |
+| 6 | **E1** | 2.70–3.40 | 0.70s | ✅ `daruma_scooter_three_quarter_back` | `--in 2.70 --duration 0.70` |
+| 7 | **E2** | 3.40–4.57 | 1.17s | 🔄 E1 的末幀 | `--in 3.40 --duration 1.17` |
+| 8 | **F** | 4.67–5.00 | 0.33s | ✅ `daruma_standing_back_rucksack` ※ | `--in 4.67 --duration 0.33` |
+
+**※ C 與 F 的方位我只有中等把握**——兩鏡主體都很小，放大後仍難確認正背。
+若你知道原 previz 這兩鏡角色是朝鏡頭的，改用 `daruma_standing_front_camera`。
+
+**八個鏡全部有料可跑。** 依賴只有一個：E1 必須先於 E2。其餘七鏡可並行。
+
+截 motion reference：
 ```bash
 ffmpeg -ss <in> -i previz_part2.mp4 -t <duration> -c copy beat_<id>_drive.mp4
 ```
 
 ---
 
-## 3. Asset 清單與狀態（依你的 character sheet）
-
-### 主角 Daruma
-| Asset | 位置 | 本片用途 | 狀態 |
-|---|---|---|---|
-| 站姿正面・掛相機 | R1C1 | B 的暫代 | ✅ |
-| 站姿側面 | R1C2 | 備用 | ✅ |
-| 站姿正背面・背包全見 | R1C3 | A1/A2, F 的暫代 | ✅ |
-| 站姿 3/4 背 | R1C4 | 備用 | ✅ |
-| 行走循環（多格） | R2C5–R3C4 | 本片不用（主角全程騎車） | ✅ |
-| 奔跑 | R3C3 | 不用 | ✅ |
-| 伸手／指向 | R3C5 | 不用 | ✅ |
-| **滑板車・3/4 背面** | R3C6 ＝第 5 張高解圖 | **E1** | ✅ |
-| **滑板車・正面** | — | **A3, B, C, D** | ❌ **要補** |
-| **滑板車・正背面** | — | A1/A2, F | ❌ 要補 |
-
-### LEGO 角色（本片 previz 沒出現，附錄鏡才用）
-| Asset | 狀態 |
-|---|---|
-| 女角 灰衣 正／側／背 | ✅ |
-| 男角 黑衣 正／側／背 | ✅ |
-| 坐姿 男／女 | ✅ |
-| **女角＋機車**（合成，第 3 張高解圖） | ✅ 直接當單一剛體用 |
-| **男角＋機車＋蛋撻**（合成，第 4 張高解圖） | ✅ 直接當單一剛體用 |
-
-### 道具 / 場景
-| Asset | 本片用途 | 狀態 |
-|---|---|---|
-| 機車（單體，兩角度） | 附錄鏡備用 | ✅ |
-| 蛋撻 | 已在合成圖內，**不要另外附** | ✅ |
-| 竹棚（塔式、平台式） | 街景陳設，走 prompt Environment 段 | ✅ |
-| 紅白圍欄 ×2 | 同上 | ✅ |
-| 鐵網門 | 同上 | ✅ |
-| 沙包 | 同上 | ✅ |
-| 街景素描條 ×2 | 美術參考，**不進生成** | ✅ |
-| 街景 plate ×4 | 見下節 | ✅ |
-
----
-
 ## 4. 街景 Plate 的處理（不要當 reference image 附）
 
-Plate 走 **prompt 的 Environment 段**，不進附件欄位。但有兩件事要先做：
+Plate 走 **prompt 的 Environment 段**。但兩件事要先做：
 
-1. **選定一張主 plate 並鎖死。** 你有 4 張街景圖，跨鏡混用會導致每鏡街道長得不一樣。
-   挑一張正對走廊、消失點置中的當主 plate，其餘只作美術參考。
-2. **招牌文字要 lock back。** 「TAK SENG ON」「AVENIDA DE ALMEIDA RIBEIRO」這類文字
-   模型必寫錯（H6）。先從主 plate 把招牌區域切成透明 PNG 存起來，後期貼回。
-   prompt 的 negative 已有 `no legible signage text`，不要指望模型寫對。
+1. **選定一張主 plate 並鎖死。** 4 張街景圖跨鏡混用 → 每鏡街道長得不一樣。
+2. **招牌文字 lock back。** 「TAK SENG ON」「AVENIDA DE ALMEIDA RIBEIRO」模型必寫錯（H6）。
+   先從主 plate 切出招牌透明 PNG，後期貼回。
 
 ---
 
-## 5. Reference image 出稿規格（附上去之前逐項檢查）
+## 5. Reference image 出稿規格
+
+用 `tools/prep_reference.py check <img>` 驗，`prep` 修。
 
 | 項目 | 規格 | 不合的後果 |
 |---|---|---|
-| 格式 | PNG，無損 | JPEG artefact 會被放大成材質雜訊 |
-| 解析度 | 短邊 ≥ 1024 | 太小 → 材質細節（陶瓷裂紋、皮革縫線）生不出來 |
-| 背景 | **全透明**，或純中性灰 | 有背景 → 跟 plate 打架，邊緣出鬼影 |
-| 主體佔比 | 畫幅 60–80%，四邊留白 | 貼邊 → 模型 crop 時截斷肢體 |
-| 光線 | 頂部漫射，與 plate 一致 | 不一致 → 每幀重打光，成品閃爍 |
-| 內容 | **只有一個角色**，無多餘元素 | 多主體 → identity 混合 |
-| 合成剛體 | LEGO＋機車＋蛋撻用**已合成單張** | 分開附 → 四主體互相打架（H8） |
+| 格式 | PNG 無損 | JPEG artefact 被放大成材質雜訊 |
+| 畫布短邊 | ≥ 1024 | — |
+| **主體原生長邊** | **≥ 870**（畫布的 85%） | 補白達標但細節不足 → 材質偏軟 |
+| 背景 | 全透明或純中性灰 | 跟 plate 打架，邊緣鬼影 |
+| 主體佔比 | 60–80%，四邊留白 | 貼邊 → crop 時截肢 |
+| 光線 | 頂部漫射，與 plate 一致 | 每幀重打光 → 成品閃爍 |
+| 內容 | 只有一個角色 | 多主體 → identity 混合 |
+| 合成剛體 | LEGO＋機車＋蛋撻用已合成單張 | 分開附 → 四主體打架（H8） |
 
 ---
 
-## 6. 開工前的準備清單
+## 6. 開工清單
 
-- [ ] 補做「滑板車・正面」asset（**擋住 4 個鏡，優先做**）
-- [ ] 補做「滑板車・正背面」asset（擋住 2 個鏡）
-- [ ] 兩張補做圖的光線與現有 sheet 對齊
-- [ ] 全部 reference PNG 去背，短邊 ≥1024，主體佔 60–80%
+- [x] ~~補「滑板車正面」asset~~ → 站姿正面已到，且 previz 顯示滑板車是極小元素，站姿可用
+- [x] ~~補「滑板車正背面」asset~~ → 站姿正背面已到
+- [x] 五張 reference 全部整成規格（`assets/prepped/`）
+- [ ] 確認 C 與 F 兩鏡的角色方位（正面還是背面）
+- [ ] 拍板 §1.3：握把手 vs 雙臂下垂
 - [ ] 選定唯一主街景 plate
-- [ ] 從主 plate 切出招牌透明 PNG，留給後期貼回
-- [ ] 用 ffmpeg 依上表切出 8 段 motion reference
-- [ ] 抽出各 beat 的基準曲線備驗收：
-      `python3 tools/motion_match.py extract previz_part2.mp4 --in <in> --duration <len> --out ref_<id>.csv`
+- [ ] 從主 plate 切出招牌透明 PNG 留給後期
+- [ ] 用 ffmpeg 切出 8 段 motion reference
+- [ ] 抽各 beat 基準曲線備驗收
+- [ ] （選）若成品材質偏軟，要站姿兩張的更高解析度出稿
 
-做完前兩項，8 個鏡有 6 個可以立刻開跑（E2 等 E1 出片）。
+**現在八個鏡都可以開跑。** 建議先跑 E1（唯一原生解析度達標、且是高風險越肩鏡），
+一鏡就能同時驗證素材規格、prompt 結構、Motion Blueprint 段與 `motion_match.py` 驗收流程。

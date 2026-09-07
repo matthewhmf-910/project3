@@ -56,11 +56,13 @@ solely from the reference image and the description below. Where the blueprint
 and the reference image disagree, motion follows the blueprint and appearance
 follows the reference image.
 
-Action: the daruma rides a black kick scooter straight down the centre of the
-street toward the viewer at a steady walking pace, one foot planted on the
-deck, the other pushing off the ground in a slow repeating cycle. Both hands
-stay gripping the handlebar and never leave it. The rucksack sways only
-slightly with each push. The printed eyes stay fixed forward.
+Action: the daruma glides straight down the centre of the street toward the
+viewer at a steady walking pace, standing upright on a small black kick
+scooter with both feet together on the deck. It does not push off the ground
+and there is no stepping cycle — the glide is smooth and continuous. Both
+hands rest on the handlebar and never leave it. The scooter is a thin stem and
+two small wheels below the body, mostly hidden behind the legs. The rucksack
+holds its position. The printed eyes stay fixed forward.
 
 Camera: the subject starts small in the middle distance and grows steadily
 larger, staying on the centre line of the street. The building walls converge
@@ -122,10 +124,11 @@ solely from the reference image and the description below. Where the blueprint
 and the reference image disagree, motion follows the blueprint and appearance
 follows the reference image.
 
-Action: the daruma rides directly at the viewer, body tilted very slightly
-forward, both hands locked on the handlebar and never leaving it. The printed
-eyes stay fixed forward and do not blink or change expression. The rucksack
-and camera strap hold their positions.
+Action: the daruma glides directly at the viewer, standing upright with both
+feet together on the scooter deck, body tilted very slightly forward, both
+hands resting on the handlebar and never leaving it. There is no stepping
+cycle. The printed eyes stay fixed forward and do not blink or change
+expression. The rucksack and camera strap hold their positions.
 
 Camera: the subject fills the frame rapidly until the head and upper body
 occupy roughly the upper third and the red shell dominates the centre. The
@@ -188,11 +191,12 @@ solely from the reference image and the description below. Where the blueprint
 and the reference image disagree, motion follows the blueprint and appearance
 follows the reference image.
 
-Action: the daruma rides away from the viewer down the centre of the street,
-seen from directly behind. The brown rucksack and bedroll are the dominant
-silhouette and stay locked to the shell. The scooter tracks a perfectly
-straight line. Both hands stay on the handlebar, visible only as small
-edges past the shell.
+Action: the daruma glides away from the viewer down the centre of the street,
+seen from directly behind, standing upright with both feet together on the
+scooter deck. The brown rucksack and bedroll are the dominant silhouette and
+stay locked to the shell. The scooter tracks a perfectly straight line and is
+visible only as a thin stem and two small wheels below the body. There is no
+stepping cycle.
 
 Camera: the subject shrinks steadily toward the vanishing point as more
 street enters the frame edges. The walls stay parallel to the frame edges.
@@ -326,10 +330,11 @@ solely from the reference image and the description below. Where the blueprint
 and the reference image disagree, motion follows the blueprint and appearance
 follows the reference image.
 
-Action: the daruma rides toward the viewer at a steady pace, holding a
-constant position in the centre of the frame. The push-off cycle repeats
-evenly, one foot on the deck and one pushing off. Both hands never leave the
-handlebar. The printed eyes stay fixed forward and do not blink.
+Action: the daruma glides toward the viewer at a steady pace, holding a
+constant position in the centre of the frame, standing upright on the kick
+scooter with both feet together on the deck. There is no stepping or push-off
+cycle. Both hands rest on the handlebar and never leave it. The printed eyes
+stay fixed forward and do not blink.
 
 Camera: the subject stays centred and exactly the same size throughout, while
 the building walls slide backwards past the left and right frame edges at a
@@ -391,8 +396,9 @@ solely from the reference image and the description below. Where the blueprint
 and the reference image disagree, motion follows the blueprint and appearance
 follows the reference image.
 
-Action: the daruma continues riding forward, unchanged, the push-off cycle
-carrying on at the same rhythm. Both hands stay on the handlebar.
+Action: the daruma continues gliding forward, unchanged, both feet together on
+the deck and both hands on the handlebar. There is no stepping or push-off
+cycle.
 
 Camera: the subject shrinks slowly toward the centre of frame as more of the
 street enters the edges, coming to rest in the far middle distance. The move
