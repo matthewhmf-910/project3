@@ -188,7 +188,7 @@
       "prompt_body": "omni11_beat_prompts.md#beat-B",
       "reference_image": "assets/prepped/daruma_standing_back_rucksack.png",
       "action": "The daruma continues riding directly at the viewer, body tilted very slightly forward, hands locked on the handlebar. The printed eyes stay fixed forward and do not blink or change expression.",
-      "camera": "slow steady push-in rather than a rapid fill",
+      "camera": "Camera: the subject grows steadily larger in a slow, even push-in — not a rapid fill — staying near the centre of frame. The background compresses gently behind it. The horizon stays level; no camera roll, no shake, no acceleration.",
       "measured": {
         "area_from": 0.147,
         "area_to": 0.294,
@@ -204,7 +204,8 @@
         "pos_tolerance": 0.1
       },
       "reference_image_status": "AVAILABLE",
-      "motion_reference": "previz_part2.mp4 --in 2.0 --duration 0.7"
+      "motion_reference": "previz_part2.mp4 --in 2.0 --duration 0.7",
+      "camera_override": true
     },
     {
       "id": "E1",
@@ -275,7 +276,7 @@
       "prompt_body": "omni11_beat_prompts.md#beat-C",
       "reference_image": "assets/prepped/daruma_standing_back_rucksack.png",
       "action": "The daruma rides away from the viewer down the centre of the street, seen from behind. The brown rucksack and bedroll are the dominant silhouette. The scooter tracks a perfectly straight line.",
-      "camera": "the camera is locked off; the subject holds its position and size",
+      "camera": "Camera: the camera is locked off. The subject holds its position and size in the far middle distance for the whole shot and nothing else in frame moves. The horizon stays level; no roll, no shake, no drift.",
       "measured": {
         "area_from": 0.022,
         "area_to": 0.022,
@@ -292,7 +293,8 @@
       },
       "reference_image_status": "AVAILABLE",
       "motion_reference": "previz_part2.mp4 --in 4.67 --duration 0.33",
-      "orientation_confidence": "medium — subject small; confirm front vs back against the original previz"
+      "orientation_confidence": "medium — subject small; confirm front vs back against the original previz",
+      "camera_override": true
     }
   ],
   "qc": {
