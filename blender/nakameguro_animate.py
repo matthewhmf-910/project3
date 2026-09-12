@@ -142,7 +142,8 @@ def _walk(ob, beats, stride=12, bob=0.03, foot_z=0.0):
 def animate_cast():
     """B steps off the kerb and leans on the driver's door (near side -
     Japan is right-hand drive, so the door faces camera). A crosses from
-    the sakura/Roastery side in the background to the foreground."""
+    the sakura/Roastery side in the background to the foreground, then
+    does a 1.5-spin at the car head before stepping beside B."""
     b = bpy.data.objects["HERO_charB"]
     a = bpy.data.objects["HERO_charA"]
 
@@ -153,13 +154,25 @@ def animate_cast():
     _key(b, "rotation_euler", F_B_SET + 18, 0.105, index=0)
     _key(b, "rotation_euler", F_END, 0.105, index=0, interp='CONSTANT')
 
+    # CharA walks to frame 195, then begins the spin sequence
     _walk(a, [(F_A_WALK, (8.50, 3.60)),
               (F_A_WALK + 46, (4.20, 0.60)),
-              (F_A_ARRIVE, (0.60, -2.60))], stride=12, bob=0.035)
-    # turn to face B for the conversation, then hold
-    _key(a, "rotation_euler", F_A_ARRIVE, a.rotation_euler.z, index=2)
-    _key(a, "rotation_euler", F_A_ARRIVE + 24, math.radians(255), index=2)
-    _key(a, "rotation_euler", F_END, math.radians(255), index=2, interp='CONSTANT')
+              (195, (3.00, -0.50))], stride=12, bob=0.035)
+    
+    # Phase 1 (196-210): Approach car head, start spin
+    _key(a, "location", 196, (3.00, -0.50, 0.0))
+    _key(a, "location", 210, (0.50, -1.80, 0.0))
+    _key(a, "rotation_euler", 196, 0.0, index=2)
+    
+    # Phase 2 (210-250): 1.5-spin (540°) at car head
+    _key(a, "location", 250, (0.50, -1.80, 0.0), interp='CONSTANT')
+    _key(a, "rotation_euler", 210, 0.0, index=2)
+    _key(a, "rotation_euler", 250, math.radians(540), index=2)
+    
+    # Phase 3 (250-288): Dash beside B
+    _key(a, "location", 288, (-1.30, -1.95, 0.0))
+    _key(a, "rotation_euler", 288, math.radians(255), index=2, interp='CONSTANT')
+    
     return {"charA_beats": 3, "charB_beats": 2}
 
 
