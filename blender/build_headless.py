@@ -4,6 +4,8 @@ Runs the locked blockout passes, applies motion, audits, renders the
 storyboard frames, and saves the .blend. Usage:
     blender -b -P blender/build_headless.py               # build + stills
     blender -b -P blender/build_headless.py -- --animate  # + 1080x1920 mp4
+    blender -b -P blender/build_headless.py -- --animate --range 1-195
+    blender -b -P blender/build_headless.py -- --animate --samples 128
     blender -b -P blender/build_headless.py -- --no-render
 """
 import json
@@ -113,14 +115,37 @@ def render_storyboard(engine):
     return made
 
 
-def render_animation(engine, samples=64):
-    """Full-resolution 9:16 movie for the whole 288-frame shot."""
+def flag_value(argv, name, cast=int):
+    """Read `--name V` or `--name=V` from argv; None when absent."""
+    for i, a in enumerate(argv):
+        if a == name and i + 1 < len(argv):
+            return cast(argv[i + 1])
+        if a.startswith(name + "="):
+            return cast(a.split("=", 1)[1])
+    return None
+
+
+def parse_range(argv):
+    """`--range 1-195` (or `--range=1-195`) -> (1, 195); None when absent."""
+    raw = flag_value(argv, "--range", str)
+    if raw is None:
+        return None, None
+    lo, _, hi = raw.partition("-")
+    if not hi:
+        raise ValueError("--range needs START-END, e.g. --range 1-195")
+    return int(lo), int(hi)
+
+
+def render_animation(engine, samples=64, start=None, end=None):
+    """Full-resolution 9:16 movie over the given frame range."""
     os.makedirs(OUT, exist_ok=True)
+    start = blk.F_START if start is None else start
+    end = blk.F_END if end is None else end
     sc = bpy.context.scene
     sc.render.engine = engine
     sc.render.resolution_x, sc.render.resolution_y = blk.RES_X, blk.RES_Y
     sc.render.resolution_percentage = 100
-    sc.frame_start, sc.frame_end = blk.F_START, blk.F_END
+    sc.frame_start, sc.frame_end = start, end
     sc.render.fps = blk.FPS
 
     sc.render.image_settings.file_format = 'FFMPEG'
@@ -140,16 +165,19 @@ def render_animation(engine, samples=64):
         except AttributeError:
             pass
 
-    path = os.path.join(OUT, "nakameguro_shot")
+    # Blender appends its own "0001-0195" frame-range suffix to the stem,
+    # so the stem must not repeat it.
+    path = os.path.join(OUT, "nakameguro_shot_")
     sc.render.filepath = path
     bpy.ops.render.render(animation=True)
     sc.frame_set(blk.F_START)
 
-    made = [p for p in (path + ".mp4", path + f"{blk.F_START:04d}-{blk.F_END:04d}.mp4")
+    made = [p for p in (path + f"{start:04d}-{end:04d}.mp4", path + ".mp4")
             if os.path.exists(p)]
-    return {"frames": blk.F_END - blk.F_START + 1,
+    return {"range": [start, end], "frames": end - start + 1,
             "resolution": [blk.RES_X, blk.RES_Y],
-            "fps": blk.FPS, "samples": samples, "files": made}
+            "fps": blk.FPS, "seconds": round((end - start + 1) / blk.FPS, 2),
+            "samples": samples, "files": made}
 
 
 def main():
@@ -176,8 +204,11 @@ def main():
             report["render_error"] = f"{type(exc).__name__}: {exc}"
 
     if "--animate" in argv:
+        start, end = parse_range(argv)
+        samples = flag_value(argv, "--samples") or 64
         try:
-            report["animation"] = render_animation(engine)
+            report["animation"] = render_animation(
+                engine, samples=samples, start=start, end=end)
         except Exception as exc:                       # noqa: BLE001
             report["animation"] = {}
             report["animation_error"] = f"{type(exc).__name__}: {exc}"
