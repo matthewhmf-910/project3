@@ -2,8 +2,9 @@
 
 Runs the locked blockout passes, applies motion, audits, renders the
 storyboard frames, and saves the .blend. Usage:
-    python3 blender/build_headless.py            # full build + render
-    python3 blender/build_headless.py --no-render
+    blender -b -P blender/build_headless.py               # build + stills
+    blender -b -P blender/build_headless.py -- --animate  # + 1080x1920 mp4
+    blender -b -P blender/build_headless.py -- --no-render
 """
 import json
 import os
@@ -112,7 +113,47 @@ def render_storyboard(engine):
     return made
 
 
+def render_animation(engine, samples=64):
+    """Full-resolution 9:16 movie for the whole 288-frame shot."""
+    os.makedirs(OUT, exist_ok=True)
+    sc = bpy.context.scene
+    sc.render.engine = engine
+    sc.render.resolution_x, sc.render.resolution_y = blk.RES_X, blk.RES_Y
+    sc.render.resolution_percentage = 100
+    sc.frame_start, sc.frame_end = blk.F_START, blk.F_END
+    sc.render.fps = blk.FPS
+
+    sc.render.image_settings.file_format = 'FFMPEG'
+    ff = sc.render.ffmpeg
+    ff.format = 'MPEG4'
+    ff.codec = 'H264'
+    ff.constant_rate_factor = 'HIGH'
+    ff.ffmpeg_preset = 'GOOD'
+    ff.gopsize = blk.FPS
+
+    if engine == 'CYCLES':
+        sc.cycles.samples = samples
+        sc.cycles.use_denoising = True
+    else:
+        try:
+            sc.eevee.taa_render_samples = samples
+        except AttributeError:
+            pass
+
+    path = os.path.join(OUT, "nakameguro_shot")
+    sc.render.filepath = path
+    bpy.ops.render.render(animation=True)
+    sc.frame_set(blk.F_START)
+
+    made = [p for p in (path + ".mp4", path + f"{blk.F_START:04d}-{blk.F_END:04d}.mp4")
+            if os.path.exists(p)]
+    return {"frames": blk.F_END - blk.F_START + 1,
+            "resolution": [blk.RES_X, blk.RES_Y],
+            "fps": blk.FPS, "samples": samples, "files": made}
+
+
 def main():
+    argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv
     report = {}
     wipe()
     report["bounds"] = blk.pass_bounds()
@@ -127,12 +168,19 @@ def main():
     report["engines_available"] = available
     report["engine_used"] = engine
 
-    if "--no-render" not in sys.argv:
+    if "--no-render" not in argv:
         try:
             report["storyboard"] = render_storyboard(engine)
         except Exception as exc:                       # noqa: BLE001
             report["storyboard"] = []
             report["render_error"] = f"{type(exc).__name__}: {exc}"
+
+    if "--animate" in argv:
+        try:
+            report["animation"] = render_animation(engine)
+        except Exception as exc:                       # noqa: BLE001
+            report["animation"] = {}
+            report["animation_error"] = f"{type(exc).__name__}: {exc}"
 
     os.makedirs(OUT, exist_ok=True)
     blend = os.path.join(OUT, "nakameguro_shot.blend")
