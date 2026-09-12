@@ -13,7 +13,7 @@ WHEELS = ("fl", "fr", "rl", "rr")
 F_CAR_IN, F_CAR_STOP = 1, 78
 F_B_WALK, F_B_SET = 78, 132
 F_A_WALK, F_A_ARRIVE = 132, 228
-F_END = 288
+F_END = 240
 
 
 def _fcurves(ob):
@@ -164,14 +164,14 @@ def animate_cast():
     _key(a, "location", 210, (0.50, -1.80, 0.0))
     _key(a, "rotation_euler", 196, 0.0, index=2)
     
-    # Phase 2 (210-250): 1.5-spin (540°) at car head
-    _key(a, "location", 250, (0.50, -1.80, 0.0), interp='CONSTANT')
+    # Phase 2 (210-235): 1.5-spin (540°) at car head
+    _key(a, "location", 235, (0.50, -1.80, 0.0), interp='CONSTANT')
     _key(a, "rotation_euler", 210, 0.0, index=2)
-    _key(a, "rotation_euler", 250, math.radians(540), index=2)
+    _key(a, "rotation_euler", 235, math.radians(540), index=2)
     
-    # Phase 3 (250-288): Dash beside B
-    _key(a, "location", 288, (-1.30, -1.95, 0.0))
-    _key(a, "rotation_euler", 288, math.radians(255), index=2, interp='CONSTANT')
+    # Phase 3 (235-240): Dash beside B
+    _key(a, "location", 240, (-1.30, -1.95, 0.0))
+    _key(a, "rotation_euler", 240, math.radians(255), index=2, interp='CONSTANT')
     
     return {"charA_beats": 3, "charB_beats": 2}
 

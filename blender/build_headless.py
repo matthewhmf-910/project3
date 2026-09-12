@@ -20,7 +20,7 @@ import nakameguro_blockout as blk
 import nakameguro_animate as anim
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "out")
-STORYBOARD = [1, 78, 132, 180, 228, 288]
+STORYBOARD = [1, 78, 132, 180, 228, 240]
 PREVIEW = (540, 960)
 
 
@@ -66,7 +66,7 @@ def audit_motion():
     watch = ["HERO_car", "HERO_charA", "HERO_charB", "CAM_main",
              "HERO_car_wheel_fl"]
     track = {n: [] for n in watch}
-    for f in (1, 40, 78, 132, 180, 228, 288):
+    for f in (1, 40, 78, 132, 180, 228, 240):
         sc.frame_set(f)
         dg.update()
         for n in watch:
