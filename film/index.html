@@ -22,7 +22,7 @@
   <script src="../js/reel-scene.js"></script>
   <script>
     (function () {
-      const { stage, tl, DURATION, BEATS } = XY.buildReel(document.getElementById("filmCanvas"));
+      const { stage, tl, DURATION, BEATS, parts } = XY.buildReel(document.getElementById("filmCanvas"));
       stage.fit(1080, 1920);
       gsap.ticker.sleep(); // no wall clock: every frame comes from seek(t)
 
@@ -59,6 +59,9 @@
           document.querySelectorAll(".letter").forEach((l, i) => add("letter:" + "COOLEST"[i], l));
           const stamp = document.querySelector('img[src$="06_STAMP.png"]');
           if (stamp) add("stamp", stamp.parentElement);
+          add("action:lemon", parts.lemonA);
+          add("action:wheel", parts.wheel);
+          add("brand:terracotta", parts.terracotta);
           return out;
         },
       };

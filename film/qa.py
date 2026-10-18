@@ -51,14 +51,23 @@ def unsafe(r):
 hits = {}
 for n, rs in rects.items():
     for r in rs:
+        if r["label"].startswith("brand:"):
+            continue
         if unsafe(r):
             hits.setdefault(r["label"].split(" ")[0], []).append(int(n))
 for label, ns in sorted(hits.items()):
     print(f"safe-zone: {label} outside on {len(ns)} frames ({min(ns) / 30:.2f}-{max(ns) / 30:.2f}s)")
-endcard = {k: v for k, v in hits.items() if (k.startswith("copy") or k == "stamp" or k.startswith("letter")) and max(v) >= 270}
+# end card = from 9.4 s, once everything has arrived; action = the lemon and the wheel at any time.
+# Letters mid-action are allowed to be cropped by close framing, so they are reported, not failed.
+endcard = {k: [n for n in v if n >= 282] for k, v in hits.items() if k.startswith(("copy", "stamp", "letter"))}
+endcard = {k: v for k, v in endcard.items() if v}
+action = {k: v for k, v in hits.items() if k.startswith("action")}
 if endcard:
     fail.append("safe-zone on end card")
-print("end card (9.0-10s) inside safe area:", "no" if endcard else "yes")
+if action:
+    fail.append("safe-zone on key action")
+print("end card (9.4-10s) inside safe area:", "no " + str(sorted(endcard)) if endcard else "yes")
+print("key action (lemon, wheel) inside safe area:", "no " + str(sorted(action)) if action else "yes")
 
 # 4. contrast of end-card text on its actual background
 def lin(c):
@@ -79,14 +88,20 @@ if kicker:
     if ratio < 4.5:
         fail.append("contrast")
 
-# 5. brand colours present in the last frame
+# 5. brand colours in the last frame: median of token-like pixels (median, so the
+# wood and foam that share hues with terracotta do not drag the reading)
 px = last.reshape(-1, 3)
-for name, tok in {"sage #7A8666": (0x7A, 0x86, 0x66), "terracotta #A3481E": (0xA3, 0x48, 0x1E), "ivory #F4EFE6": (0xF4, 0xEF, 0xE6)}.items():
-    d = np.sqrt(((px - tok) ** 2).sum(1))
-    near = px[d < 40]
-    mean = near.mean(0) if len(near) else None
-    off = np.sqrt(((mean - tok) ** 2).sum()) if mean is not None else 999
-    print(f"brand {name}: {len(near) / len(px) * 100:.1f}% of frame, mean off by {off:.1f} RGB")
+tr = [r for r in rects[str(len(files) - 1)] if r["label"] == "brand:terracotta"]
+if tr:  # terracotta: read only inside its own shape's box
+    t = tr[0]
+    box = last[max(0, int(t["y"])):int(t["y"] + t["h"]), max(0, int(t["x"])):int(t["x"] + t["w"])].reshape(-1, 3)
+for name, tok, src in [("sage #7A8666", (0x7A, 0x86, 0x66), px), ("terracotta #A3481E", (0xA3, 0x48, 0x1E), box if tr else px),
+                       ("ivory #F4EFE6", (0xF4, 0xEF, 0xE6), px)]:
+    d = np.sqrt(((src - tok) ** 2).sum(1))
+    near = src[d < 40]
+    med = np.median(near, 0) if len(near) else None
+    off = np.sqrt(((med - tok) ** 2).sum()) if med is not None else 999
+    print(f"brand {name}: median {tuple(int(x) for x in med)} off by {off:.1f} RGB ({len(near)} px)")
     if off > 12:
         fail.append("brand " + name)
 

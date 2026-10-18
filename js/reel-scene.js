@@ -66,7 +66,7 @@ XY.buildReel = function (canvas) {
 
   // paper is the viewport's own (flat) background, not an oversized 3D layer
   pngLayer("07_SHAPE_SAGE.png", product(rect("07_SHAPE_SAGE.png")), -110);
-  pngLayer("08_SHAPE_TERRACOTTA.png", product(rect("08_SHAPE_TERRACOTTA.png")), -90);
+  const terracotta = pngLayer("08_SHAPE_TERRACOTTA.png", product(rect("08_SHAPE_TERRACOTTA.png")), -90);
   const copy = XY.posterCopy(layer("", { x: 0, y: 0, w: W, h: H }, -60));
   pngLayer("03_WOOD_COASTER.png", product(rect("03_WOOD_COASTER.png")), -20);
   pngLayer("01_CUP_LEMON.png", product(cup), 0);
@@ -135,7 +135,7 @@ XY.buildReel = function (canvas) {
   const ripple = layer("ripple", null, 58);
   gsap.set(ripple, { xPercent: -50, yPercent: -50, x: LAND.x, y: LAND.y + 20, rotationX: 0 });
 
-  const stamp = pngLayer("06_STAMP.png", { x: 96, y: 300, w: 300, h: 302 }, 40);
+  const stamp = pngLayer("06_STAMP.png", { x: 96, y: 362, w: 300, h: 302 }, 40); // below the top UI band even after the end push-in
 
   /* ---------------------------------------------------------------- timeline */
   const cam = stage.cam;
@@ -156,7 +156,7 @@ XY.buildReel = function (canvas) {
   // 01 ROLL ---------------------------------------------------------------
   const rollEnd = onRamp(RAMP.length - LEMON.w / 2 - 10);
   tl.fromTo(lemonA, { ...onRamp(RAMP.stop + 70), rotation: RAMP.angle },
-      { ...rollEnd, rotation: RAMP.angle + 360, duration: 1.2, ease: "power2.in" }, 0)
+      { ...rollEnd, rotation: RAMP.angle + 360, duration: 1.2, ease: "power1.in" }, 0)
     .fromTo(lemonB, { rotation: RAMP.angle }, { rotation: RAMP.angle + 8, duration: 0.25, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.15)
     // C swings into a cradle under the end of the ramp
     .fromTo(C, { x: 0, y: 0, rotation: 0, scaleX: 1, scaleY: 1 },
@@ -232,18 +232,18 @@ XY.buildReel = function (canvas) {
   const shot = (at, dur, fx, fy, s, ease) => tl.to(cam, { fx, fy, s, duration: dur, ease: ease || "power2.inOut" }, at);
   // Frame edges are placed in the gaps between letters so crops read as framing, not accidents:
   // visible half-width = (W / 2) / s; gaps sit at x = 538 (C|O), 1148 (E|S).
-  shot(0.25, 1.1, 400, 950, 1.25, "sine.inOut");      // ROLL: follow the lemon; frame reads "COOL"
+  shot(0, 1.35, 400, 950, 1.25, "sine.out");          // ROLL: already travelling on frame one; frame reads "COOL"
   shot(1.15, 1.2, 360, 930, 1.6);                     // CATCH: medium on ramp + C
   shot(2.45, 1.75, 668, 880, 1.6, "sine.inOut");      // FEED: track the OO, right edge in the E|S gap
   shot(4.2, 1.6, 990, 860, 1.7, "power2.out");        // CUT: close on the blade, left edge in the C|O gap
   tl.fromTo(cam, { x: 0 }, { x: 9, duration: 0.05, yoyo: true, repeat: 3, ease: "sine.inOut", immediateRender: false }, 6.05); // impact
-  shot(7.35, 1.05, 592, 1380, 1.38, "power2.inOut");  // FALL: tilt down with the wheel into the glass
+  shot(7.35, 1.4, 592, 1400, 1.4, "power2.inOut");    // FALL: tilt down with the wheel, still settling through the splash
   shot(8.75, 1.0, W / 2, H / 2, 1.0, "power3.inOut"); // HERO: pull out to the full poster
 
   // render the t=0 state now: seeking 0 -> 0 later would not apply the initial .set()s
   tl.progress(1, true).progress(0, true);
   stage.renderCam();
-  return { stage, tl, DURATION, BEATS };
+  return { stage, tl, DURATION, BEATS, parts: { lemonA, wheel, terracotta } };
 };
 
 
