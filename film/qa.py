@@ -52,6 +52,18 @@ print("flash frames:", [f"#{n} ({n / 30:.2f}s)" for n in flashes] or "none")
 if flashes:
     fail.append("flash frames")
 
+# 2c. picture sync: each hit's motion event sits within one frame of film/timing.json.
+# The event frame is the largest change in a +-4-frame window (contact / impact).
+timing = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "timing.json")))
+for k in ("catch", "strike", "splash", "stamp"):
+    n0 = round(timing["hits"][k]["t"] * 30)
+    lo, hi = max(1, n0 - 4), min(len(diff) - 1, n0 + 4)
+    peak = lo + int(np.argmax(diff[lo - 1:hi])) # diff[i] is change from frame i to i+1
+    off = peak - n0
+    print(f"picture sync {k:7s}: event frame #{peak} vs beat frame #{n0} ({off:+d} frames)")
+    if abs(off) > 1:
+        fail.append("picture sync " + k)
+
 # 3. safe zones (9:16 platform UI): top 11.5%, bottom 20%, right 13% of the lower half
 rects = json.load(open(os.path.join(out, "rects.json")))["rects"]
 def unsafe(r):

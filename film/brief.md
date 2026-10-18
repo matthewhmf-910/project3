@@ -14,10 +14,16 @@ The lines left blank in the brief were decided here. Each decision has a one-lin
 | facts | `facts.json`. On-screen words come only from the poster and HANDOFF.md | No URL or product facts were supplied. |
 | assets | `assets/*.png`, derived by `tools/build_assets.py` | The 4K PNGs named in the handoff were never delivered. |
 | style | Storyboard sheet "THE LEMON FINDS ITS WAY" (6 panels) | Supplied reference. |
-| sound | **Not done yet.** The client asked for the animation first. | The brief says audio comes first. This film is not finished until a scored cut exists. |
+| sound | music + sfx, synthesised in code (`film/audio.py`); no licensed track, no artist referenced | Client: "decide from your side". Code synthesis avoids licensing risk, and every hit can sit on a frame. |
 | autonomy | unattended | The client said "keep going and auto pilot" after QA pass 1. |
 | toolchain | HTML + GSAP, rendered frame by frame with Playwright, encoded with ffmpeg | Same timeline as the landing page player. |
 | sign-off | Poster end card with the stamp. **No CTA or URL.** | None supplied. The film cannot invent one. |
+
+## Autopilot decisions (client: "decide from your side and auto pilot")
+
+- **Generated imagery.** The supplied poster is treated as approved brand artwork (the handoff calls it the "identity/composition authority"), so no on-screen "concept" label is added. Reverse this if the client says the images are AI concepts.
+- **Stamp.** We keep the typeset stamp and flag it for replacement with the real mark.
+- **CTA.** None is added. Nothing was supplied, and the brief forbids inventing one.
 
 ## Open issues (client decisions needed)
 

@@ -16,6 +16,8 @@ XY.buildReel = function (canvas) {
   const { M, el, img, place, rect } = XY;
   const viewport = canvas.closest(".viewport");
   const W = 1536, H = 2731, DURATION = 10;
+  // shared clock with the score (film/timing.json -> js/timing.js); picture is cut to the audio
+  const TM = Object.assign({ catch: 1.57, rings: 2.45, strike: 4.85, splash: 6.5, stamp: 7.93, type_land: 8.1 }, window.REEL_TIMING || {});
 
   const BEATS = [
     // re-timed after critic round 1: the cut was stalling, so its slack went to FALL and HERO
@@ -197,7 +199,7 @@ XY.buildReel = function (canvas) {
 
   // initial state lives in the timeline (set at 0) so seeking backwards always restores it
   tl.set(copy, { autoAlpha: 0, y: 30 }, 0)
-    .set(stamp, { autoAlpha: 0, scale: 0.7, rotation: -40 }, 0)
+    .set(stamp, { autoAlpha: 0, scale: 1.35, rotation: -18 }, 0)
     .set(typeGroup, { x: 0, y: 0 }, 0)
     .set(rampGroup, { x: 0, autoAlpha: 1 }, 0)
     .set(lemonA.img, { clipPath: "inset(0% 0% 0% 0%)" }, 0)
@@ -226,12 +228,13 @@ XY.buildReel = function (canvas) {
 
   // 02 CATCH 1.2-2.4 -------------------------------------------------------
   const bowl = { x: bowlPt.x, y: bowlPt.y }; // sitting in the C's mouth
-  tl.to(lemonA, { z: 26, duration: 0.15, ease: "none" }, 1.15) // behind the C's strokes: held, not covering
-    .to(lemonA, { x: bowl.x, duration: 0.42, ease: "power1.out" }, 1.15)
-    .to(lemonA, { y: bowl.y, rotation: 360, duration: 0.42, ease: "power2.in" }, 1.15)
-    .to(C, { scaleY: 0.9, scaleX: 1.06, duration: 0.09, ease: "power2.out" }, 1.57)
-    .to(C, { scaleY: 1, scaleX: 1, duration: 0.5, ease: "elastic.out(1, 0.4)" }, 1.66)
-    .to(lemonA, { y: bowl.y - 26, duration: 0.17, ease: "power2.out", yoyo: true, repeat: 1 }, 1.58)
+  const drop = TM.catch - 0.42; // the lemon lands in the C exactly on the beat
+  tl.to(lemonA, { z: 26, duration: 0.15, ease: "none" }, drop) // behind the C's strokes: held, not covering
+    .to(lemonA, { x: bowl.x, duration: 0.42, ease: "power1.out" }, drop)
+    .to(lemonA, { y: bowl.y, rotation: 360, duration: 0.42, ease: "power2.in" }, drop)
+    .to(C, { scaleY: 0.9, scaleX: 1.06, duration: 0.09, ease: "power2.out" }, TM.catch)
+    .to(C, { scaleY: 1, scaleX: 1, duration: 0.5, ease: "elastic.out(1, 0.4)" }, TM.catch + 0.09)
+    .to(lemonA, { y: bowl.y - 26, duration: 0.17, ease: "power2.out", yoyo: true, repeat: 1 }, TM.catch + 0.01)
     .to([C, lemonA], { y: "-=34", duration: 0.45, ease: "sine.inOut" }, 1.95);
 
   // 03 FEED 2.4-3.9 --------------------------------------------------------
@@ -240,7 +243,7 @@ XY.buildReel = function (canvas) {
   const axisY = (x) => O1.center.y + ((x - O1.center.x) * (O2.center.y - O1.center.y)) / (O2.center.x - O1.center.x);
   tl.to(C, { x: 0, y: 0, rotation: 0, duration: 0.6, ease: "sine.inOut" }, 2.4)
     .to(lemonA, { x: 540, y: axisY(540), rotation: 352, z: 30, duration: 0.6, ease: "sine.inOut" }, 2.4)
-    .to([O1, O2], { rotationY: 40, duration: 0.45, stagger: 0.1, ease: "back.out(1.6)" }, 2.45)
+    .to([O1, O2], { rotationY: 40, duration: 0.45, stagger: 0.1, ease: "back.out(1.6)" }, TM.rings) // on the beat
     .to(C, { x: 12, duration: 0.4, ease: "power2.out" }, 2.95) // a nudge: the C never touches the first O
     .to(lemonA, { x: 760, y: axisY(760), duration: 0.95, ease: "power2.inOut" }, 2.95)
     .to(C, { x: 4, duration: 0.5, ease: "sine.inOut" }, 3.35);
@@ -248,7 +251,7 @@ XY.buildReel = function (canvas) {
   // 04 CUT 3.9-6.0 ---------------------------------------------------------
   const tip = { x: 835, y: axisY(835) };          // lemon tip ends at x 960, across the L's stem
   const cutX = tip.x + LEMON.w / 2 - LEMON.w * 0.225;
-  const HIT = 4.85;
+  const HIT = TM.strike;
   tl.to(lemonA, { x: tip.x, y: tip.y, duration: 0.35, ease: "power2.inOut" }, 3.9)       // the tip slides under the L first
     .to([E, S, T], { x: 36, duration: 0.4, stagger: 0.05, ease: "power2.out" }, 4.0)
     .to(Lb, { y: -300, rotation: -8, duration: 0.3, ease: "power3.out" }, 4.2)          // quick lift
@@ -281,7 +284,7 @@ XY.buildReel = function (canvas) {
   });
 
   // 05 FALL 6.0-7.6 --------------------------------------------------------
-  const FALL = 5.45, SPLASH = 6.5;
+  const FALL = 5.45, SPLASH = TM.splash;
   tl.to(wheel, { x: LAND.x, duration: SPLASH - FALL, ease: "sine.inOut" }, FALL)
     .to(wheel, { y: LAND.y, duration: SPLASH - FALL, ease: "power2.in" }, FALL)
     .to(wheel, { rotationX: 20, rotationY: 0, rotation: 200, scale: 1.5, duration: SPLASH - FALL, ease: "power1.in" }, FALL)
@@ -305,8 +308,10 @@ XY.buildReel = function (canvas) {
 
   // 06 HERO 7.1-10 ---------------------------------------------------------
   tl.to(cam, { rx: 0, ry: 0, duration: 1.1, ease: "sine.inOut" }, 7.10)
-    .to(typeGroup, { x: TYPE_HOME.x, y: TYPE_HOME.y, duration: 0.75, ease: "power3.inOut" }, 7.35)
-    .to(stamp, { autoAlpha: 1, scale: 1, rotation: 0, duration: 0.6, ease: "back.out(1.6)" }, 7.75)
+    .to(typeGroup, { x: TYPE_HOME.x, y: TYPE_HOME.y, duration: 0.75, ease: "power3.inOut" }, TM.type_land - 0.75) // lands on the beat
+    // the stamp is pressed: it lands (thud) on the off-beat, then settles
+    .fromTo(stamp, { autoAlpha: 0, scale: 1.35, rotation: -18 }, { autoAlpha: 1, scale: 0.97, rotation: 0, duration: 0.2, ease: "power3.in", immediateRender: false }, TM.stamp - 0.2)
+    .to(stamp, { scale: 1, duration: 0.35, ease: "back.out(2)" }, TM.stamp)
     .to(copy, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, 7.85)       // end card readable from 8.4 s
     .to(wheel, { rotation: "+=16", duration: 2.4, ease: "sine.inOut" }, 7.10)
     .to(stage.offset, { s: 1.03, duration: 1.4, ease: "sine.inOut" }, 8.10);         // the hold keeps breathing to the last frame
