@@ -145,7 +145,7 @@ XY.buildReel = function (canvas) {
   const ripple = layer("ripple", null, 58);
   gsap.set(ripple, { xPercent: -50, yPercent: -50, x: LAND.x, y: LAND.y + 24 });
 
-  const stamp = pngLayer("06_STAMP.png", { x: 96, y: 360, w: 330, h: 332 }, 40); // 1.2x; below the top UI band, above the C
+  const stamp = pngLayer("06_STAMP.png", { x: 96, y: 425, w: 330, h: 332 }, 40); // 1.2x; below the top UI band (incl. end push-in), above the C
 
   /* ---------------------------------------------------------------- timeline */
   const cam = stage.cam;
