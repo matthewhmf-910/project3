@@ -24,6 +24,8 @@ The lines left blank in the brief were decided here. Each decision has a one-lin
 - **Generated imagery.** The supplied poster is treated as approved brand artwork (the handoff calls it the "identity/composition authority"), so no on-screen "concept" label is added. Reverse this if the client says the images are AI concepts.
 - **Stamp.** We keep the typeset stamp and flag it for replacement with the real mark.
 - **CTA.** None is added. Nothing was supplied, and the brief forbids inventing one.
+- **Chute angle (critic 14 asked for ~30°).** Kept at 42°. The ramp has to deliver the lemon from the top-left start pose into the C's mouth inside the 1.2 s roll, and a 30° chute that ends at the C would start off-frame. This is a framing trade-off, not an oversight.
+- **Lemon stub exit (critic 14: "exits unresolved").** It rolls back out left through the rings while the camera follows the wheel. This is accepted as an exit (the stub is spent), and is revisited only if a critic flags it again.
 
 ## Open issues (client decisions needed)
 
