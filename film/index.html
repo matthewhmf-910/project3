@@ -36,14 +36,20 @@
       window.FILM = {
         fps: 30, duration: DURATION, beats: BEATS.map((b) => ({ name: b.name, t: b.t })),
         ready: () => Promise.all([document.fonts.ready, ...[...document.images].map((i) => i.decode().catch(() => {}))]),
-        seek(t) {
+        set(t) {
           tl.pause();
           tl.seek(t, false);
           stage.renderCam();
         },
+        // resolves once Chrome has painted the new state (two rAFs): without this, large
+        // layers were sometimes captured before rasterising and silently missing from a frame
+        seek(t) {
+          this.set(t);
+          return new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+        },
         // everything that moves, as one string: equal at both shutter edges = no blur needed
         signature(t) {
-          this.seek(t);
+          this.set(t);
           return [stage.rig, ...document.querySelectorAll(".layer, .letter img, .lemon img")]
             .map((n) => n.style.transform + n.style.opacity + n.style.clipPath + n.style.visibility).join("|");
         },

@@ -44,6 +44,14 @@ print(f"frozen total {frozen:.2f}s (limit <{seconds / 30:.2f}s)  stills >0.5s: {
 if frozen >= seconds / 30 or long_runs:
     fail.append("frozen")
 
+# 2b. flash frames: one frame unlike both neighbours while the neighbours agree
+# (catches layers dropped by a capture race, a bad sub-sample, or a pop)
+pair = np.array([np.abs(a - b).mean() for a, b in zip(lum, lum[2:])])  # n-1 vs n+1
+flashes = [i + 1 for i in range(len(pair)) if diff[i] > 6 and diff[i + 1] > 6 and pair[i] < 0.35 * min(diff[i], diff[i + 1])]
+print("flash frames:", [f"#{n} ({n / 30:.2f}s)" for n in flashes] or "none")
+if flashes:
+    fail.append("flash frames")
+
 # 3. safe zones (9:16 platform UI): top 11.5%, bottom 20%, right 13% of the lower half
 rects = json.load(open(os.path.join(out, "rects.json")))["rects"]
 def unsafe(r):
