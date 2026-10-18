@@ -194,7 +194,7 @@ sfx += np.sin(2 * np.pi * 220 * t) * env(H["strike"], 0.004, 0.2) * 0.4
 xs = t - H["strike"]
 stab_env = np.clip(xs / 0.006, 0, 1) * np.where(xs < 0.16, 1.0, np.exp(-(xs - 0.16) / 0.12)) * (xs >= 0)
 stab = sum(np.sin(2 * np.pi * hz(m) * t + k) * (1 if m < 72 else 0.6) for k, m in enumerate([64, 67, 71, 74, 76, 78]))
-sfx += stab * stab_env * 0.55
+sfx += stab * stab_env * 0.62
 sfx += bp(noise, 2500, 7000) * env(H["strike"] + 0.03, 0.01, 0.06) * 0.12          # juice spritz
 fall_len = H["splash"] - H["fall"]
 fall = whoosh(H["fall"], fall_len, 600, 2200, 1.0, rise=False)
@@ -272,13 +272,28 @@ def master(x, target=-14.0, ceiling_db=-2.4):  # -2.0: AAC encoding adds ~0.4 dB
 
 
 A = os.path.join(OUT, "audio")
-for name, sig in (("mix.wav", mix), ("music_only.wav", music)):
-    m = master(sig / max(1e-9, np.abs(sig).max()) * 0.5)
-    wavfile.write(os.path.join(A, name), SR, (np.clip(m, -1, 1) * 32767).astype(np.int16))
-for wav, mp4 in (("mix.wav", "reel_sound.mp4"), ("music_only.wav", "reel_music_only.mp4")):
-    subprocess.run([FF, "-y", "-loglevel", "error", "-i", os.path.join(OUT, "reel.mp4"), "-i", os.path.join(A, wav),
-                    "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "256k", "-shortest",
-                    "-movflags", "+faststart", os.path.join(OUT, mp4)], check=True)
+
+
+def encoded_tp(path):
+    r = subprocess.run([FF, "-hide_banner", "-i", path, "-af", "ebur128=peak=true", "-f", "null", "-"], capture_output=True, text=True).stderr
+    return float(re.findall(r"Peak:\s+(-?[\d.]+) dBFS", r)[-1])
+
+
+# master -> encode -> measure the encoded true peak; AAC overshoots on sharp transients by a
+# varying amount, so the ceiling is lowered by the measured overshoot until the delivered file passes
+for name, sig, mp4 in (("mix.wav", mix, "reel_sound.mp4"), ("music_only.wav", music, "reel_music_only.mp4")):
+    ceiling = -2.0
+    for attempt in range(4):
+        m = master(sig / max(1e-9, np.abs(sig).max()) * 0.5, ceiling_db=ceiling)
+        wavfile.write(os.path.join(A, name), SR, (np.clip(m, -1, 1) * 32767).astype(np.int16))
+        subprocess.run([FF, "-y", "-loglevel", "error", "-i", os.path.join(OUT, "reel.mp4"), "-i", os.path.join(A, name),
+                        "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "256k", "-shortest",
+                        "-movflags", "+faststart", os.path.join(OUT, mp4)], check=True)
+        tp = encoded_tp(os.path.join(OUT, mp4))
+        if tp <= -1.5:
+            break
+        ceiling -= tp + 1.6  # lower by the overshoot, plus a little
+    print(f"{mp4}: limiter ceiling {ceiling:.1f} dB -> encoded true peak {tp:.1f} dBTP ({attempt + 1} pass)")
 
 # ------------------------------------------------------------------ measured report
 def measure(path):
