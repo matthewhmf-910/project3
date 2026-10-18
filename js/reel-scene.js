@@ -224,7 +224,7 @@ XY.buildReel = function (canvas) {
   const bowlPt = { x: rollEnd.x + 125, y: rollEnd.y + 95 };
   const CUP = { x: bowlPt.x - mouth[0] * 55, y: bowlPt.y - mouth[1] * 55 };
   tl.fromTo(lemonA, { ...rollStart, rotation: RAMP.angle }, { rotation: RAMP.angle - 6, duration: 0.14, ease: "sine.out" }, 0)
-    .to(lemonA, { ...rollEnd, rotation: RAMP.angle + 360, duration: 0.95, ease: "power2.in" }, 0.2)
+    .to(lemonA, { ...rollEnd, rotation: RAMP.angle + 360, duration: 0.95, ease: "power1.in" }, 0.2) // visibly rolling from 0.2, with its sound (critic 14)
     .fromTo(lemonB, { rotation: RAMP.angle }, { rotation: RAMP.angle + 8, duration: 0.25, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.3)
     // C swings into a cradle under the end of the ramp, eased in and out
     .fromTo(C, { x: 0, y: 0, rotation: 0, scaleX: 1, scaleY: 1 },
@@ -284,7 +284,11 @@ XY.buildReel = function (canvas) {
     .to(C, { x: 0, duration: 0.35, ease: "power2.in" }, RL.C - 0.35)
     .to(E, { x: 0, duration: 0.35, ease: "power2.in" }, RL.E - 0.35)
     .to(S, { x: 0, duration: 0.35, ease: "power2.in" }, RL.S - 0.35)
-    .to(T, { x: 0, duration: 0.35, ease: "power2.in" }, RL.T - 0.35);
+    .to(T, { x: 0, duration: 0.35, ease: "power2.in" }, RL.T - 0.35)
+    // a visible settle under each click (critic 14: E/S/T clicked but barely moved)
+    .to(E, { x: -5, duration: 0.06, yoyo: true, repeat: 1, ease: "sine.out" }, RL.E)
+    .to(S, { x: -5, duration: 0.06, yoyo: true, repeat: 1, ease: "sine.out" }, RL.S)
+    .to(T, { x: -5, duration: 0.06, yoyo: true, repeat: 1, ease: "sine.out" }, RL.T);
   juice.forEach((d, i) => {
     const a = -Math.PI * (0.25 + 0.5 * (i / (juice.length - 1)));
     tl.fromTo(d, { x: cutX + 6, y: tip.y, autoAlpha: 1, scale: 1 },

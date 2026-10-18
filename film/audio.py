@@ -175,7 +175,7 @@ def whoosh(t0, length, lo, hi, gain, rise=True):
 
 roll = whoosh(H["roll"], 0.95, 500, 1500, 0.75)                                    # roll down the chute
 roll *= 1 + 0.5 * np.sin(2 * np.pi * 9 * np.clip(t - H["roll"], 0, None))           # a lemon tumbling, not just air
-roll *= 0.25 + 0.75 * np.clip((t - H["roll"]) / 0.5, 0, 1)                           # follows the power2.in roll: was +8 dB over the picture at 0.2-0.4 s
+roll *= np.clip((t - H["roll"]) / 0.04, 0, 1) * (1.6 - 0.6 * np.clip((t - H["roll"]) / 0.5, 0, 1))  # present from the first rolling frame (was ~8 dB faint at 0.2-0.4 s, critic 14)
 sfx += roll
 sfx += lp(np.sin(2 * np.pi * 820 * t) * env(H["catch"], 0.001, 0.05) + 0.5 * np.sin(2 * np.pi * 1530 * t) * env(H["catch"], 0.001, 0.03), 4000) * 0.7  # wooden tock
 sfx += hp(noise, 2000) * env(H["catch"], 0.0005, 0.006) * 0.25                   # tock click
