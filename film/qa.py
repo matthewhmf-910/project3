@@ -1,0 +1,94 @@
+"""Measured quality bar for a render: python3 film/qa.py dist/film
+
+Reports exact duration / size / fps, frozen stretches, safe-zone collisions,
+text contrast and brand-colour match. Exit code 1 if a hard limit fails.
+"""
+import json
+import os
+import re
+import subprocess
+import sys
+
+import imageio_ffmpeg
+import numpy as np
+from PIL import Image
+
+out = sys.argv[1]
+fail = []
+
+# 1. exact duration, size, frame rate
+info = subprocess.run([imageio_ffmpeg.get_ffmpeg_exe(), "-i", os.path.join(out, "reel.mp4")], capture_output=True, text=True).stderr
+dur = re.search(r"Duration: (\d+):(\d+):([\d.]+)", info)
+seconds = int(dur[1]) * 3600 + int(dur[2]) * 60 + float(dur[3])
+size = re.search(r", (\d{3,5})x(\d{3,5})", info)
+fps = re.search(r"([\d.]+) fps", info)
+print(f"duration {seconds:.3f}s  size {size[1]}x{size[2]}  fps {fps[1]}")
+if abs(seconds - 10) > 0.034 or size[0] != ", 1080x1920" or float(fps[1]) != 30:
+    fail.append("format")
+
+# 2. frozen frames: consecutive-frame difference on a downscaled luma copy
+frames_dir = os.path.join(out, "frames")
+files = sorted(os.listdir(frames_dir))
+lum = [np.asarray(Image.open(os.path.join(frames_dir, f)).convert("L").resize((270, 480)), np.float32) for f in files]
+diff = np.array([np.abs(a - b).mean() for a, b in zip(lum, lum[1:])])
+still = diff < 0.15  # below visible change
+runs, start = [], None
+for i, s in enumerate(list(still) + [False]):
+    if s and start is None:
+        start = i
+    elif not s and start is not None:
+        runs.append((start, i)); start = None
+frozen = sum(b - a for a, b in runs) / 30
+long_runs = [(a / 30, b / 30) for a, b in runs if (b - a) / 30 > 0.5]
+print(f"frozen total {frozen:.2f}s (limit <{seconds / 30:.2f}s)  stills >0.5s: {long_runs or 'none'}")
+if frozen >= seconds / 30 or long_runs:
+    fail.append("frozen")
+
+# 3. safe zones (9:16 platform UI): top 11.5%, bottom 20%, right 13% of the lower half
+rects = json.load(open(os.path.join(out, "rects.json")))["rects"]
+def unsafe(r):
+    return r["y"] < 221 or r["y"] + r["h"] > 1536 or (r["x"] + r["w"] > 940 and r["y"] + r["h"] > 960) or r["x"] < 0 or r["x"] + r["w"] > 1080
+hits = {}
+for n, rs in rects.items():
+    for r in rs:
+        if unsafe(r):
+            hits.setdefault(r["label"].split(" ")[0], []).append(int(n))
+for label, ns in sorted(hits.items()):
+    print(f"safe-zone: {label} outside on {len(ns)} frames ({min(ns) / 30:.2f}-{max(ns) / 30:.2f}s)")
+endcard = {k: v for k, v in hits.items() if (k.startswith("copy") or k == "stamp" or k.startswith("letter")) and max(v) >= 270}
+if endcard:
+    fail.append("safe-zone on end card")
+print("end card (9.0-10s) inside safe area:", "no" if endcard else "yes")
+
+# 4. contrast of end-card text on its actual background
+def lin(c):
+    c = c / 255
+    return np.where(c <= 0.04045, c / 12.92, ((c + 0.055) / 1.055) ** 2.4)
+def L(rgb):
+    r, g, b = lin(np.array(rgb, np.float64))
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+last = np.asarray(Image.open(os.path.join(frames_dir, files[-1])).convert("RGB"), np.float64)
+kicker = [r for r in rects[str(len(files) - 1)] if "kicker" in r["label"]]
+if kicker:
+    k = kicker[0]
+    patch = last[int(k["y"]):int(k["y"] + k["h"]), int(k["x"]):int(k["x"] + k["w"])].reshape(-1, 3)
+    bg = np.median(patch[patch.sum(1) > np.percentile(patch.sum(1), 60)], 0)
+    terracotta = (0xA3, 0x48, 0x1E)
+    ratio = (max(L(bg), L(terracotta)) + 0.05) / (min(L(bg), L(terracotta)) + 0.05)
+    print(f"contrast kicker #A3481E on {tuple(int(x) for x in bg)}: {ratio:.2f}:1 (need >=4.5)")
+    if ratio < 4.5:
+        fail.append("contrast")
+
+# 5. brand colours present in the last frame
+px = last.reshape(-1, 3)
+for name, tok in {"sage #7A8666": (0x7A, 0x86, 0x66), "terracotta #A3481E": (0xA3, 0x48, 0x1E), "ivory #F4EFE6": (0xF4, 0xEF, 0xE6)}.items():
+    d = np.sqrt(((px - tok) ** 2).sum(1))
+    near = px[d < 40]
+    mean = near.mean(0) if len(near) else None
+    off = np.sqrt(((mean - tok) ** 2).sum()) if mean is not None else 999
+    print(f"brand {name}: {len(near) / len(px) * 100:.1f}% of frame, mean off by {off:.1f} RGB")
+    if off > 12:
+        fail.append("brand " + name)
+
+print("RESULT:", "PASS" if not fail else "FAIL " + ", ".join(fail))
+sys.exit(1 if fail else 0)

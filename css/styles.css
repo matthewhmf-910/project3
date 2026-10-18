@@ -333,3 +333,7 @@ a { color: inherit; }
 .foot__quote { max-width: 18em; margin: 0 auto; font: italic 400 clamp(28px, 4vw, 52px)/1.15 var(--font-serif); }
 .foot__brand { margin-top: 40px; font: 600 12px/1.6 var(--font-sans); letter-spacing: .2em; text-transform: uppercase; opacity: .85; }
 .foot__brand span { font-family: "Noto Serif TC", var(--font-serif); letter-spacing: .1em; }
+
+/* reel end card: text and stamp sit inside the 9:16 safe area (top 11.5%, bottom 20%, right 13% are platform UI) */
+.is-reel .copy__kicker { left: auto; right: 210px; top: 360px; text-align: right; font-size: 50px; }
+.is-reel .copy__ritual, .is-reel .copy__ritual-rule { display: none; } /* the stamp already says it */

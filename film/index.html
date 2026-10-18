@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-asset-base="../">
+<head>
+  <meta charset="utf-8">
+  <title>Coolest Coffee: reel (render target)</title>
+  <!-- Render target for film/render.js: one 1080x1920 frame, driven only by FILM.seek(t). -->
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    html, body { margin: 0; background: #000; overflow: hidden; }
+    .film { width: 1080px; height: 1920px; overflow: hidden; background: var(--paper); }
+    /* offline render: let every frame re-rasterise at its true scale (crisp when the camera zooms) */
+    .film .layer, .film .group { will-change: auto; }
+  </style>
+</head>
+<body>
+  <div class="viewport film"><div class="rig"><div class="canvas" id="filmCanvas"></div></div></div>
+
+  <script src="../vendor/gsap.min.js"></script>
+  <script src="../vendor/ScrollTrigger.min.js"></script>
+  <script src="../assets/manifest.js"></script>
+  <script src="../js/stage.js"></script>
+  <script src="../js/reel-scene.js"></script>
+  <script>
+    (function () {
+      const { stage, tl, DURATION, BEATS } = XY.buildReel(document.getElementById("filmCanvas"));
+      stage.fit(1080, 1920);
+      gsap.ticker.sleep(); // no wall clock: every frame comes from seek(t)
+
+      const visible = (el) => {
+        for (let n = el; n && n !== document.body; n = n.parentElement) {
+          const cs = getComputedStyle(n);
+          if (cs.display === "none" || cs.visibility === "hidden" || +cs.opacity < 0.05) return false;
+        }
+        return true;
+      };
+      window.FILM = {
+        fps: 30, duration: DURATION, beats: BEATS.map((b) => ({ name: b.name, t: b.t })),
+        ready: () => Promise.all([document.fonts.ready, ...[...document.images].map((i) => i.decode().catch(() => {}))]),
+        seek(t) {
+          tl.pause();
+          tl.seek(t, false);
+          stage.renderCam();
+        },
+        // everything that moves, as one string: equal at both shutter edges = no blur needed
+        signature(t) {
+          this.seek(t);
+          return [stage.rig, ...document.querySelectorAll(".layer, .letter img, .lemon img")]
+            .map((n) => n.style.transform + n.style.opacity + n.style.clipPath + n.style.visibility).join("|");
+        },
+        // on-screen text and marks, in video px, for the safe-zone check
+        textRects() {
+          const out = [];
+          const add = (label, el) => {
+            if (!visible(el)) return;
+            const r = el.getBoundingClientRect();
+            out.push({ label, x: r.left, y: r.top, w: r.width, h: r.height });
+          };
+          document.querySelectorAll(".copy p").forEach((p) => add("copy:" + p.className, p));
+          document.querySelectorAll(".letter").forEach((l, i) => add("letter:" + "COOLEST"[i], l));
+          const stamp = document.querySelector('img[src$="06_STAMP.png"]');
+          if (stamp) add("stamp", stamp.parentElement);
+          return out;
+        },
+      };
+    })();
+  </script>
+</body>
+</html>

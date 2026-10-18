@@ -18,7 +18,9 @@
   XY.reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   XY.finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
   // the standalone build (tools/build_standalone.py) inlines assets into window.ASSET_DATA
-  XY.asset = (file) => (window.ASSET_DATA && window.ASSET_DATA[file]) || "assets/" + file;
+  // pages outside the root (film/) set <html data-asset-base="../">
+  const base = document.documentElement.getAttribute("data-asset-base") || "";
+  XY.asset = (file) => (window.ASSET_DATA && window.ASSET_DATA[file]) || base + "assets/" + file;
   XY.rect = (file) => XY.M.layers[file];
   /* Size scenes from clientWidth, never innerWidth: on phones innerWidth grows
      with any horizontal overflow, which fed back into the stage size and
@@ -67,7 +69,8 @@
       rig: viewport.querySelector(".rig"),
       canvas: viewport.querySelector(".canvas"),
       w, h, k: 1,
-      cam: { rx: 0, ry: 0, s: 1, x: 0, y: 0 },
+      // fx/fy: the canvas point the camera centres on (null = canvas centre); s zooms about it
+      cam: { rx: 0, ry: 0, s: 1, x: 0, y: 0, fx: null, fy: null },
       hover: { rx: 0, ry: 0, lift: 0 },
       offset: { rx: 0, ry: 0, s: 1 }, // a third, independent camera input (e.g. a button)
     };
@@ -87,8 +90,12 @@
 
     stage.renderCam = function () {
       const c = stage.cam, hv = stage.hover, o = stage.offset;
+      const s = c.s * o.s;
+      // bring the focus point to the viewport centre, in screen px
+      const fx = c.fx == null ? 0 : -s * (c.fx - stage.w / 2) * stage.k;
+      const fy = c.fy == null ? 0 : -s * (c.fy - stage.h / 2) * stage.k;
       stage.rig.style.transform =
-        `translate3d(${c.x}px, ${c.y}px, 0) rotateX(${c.rx + hv.rx + o.rx}deg) rotateY(${c.ry + hv.ry + o.ry}deg) scale(${c.s * o.s})`;
+        `translate3d(${c.x + fx}px, ${c.y + fy}px, 0) rotateX(${c.rx + hv.rx + o.rx}deg) rotateY(${c.ry + hv.ry + o.ry}deg) scale(${c.s * o.s})`;
     };
 
     return stage;

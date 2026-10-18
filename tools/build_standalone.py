@@ -59,7 +59,7 @@ html = re.sub(r'(<img\b[^>]*?)src="assets/([^"]+)"', r'\1data-asset="\2"', html)
 html = html.replace(' loading="lazy"', "")  # data URIs gain nothing from lazy loading
 
 for src in ["vendor/gsap.min.js", "vendor/ScrollTrigger.min.js", "assets/manifest.js",
-            "js/stage.js", "js/hero.js", "js/reel.js", "js/window.js"]:
+            "js/stage.js", "js/hero.js", "js/reel-scene.js", "js/reel.js", "js/window.js"]:
     tag = '<script src="%s"></script>' % src
     assert tag in html, tag
     html = html.replace(tag, script(src))
