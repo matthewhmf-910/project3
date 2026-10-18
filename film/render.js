@@ -21,7 +21,8 @@ const ffmpeg = process.env.FFMPEG || execFileSync("python3", ["-c", "import imag
 
 (async () => {
   const frames = path.join(out, "frames"), subs = path.join(out, "sub");
-  fs.rmSync(out, { recursive: true, force: true });
+  const keep = args.includes("--keep"); // re-render only --from..--to into an existing render, then re-encode all
+  if (!keep) fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(frames, { recursive: true });
   fs.mkdirSync(subs, { recursive: true });
 
@@ -57,12 +58,14 @@ const ffmpeg = process.env.FFMPEG || execFileSync("python3", ["-c", "import imag
   }
   await browser.close();
   if (errors.length) { console.error("page errors:", errors); process.exit(1); }
-  fs.writeFileSync(path.join(out, "rects.json"), JSON.stringify({ fps: FPS, duration, first, rects }));
+  const rectsFile = path.join(out, "rects.json");
+  const merged = keep && fs.existsSync(rectsFile) ? { ...JSON.parse(fs.readFileSync(rectsFile)).rects, ...rects } : rects;
+  fs.writeFileSync(rectsFile, JSON.stringify({ fps: FPS, duration, first: keep ? 0 : first, rects: merged }));
 
   // average the sub-samples (numpy), then encode
   execFileSync("python3", ["-I", path.join(__dirname, "accumulate.py"), subs, frames, String(SUB)], { stdio: "inherit" });
   fs.rmSync(subs, { recursive: true, force: true });
-  if (STEP === 1) execFileSync(ffmpeg, ["-y", "-loglevel", "error", "-framerate", String(FPS), "-start_number", String(first),
+  if (STEP === 1) execFileSync(ffmpeg, ["-y", "-loglevel", "error", "-framerate", String(FPS), "-start_number", String(keep ? 0 : first),
     "-i", path.join(frames, "f_%04d.png"), "-c:v", "libx264", "-preset", "slow", "-crf", "16",
     "-pix_fmt", "yuv420p", "-movflags", "+faststart", path.join(out, "reel.mp4")], { stdio: "inherit" });
   if (STEP > 1) return console.log(`preview: every ${STEP}th frame in ${path.join(out, "frames")}`);

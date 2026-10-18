@@ -15,7 +15,7 @@ The lines left blank in the brief were decided here. Each decision has a one-lin
 | assets | `assets/*.png`, derived by `tools/build_assets.py` | The 4K PNGs named in the handoff were never delivered. |
 | style | Storyboard sheet "THE LEMON FINDS ITS WAY" (6 panels) | Supplied reference. |
 | sound | **Not done yet.** The client asked for the animation first. | The brief says audio comes first. This film is not finished until a scored cut exists. |
-| autonomy | gated | The client is reviewing step by step. |
+| autonomy | unattended | The client said "keep going and auto pilot" after QA pass 1. |
 | toolchain | HTML + GSAP, rendered frame by frame with Playwright, encoded with ffmpeg | Same timeline as the landing page player. |
 | sign-off | Poster end card with the stamp. **No CTA or URL.** | None supplied. The film cannot invent one. |
 
