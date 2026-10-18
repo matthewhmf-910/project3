@@ -1,10 +1,35 @@
 {
   "note": "Every word that appears on screen, with its exact source. Nothing else may be added.",
   "claims": [
-    { "text": "COOLEST", "where": "type block, whole film", "source": "assets/_source/poster_hero.png", "source_text": "COOLEST (poster headline)" },
-    { "text": "COFFEE", "where": "type block, whole film", "source": "assets/_source/poster_hero.png", "source_text": "COFFEE (poster headline)" },
-    { "text": "SLOW BREW / GOOD MOOD", "where": "end card, from 9.4 s", "source": "assets/_source/poster_hero.png", "source_text": "SLOW BREW GOOD MOOD (poster, top left)" },
-    { "text": "夏野豆行 · DAILY RITUAL", "where": "end-card stamp, from 9.3 s", "source": "HANDOFF.md", "source_text": "`06_STAMP.png` | Identity Badge | \"夏野豆行 · DAILY RITUAL\" circular brand stamp" }
+    {
+      "text": "COOLEST",
+      "where": "type block, whole film",
+      "source": "assets/_source/poster_hero.png",
+      "source_text": "COOLEST (poster headline)"
+    },
+    {
+      "text": "COFFEE",
+      "where": "type block, whole film",
+      "source": "assets/_source/poster_hero.png",
+      "source_text": "COFFEE (poster headline)"
+    },
+    {
+      "text": "SLOW BREW / GOOD MOOD",
+      "where": "end card, from 8.35 s",
+      "source": "assets/_source/poster_hero.png",
+      "source_text": "SLOW BREW GOOD MOOD (poster, top left)"
+    },
+    {
+      "text": "夏野豆行 · DAILY RITUAL",
+      "where": "end-card stamp, from 8.25 s",
+      "source": "HANDOFF.md",
+      "source_text": "`06_STAMP.png` | Identity Badge | \"夏野豆行 · DAILY RITUAL\" circular brand stamp"
+    }
   ],
-  "not_on_screen_by_design": ["prices", "ratings", "testimonials", "URL (none supplied)"]
+  "not_on_screen_by_design": [
+    "prices",
+    "ratings",
+    "testimonials",
+    "URL (none supplied)"
+  ]
 }

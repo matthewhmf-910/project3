@@ -281,7 +281,7 @@ a { color: inherit; }
 .letter img { position: absolute; max-width: none; }
 .wheel { width: 230px; height: 230px; opacity: 0; visibility: hidden; }
 .wheel svg { width: 100%; height: 100%; display: block; }
-.drop { width: 34px; height: 34px; border-radius: 50%; background: #d7ab7c; opacity: 0; visibility: hidden; }
+.drop { width: 34px; height: 34px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fffaf0 0 14%, #e3bd92 38%, #b4875a 100%); opacity: 0; visibility: hidden; }
 .ripple { width: 420px; height: 100px; border-radius: 50%; border: 8px solid rgba(255, 246, 228, .85); opacity: 0; visibility: hidden; }
 
 /* ------------------------------------------------------------ window */
@@ -335,7 +335,9 @@ a { color: inherit; }
 .foot__brand span { font-family: "Noto Serif TC", var(--font-serif); letter-spacing: .1em; }
 
 /* reel end card: text and stamp sit inside the 9:16 safe area (top 11.5%, bottom 20%, right 13% are platform UI) */
-.is-reel .copy__kicker { left: auto; right: 210px; top: 380px; text-align: right; font-size: 64px; }
+.is-reel .copy__kicker { left: auto; right: 210px; top: 400px; text-align: right; font-size: 88px; line-height: 1.45; }
 .is-reel .copy__ritual, .is-reel .copy__ritual-rule { display: none; } /* the stamp already says it */
 .drop--juice { width: 18px; height: 18px; background: #f3cf3e; }
 .wheel-shadow { width: 330px; height: 90px; border-radius: 50%; background: radial-gradient(closest-side, rgba(70, 40, 15, .45), rgba(70, 40, 15, 0)); opacity: 0; visibility: hidden; }
+.ramp__front { height: 24px; transform-origin: 0 0; background: #8d9874; border-radius: 3px; box-shadow: inset 0 -6px 8px rgba(44, 35, 24, .18); }
+.ripple--inner { width: 300px; height: 72px; border-width: 6px; }
