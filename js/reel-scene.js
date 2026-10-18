@@ -18,18 +18,21 @@ XY.buildReel = function (canvas) {
   const W = 1536, H = 2731, DURATION = 10;
 
   const BEATS = [
+    // re-timed after critic round 1: the cut was stalling, so its slack went to FALL and HERO
     { name: "Roll", t: [0, 1.2], desc: "A rolls down. B and C stay behind the stop." },
-    { name: "Catch", t: [1.2, 2.5], desc: "C turns upward and physically supports A." },
-    { name: "Feed", t: [2.5, 4.2], desc: "C pushes the same whole lemon through the OO." },
-    { name: "Cut", t: [4.2, 7.4], desc: "Only the original L cuts. One stroke, one wheel." },
-    { name: "Fall", t: [7.4, 8.8], desc: "The wheel lands in the glass. The blade stays above the rim." },
-    { name: "Hero", t: [8.8, 10], desc: "Everything settles back into the poster, with one fresh wheel added." },
+    { name: "Catch", t: [1.2, 2.4], desc: "C turns upward and physically supports A." },
+    { name: "Feed", t: [2.4, 3.9], desc: "C pushes the same whole lemon through the OO." },
+    { name: "Cut", t: [3.9, 6.0], desc: "Only the original L cuts. One stroke, one wheel." },
+    { name: "Fall", t: [6.0, 7.6], desc: "The wheel lands in the glass. The blade stays above the rim." },
+    { name: "Hero", t: [7.6, 10], desc: "Everything settles back into the poster, with one fresh wheel added." },
   ];
 
   /* ---------------------------------------------------------------- geometry */
   const cup = rect("01_CUP_LEMON.png");
   const cool = rect("04_TYPE_COOLEST.png");
-  const product = (r) => ({ x: 278 + (r.x - cup.x) * 1.5, y: 1250 + (r.y - cup.y) * 1.5, w: r.w * 1.5, h: r.h * 1.5 });
+  // product group sits so the coaster edge the poster cropped lands on the frame's bottom edge
+  const PY = H - (M.canvas.h - cup.y) * 1.5;
+  const product = (r) => ({ x: 278 + (r.x - cup.x) * 1.5, y: PY + (r.y - cup.y) * 1.5, w: r.w * 1.5, h: r.h * 1.5 });
   // The set-piece sits low enough that the L's lift never enters the top 9:16
   // platform-UI band (top 11.5% = 314 canvas px); see SAFE in film/render.js.
   const DY = 200;
@@ -37,9 +40,9 @@ XY.buildReel = function (canvas) {
   const ts = TYPE.w / cool.w;
   TYPE.h = cool.h * ts;
   const typeRect = (r) => ({ x: TYPE.x + (r.x - cool.x) * ts, y: TYPE.y + (r.y - cool.y) * ts, w: r.w * ts, h: r.h * ts });
-  const TYPE_HOME = { x: 228 - TYPE.x, y: 560 - TYPE.y }; // end-card position of the type block
+  const TYPE_HOME = { x: 228 - TYPE.x, y: 700 - TYPE.y }; // end-card position of the type block (glass rim overlaps COFFEE, as on the poster)
 
-  const LEMON = { w: 200, h: 135 };
+  const LEMON = { w: 250, h: 169 }; // 1.25x after critic round 1: readable at phone size
   // anchored at its lower end, which feeds the C; steep enough that the waiting lemons are in frame
   const RAMP = { endX: 292, endY: 668 + DY, angle: 48, length: 520, stop: 196 };
   const ux = Math.cos((RAMP.angle * Math.PI) / 180), uy = Math.sin((RAMP.angle * Math.PI) / 180);
@@ -98,7 +101,7 @@ XY.buildReel = function (canvas) {
     const n = layer("lemon", null, z, parent);
     const im = img("12_LEMON.png", n);
     el("span", "lemon__cut", n);
-    gsap.set(n, { xPercent: -50, yPercent: -50 });
+    gsap.set(n, { xPercent: -50, yPercent: -50, width: LEMON.w, height: LEMON.h });
     n.img = im;
     return n;
   }
@@ -106,9 +109,9 @@ XY.buildReel = function (canvas) {
   const lemonC = lemon(rampGroup, 3);
   const lemonA = lemon(canvas, 36);
   const putOnRamp = (n, d, spin) => gsap.set(n, { ...onRamp(d), rotation: RAMP.angle + (spin || 0) });
-  putOnRamp(lemonC, RAMP.stop - 70 - LEMON.w);
-  putOnRamp(lemonB, RAMP.stop - 70);
-  putOnRamp(lemonA, RAMP.stop + 70);
+  putOnRamp(lemonC, RAMP.stop - 20 - LEMON.w * 1.5);
+  putOnRamp(lemonB, RAMP.stop - 20 - LEMON.w / 2);
+  putOnRamp(lemonA, RAMP.stop + 20 + LEMON.w / 2);
 
   // the fresh wheel + splash
   const wheel = layer("wheel", null, 60);
@@ -126,119 +129,164 @@ XY.buildReel = function (canvas) {
     '<ellipse cx="38" cy="42" rx="2" ry="3.4" fill="#fffbe6" transform="rotate(30 38 42)"/><ellipse cx="60" cy="58" rx="2" ry="3.4" fill="#fffbe6" transform="rotate(-20 60 58)"/></svg>';
   gsap.set(wheel, { xPercent: -50, yPercent: -50, width: 150, height: 150 });
 
-  const LAND = { x: 560, y: 1505 };
+  const LAND = { x: 520, y: PY + 330 }; // on the foam, front-left of the dried slice
+  const shadow = layer("wheel-shadow", null, 59);
+  gsap.set(shadow, { xPercent: -50, yPercent: -50, x: LAND.x + 10, y: LAND.y + 34 });
   const drops = Array.from({ length: 7 }, () => {
     const d = layer("drop", null, 62);
     gsap.set(d, { xPercent: -50, yPercent: -50, x: LAND.x, y: LAND.y });
     return d;
   });
+  const juice = Array.from({ length: 4 }, () => {
+    const d = layer("drop drop--juice", null, 64);
+    gsap.set(d, { xPercent: -50, yPercent: -50 });
+    return d;
+  });
   const ripple = layer("ripple", null, 58);
-  gsap.set(ripple, { xPercent: -50, yPercent: -50, x: LAND.x, y: LAND.y + 20, rotationX: 0 });
+  gsap.set(ripple, { xPercent: -50, yPercent: -50, x: LAND.x, y: LAND.y + 24 });
 
-  const stamp = pngLayer("06_STAMP.png", { x: 96, y: 418, w: 272, h: 274 }, 40); // below the top UI band even after the end push-in
+  const stamp = pngLayer("06_STAMP.png", { x: 96, y: 360, w: 330, h: 332 }, 40); // 1.2x; below the top UI band, above the C
 
   /* ---------------------------------------------------------------- timeline */
   const cam = stage.cam;
+  const cut = lemonA.querySelector(".lemon__cut");
   const tl = gsap.timeline({ paused: true, onUpdate: () => stage.renderCam(), defaults: { ease: "power2.inOut" } });
 
-  // initial state lives in the timeline (fromTo / set at 0) so seeking backwards always restores it
+  // initial state lives in the timeline (set at 0) so seeking backwards always restores it
   tl.set(copy, { autoAlpha: 0, y: 30 }, 0)
     .set(stamp, { autoAlpha: 0, scale: 0.7, rotation: -40 }, 0)
     .set(typeGroup, { x: 0, y: 0 }, 0)
     .set(rampGroup, { x: 0, autoAlpha: 1 }, 0)
     .set(lemonA.img, { clipPath: "inset(0% 0% 0% 0%)" }, 0)
-    .set(lemonA.querySelector(".lemon__cut"), { autoAlpha: 0 }, 0)
+    .set(cut, { autoAlpha: 0 }, 0)
     .set(lemonA, { autoAlpha: 1, z: 36 }, 0)
-    .set(wheel, { autoAlpha: 0, rotationX: 0, rotationY: 84, rotation: 0, scale: 1 }, 0)
-    .set(cam, { s: 1, fx: W / 2, fy: H / 2 }, 0)
-    .fromTo(cam, { rx: 6, ry: -7, x: 0 }, { rx: 3, ry: 5, duration: 8.8, ease: "sine.inOut" }, 0);
+    .set(wheel, { autoAlpha: 0, rotationX: 0, rotationY: 60, rotation: 0, scale: 1 }, 0)
+    .set(shadow, { autoAlpha: 0, scale: 0.4 }, 0)
+    .set(stage.offset, { s: 1 }, 0)
+    .fromTo(cam, { rx: 6, ry: -7, x: 0 }, { rx: 3, ry: 5, duration: 7.6, ease: "sine.inOut" }, 0);
 
-  // 01 ROLL ---------------------------------------------------------------
+  // 01 ROLL 0-1.2 ----------------------------------------------------------
+  // frame one is the settled poster; A rocks against the stop, then lets go
+  const rollStart = onRamp(RAMP.stop + 20 + LEMON.w / 2);
   const rollEnd = onRamp(RAMP.length - LEMON.w / 2 - 10);
-  tl.fromTo(lemonA, { ...onRamp(RAMP.stop + 70), rotation: RAMP.angle },
-      { ...rollEnd, rotation: RAMP.angle + 360, duration: 1.2, ease: "power1.in" }, 0)
-    .fromTo(lemonB, { rotation: RAMP.angle }, { rotation: RAMP.angle + 8, duration: 0.25, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.15)
-    // C swings into a cradle under the end of the ramp
+  tl.fromTo(lemonA, { ...rollStart, rotation: RAMP.angle }, { rotation: RAMP.angle - 6, duration: 0.14, ease: "sine.out" }, 0)
+    .to(lemonA, { ...rollEnd, rotation: RAMP.angle + 360, duration: 0.95, ease: "power2.in" }, 0.2)
+    .fromTo(lemonB, { rotation: RAMP.angle }, { rotation: RAMP.angle + 8, duration: 0.25, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.3)
+    // C swings into a cradle under the end of the ramp, eased in and out
     .fromTo(C, { x: 0, y: 0, rotation: 0, scaleX: 1, scaleY: 1 },
-      { x: 470 - C.center.x, y: 735 + DY - C.center.y, rotation: -90, duration: 0.55, ease: "back.out(1.4)" }, 0.65);
+      { x: 470 - C.center.x, y: 735 + DY - C.center.y, rotation: -90, duration: 0.6, ease: "back.inOut(1.2)" }, 0.55);
 
-  // 02 CATCH --------------------------------------------------------------
-  const bowl = { x: 470, y: 690 + DY };
-  tl.to(lemonA, { x: bowl.x, duration: 0.42, ease: "power1.out" }, 1.2)
-    .to(lemonA, { y: bowl.y, rotation: 360, duration: 0.42, ease: "power2.in" }, 1.2)
-    .to(C, { scaleY: 0.9, scaleX: 1.06, duration: 0.1, ease: "power2.out" }, 1.6)
-    .to(C, { scaleY: 1, scaleX: 1, duration: 0.5, ease: "elastic.out(1, 0.4)" }, 1.7)
-    .to(lemonA, { y: bowl.y - 22, duration: 0.18, ease: "power2.out", yoyo: true, repeat: 1 }, 1.62)
-    .to([C, lemonA], { y: "-=34", duration: 0.5, ease: "power2.inOut" }, 2.0);
+  // 02 CATCH 1.2-2.4 -------------------------------------------------------
+  const bowl = { x: 470, y: 735 + DY + 71 - 48 - LEMON.h / 2 }; // resting on the inside of the cradle
+  tl.to(lemonA, { x: bowl.x, duration: 0.42, ease: "power1.out" }, 1.15)
+    .to(lemonA, { y: bowl.y, rotation: 360, duration: 0.42, ease: "power2.in" }, 1.15)
+    .to(C, { scaleY: 0.88, scaleX: 1.07, duration: 0.09, ease: "power2.out" }, 1.57)
+    .to(C, { scaleY: 1, scaleX: 1, duration: 0.5, ease: "elastic.out(1, 0.4)" }, 1.66)
+    .to(lemonA, { y: bowl.y - 26, duration: 0.17, ease: "power2.out", yoyo: true, repeat: 1 }, 1.58)
+    .to([C, lemonA], { y: "-=34", duration: 0.45, ease: "sine.inOut" }, 1.95);
 
-  // 03 FEED ---------------------------------------------------------------
+  // 03 FEED 2.4-3.9 --------------------------------------------------------
+  // the C turns back upright *carrying* the lemon (no pose swap), then pushes it through the O's,
+  // which stop at 55 degrees so their openings stay visible
   const axisY = (x) => O1.center.y + ((x - O1.center.x) * (O2.center.y - O1.center.y)) / (O2.center.x - O1.center.x);
-  tl.to(C, { x: 0, y: 0, rotation: 0, duration: 0.5 }, 2.5)
-    .to(lemonA, { x: 530, y: axisY(530), rotation: 352, duration: 0.5 }, 2.5)
-    .to([O1, O2], { rotationY: 72, duration: 0.4, stagger: 0.1, ease: "power3.out" }, 2.55)
-    .to(C, { x: 56, duration: 0.45, ease: "power2.out" }, 3.0)
-    .to(lemonA, { x: 770, y: axisY(770), duration: 1.2, ease: "power2.inOut" }, 3.0)
-    .to(C, { x: 30, duration: 0.6, ease: "power1.inOut" }, 3.5);
+  tl.to(C, { x: 0, y: 0, rotation: 0, duration: 0.6, ease: "sine.inOut" }, 2.4)
+    .to(lemonA, { x: 540, y: axisY(540), rotation: 352, duration: 0.6, ease: "sine.inOut" }, 2.4)
+    .to([O1, O2], { rotationY: 55, duration: 0.45, stagger: 0.1, ease: "back.out(1.6)" }, 2.45)
+    .to(C, { x: 56, duration: 0.4, ease: "power2.out" }, 2.95)
+    .to(lemonA, { x: 760, y: axisY(760), duration: 0.95, ease: "power2.inOut" }, 2.95)
+    .to(C, { x: 30, duration: 0.5, ease: "sine.inOut" }, 3.35);
 
-  // 04 CUT ----------------------------------------------------------------
-  const cutTip = { x: 850, y: axisY(850) };
-  tl.to(Lb, { y: -300, rotation: -8, duration: 0.6, ease: "power3.out" }, 4.2)
-    .to([E, S, T], { x: 36, duration: 0.5, stagger: 0.06, ease: "power2.out" }, 4.25)
-    .to(lemonA, { x: cutTip.x, y: cutTip.y, duration: 0.5, ease: "power2.out" }, 4.7)
-    .to(Lb, { y: -306, rotation: -17, duration: 0.65, ease: "sine.inOut" }, 5.2)          // wind-up: tilt back, not higher
-    .to(Lb, { y: -12, rotation: 0, duration: 0.2, ease: "power4.in" }, 5.85)               // one stroke
-    .set(lemonA.img, { clipPath: "inset(0% 22.5% 0% 0%)" }, 6.05)
-    .set(lemonA.querySelector(".lemon__cut"), { autoAlpha: 1 }, 6.05)
-    .set(wheel, { autoAlpha: 1, x: cutTip.x + 68, y: cutTip.y }, 6.05)
-    .fromTo(typeGroup, { y: 0 }, { y: 7, duration: 0.06, yoyo: true, repeat: 1, ease: "none", immediateRender: false }, 6.05)
-    .to(Lb, { y: -280, rotation: 5, duration: 0.45, ease: "back.out(2)" }, 6.08)          // blade rebounds, stays up
-    .to(lemonA, { x: "-=16", duration: 0.3, ease: "power2.out" }, 6.08)
-    .to(wheel, { x: "+=60", y: "+=46", rotationY: 38, rotation: 18, duration: 1.3, ease: "sine.inOut" }, 6.1);
-
-  // 05 FALL ---------------------------------------------------------------
-  tl.to(wheel, { x: LAND.x, duration: 0.95, ease: "power1.inOut" }, 7.4)
-    .to(wheel, { y: LAND.y, duration: 0.95, ease: "power2.in" }, 7.4)
-    .to(wheel, { rotationX: 64, rotationY: 0, rotation: 200, scale: 1.6, duration: 0.95, ease: "power1.in" }, 7.4)
-    .to(wheel, { y: LAND.y - 16, duration: 0.2, ease: "power2.out", yoyo: true, repeat: 1 }, 8.35)
-    .fromTo(ripple, { autoAlpha: 0.9, scale: 0.2 }, { autoAlpha: 0, scale: 1.5, duration: 0.8, ease: "power2.out", immediateRender: false }, 8.35);
-  drops.forEach((d, i) => {
-    const a = -Math.PI * (0.15 + (0.7 * i) / (drops.length - 1));
-    const r = 90 + (i % 3) * 45;
-    tl.fromTo(d, { x: LAND.x, y: LAND.y, autoAlpha: 1, scale: 1 },
-        { x: LAND.x + Math.cos(a) * r, y: LAND.y + Math.sin(a) * r * 1.2, duration: 0.25, ease: "power2.out", immediateRender: false }, 8.35)
-      .to(d, { y: "+=70", autoAlpha: 0, scale: 0.5, duration: 0.3, ease: "power2.in" }, 8.6);
+  // 04 CUT 3.9-6.0 ---------------------------------------------------------
+  const tip = { x: 835, y: axisY(835) };          // lemon tip ends at x 960, across the L's stem
+  const cutX = tip.x + LEMON.w / 2 - LEMON.w * 0.225;
+  const HIT = 5.27;
+  tl.to(Lb, { y: -300, rotation: -8, duration: 0.45, ease: "power3.out" }, 3.9)
+    .to([E, S, T], { x: 36, duration: 0.45, stagger: 0.05, ease: "power2.out" }, 3.95)
+    .to(lemonA, { x: tip.x, y: tip.y, duration: 0.4, ease: "power2.inOut" }, 4.25)
+    .to(Lb, { y: -308, rotation: -17, duration: 0.42, ease: "sine.inOut" }, 4.6)        // wind-up: creep back
+    .to(Lb, { rotation: -15.5, duration: 0.05, yoyo: true, repeat: 3, ease: "sine.inOut" }, 4.94) // tremble at the top
+    .to(Lb, { y: -14, rotation: 2, duration: 0.15, ease: "power4.in" }, HIT - 0.15)     // one stroke
+    .set(lemonA.img, { clipPath: "inset(0% 22.5% 0% 0%)" }, HIT)
+    .set(cut, { autoAlpha: 1 }, HIT)
+    .set(wheel, { autoAlpha: 1, x: cutX + 12, y: tip.y, rotationY: 60 }, HIT)
+    .fromTo(cam, { x: 0 }, { x: 12, duration: 0.033, yoyo: true, repeat: 3, ease: "sine.inOut", immediateRender: false }, HIT)
+    .to(Lb, { y: -280, rotation: 5, duration: 0.45, ease: "back.out(2)" }, HIT + 0.03)  // blade rebounds and stays up
+    .to(wheel, { x: "+=70", y: "+=22", rotationY: 8, rotation: 14, duration: 0.38, ease: "power2.out" }, HIT + 0.02) // peels face-on
+    .to(lemonA, { x: "-=18", duration: 0.25, ease: "power2.out" }, HIT + 0.02)
+    // the spent lemon drops away behind the type, so nothing is left hanging
+    .to(lemonA, { y: "+=340", z: -200, rotation: 330, autoAlpha: 0, duration: 0.5, ease: "power2.in" }, 5.75);
+  juice.forEach((d, i) => {
+    const a = -Math.PI * (0.25 + 0.5 * (i / (juice.length - 1)));
+    tl.fromTo(d, { x: cutX + 6, y: tip.y, autoAlpha: 1, scale: 1 },
+        { x: cutX + 6 + Math.cos(a) * 70 + 30, y: tip.y + Math.sin(a) * 60, duration: 0.22, ease: "power2.out", immediateRender: false }, HIT)
+      .to(d, { y: "+=110", autoAlpha: 0, scale: 0.6, duration: 0.3, ease: "power2.in" }, HIT + 0.22);
   });
 
-  // 06 HERO ---------------------------------------------------------------
-  tl.to(cam, { rx: 0, ry: 0, duration: 1.2, ease: "power2.inOut" }, 8.8)
-    .to([O1, O2], { rotationY: 0, duration: 0.5, stagger: 0.08, ease: "power2.out" }, 8.8)
-    .to(lemonA, { y: "+=300", z: -180, autoAlpha: 0, duration: 0.55, ease: "power2.in" }, 8.8)
-    .to(rampGroup, { x: -900, autoAlpha: 0, duration: 0.7, ease: "power2.in" }, 8.8)
-    .to(C, { x: 0, duration: 0.45 }, 8.85)
-    .to(Lb, { y: 0, rotation: 0, duration: 0.55, ease: "power3.inOut" }, 8.95)
-    .to([E, S, T], { x: 0, duration: 0.45, stagger: 0.05 }, 9.0)
-    .to(typeGroup, { x: TYPE_HOME.x, y: TYPE_HOME.y, duration: 0.8, ease: "power3.inOut" }, 9.05)
-    .to(stamp, { autoAlpha: 1, scale: 1, rotation: 0, duration: 0.7, ease: "back.out(1.6)" }, 9.3)
-    .to(copy, { autoAlpha: 1, y: 0, duration: 0.6, ease: "power2.out" }, 9.4)
-    // the hold breathes: slow push-in and the fresh wheel still turning as the film ends
-    .to(wheel, { rotation: "+=14", duration: 1.2, ease: "sine.out" }, 8.8)
-    .to(stage.offset, { s: 1.03, duration: 0.6, ease: "sine.out" }, 9.4);  // the end hold keeps breathing
+  // 05 FALL 6.0-7.6 --------------------------------------------------------
+  const SPLASH = 7.05;
+  tl.to(wheel, { x: LAND.x, duration: SPLASH - 6.0, ease: "sine.inOut" }, 6.0)
+    .to(wheel, { y: LAND.y, duration: SPLASH - 6.0, ease: "power2.in" }, 6.0)
+    .to(wheel, { rotationX: 64, rotationY: 0, rotation: 200, scale: 2.0, duration: SPLASH - 6.0, ease: "power1.in" }, 6.0)
+    .to(wheel, { y: LAND.y - 18, duration: 0.2, ease: "power2.out", yoyo: true, repeat: 1 }, SPLASH)
+    .to(shadow, { autoAlpha: 0.7, scale: 1, duration: 0.25, ease: "power2.out" }, SPLASH - 0.1)
+    .fromTo(ripple, { autoAlpha: 0.95, scale: 0.2 }, { autoAlpha: 0, scale: 1.6, duration: 0.85, ease: "power2.out", immediateRender: false }, SPLASH);
+  drops.forEach((d, i) => {
+    const a = -Math.PI * (0.15 + (0.7 * i) / (drops.length - 1));
+    const r = 110 + (i % 3) * 55;
+    tl.fromTo(d, { x: LAND.x, y: LAND.y, autoAlpha: 1, scale: 1 },
+        { x: LAND.x + Math.cos(a) * r, y: LAND.y + Math.sin(a) * r * 1.3, duration: 0.26, ease: "power2.out", immediateRender: false }, SPLASH)
+      .to(d, { y: "+=90", autoAlpha: 0, scale: 0.5, duration: 0.32, ease: "power2.in" }, SPLASH + 0.26);
+  });
+
+  // 06 HERO 7.6-10 ---------------------------------------------------------
+  tl.to(cam, { rx: 0, ry: 0, duration: 1.1, ease: "sine.inOut" }, 7.6)
+    .to([O1, O2], { rotationY: 0, duration: 0.5, stagger: 0.08, ease: "power2.out" }, 7.6)
+    .to(rampGroup, { x: -900, autoAlpha: 0, duration: 0.65, ease: "power2.in" }, 7.6)
+    .to(C, { x: 0, duration: 0.45 }, 7.65)
+    .to(Lb, { y: 0, rotation: 0, duration: 0.55, ease: "power3.inOut" }, 7.7)
+    .to([E, S, T], { x: 0, duration: 0.45, stagger: 0.05 }, 7.75)
+    .to(typeGroup, { x: TYPE_HOME.x, y: TYPE_HOME.y, duration: 0.75, ease: "power3.inOut" }, 7.85)
+    .to(stamp, { autoAlpha: 1, scale: 1, rotation: 0, duration: 0.6, ease: "back.out(1.6)" }, 8.25)
+    .to(copy, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, 8.35)       // end card readable from 8.9 s
+    .to(wheel, { rotation: "+=16", duration: 2.4, ease: "sine.inOut" }, 7.6)
+    .to(stage.offset, { s: 1.03, duration: 1.4, ease: "sine.inOut" }, 8.6);         // the hold keeps breathing to the last frame
   if (tl.duration() < DURATION) tl.to({}, { duration: DURATION - tl.duration() });
 
-  /* Camera. One continuous, motivated move that varies scale with the action:
-     wide open -> follow the roll -> medium on the catch -> track the feed ->
-     close on the cut -> tilt down with the falling wheel -> pull out to the poster.
-     (The 8.8 s push-in above multiplies on top through cam.s at the end.) */
-  const shot = (at, dur, fx, fy, s, ease) => tl.to(cam, { fx, fy, s, duration: dur, ease: ease || "power2.inOut" }, at);
-  // Frame edges are placed in the gaps between letters so crops read as framing, not accidents:
-  // visible half-width = (W / 2) / s; gaps sit at x = 538 (C|O), 1148 (E|S).
-  shot(0, 1.35, 400, 950, 1.25, "sine.out");          // ROLL: already travelling on frame one; frame reads "COOL"
-  shot(1.15, 1.2, 360, 930, 1.6);                     // CATCH: medium on ramp + C
-  shot(2.45, 1.75, 668, 880, 1.6, "sine.inOut");      // FEED: track the OO, right edge in the E|S gap
-  shot(4.2, 1.6, 990, 860, 1.7, "power2.out");        // CUT: close on the blade, left edge in the C|O gap
-  tl.fromTo(cam, { x: 0 }, { x: 9, duration: 0.05, yoyo: true, repeat: 3, ease: "sine.inOut", immediateRender: false }, 6.05); // impact
-  shot(7.35, 1.4, 592, 1400, 1.4, "power2.inOut");    // FALL: tilt down with the wheel, still settling through the splash
-  shot(8.75, 1.0, W / 2, H / 2, 1.0, "power3.inOut"); // HERO: pull out to the full poster
+  /* Camera: one continuous spline through framing keys, so it never stops,
+     jumps or starts at full speed between beats (critic round 1). Cubic
+     Hermite with finite-difference tangents gives continuous velocity;
+     zero tangents at the ends ease in and out of the poster.
+     key: [time, focus x, focus y, zoom] in canvas px. Crops land in letter gaps. */
+  const KEYS = [
+    [0.0, W / 2, H / 2, 1.0],
+    [0.35, 740, 1330, 1.03],      // frame one: the whole poster, already breathing
+    [1.25, 400, 1000, 1.3],       // ROLL: follow the lemon; frame reads "COOL"
+    [2.1, 360, 930, 1.6],         // CATCH: medium on ramp + C
+    [3.3, 668, 880, 1.6],         // FEED: track the OO; right edge in the E|S gap
+    [4.6, 990, 850, 1.75],        // CUT approach; left edge in the C|O gap
+    [HIT, 930, 800, 2.0],         // the stroke, close
+    [5.9, 900, 860, 1.9],
+    [6.55, 720, 1250, 1.35],      // FALL: tilt down with the wheel...
+    [SPLASH, 600, LAND.y - 100, 1.12], // ...wide enough that the type stays whole above the splash
+    [7.6, 620, LAND.y - 150, 1.1],
+    [8.7, W / 2, H / 2, 1.0],     // HERO: the full poster
+    [DURATION, W / 2, H / 2, 1.0],
+  ];
+  const tangents = KEYS.map((k, i) => (i === 0 || i === KEYS.length - 1) ? [0, 0, 0] :
+    [1, 2, 3].map((c) => (KEYS[i + 1][c] - KEYS[i - 1][c]) / (KEYS[i + 1][0] - KEYS[i - 1][0])));
+  function camAt(t) {
+    let i = 0;
+    while (i < KEYS.length - 2 && t > KEYS[i + 1][0]) i++;
+    const [t0] = KEYS[i], [t1] = KEYS[i + 1], h = t1 - t0;
+    const u = Math.max(0, Math.min(1, (t - t0) / h));
+    const h00 = 2 * u ** 3 - 3 * u ** 2 + 1, h10 = u ** 3 - 2 * u ** 2 + u, h01 = -2 * u ** 3 + 3 * u ** 2, h11 = u ** 3 - u ** 2;
+    return [1, 2, 3].map((c, j) => h00 * KEYS[i][c] + h10 * h * tangents[i][j] + h01 * KEYS[i + 1][c] + h11 * h * tangents[i + 1][j]);
+  }
+  const clock = { t: 0 };
+  tl.fromTo(clock, { t: 0 }, {
+    t: DURATION, duration: DURATION, ease: "none", // a clock, not a motion: the spline does the easing
+    onUpdate: () => { [cam.fx, cam.fy, cam.s] = camAt(clock.t); },
+  }, 0);
 
   // render the t=0 state now: seeking 0 -> 0 later would not apply the initial .set()s
   tl.progress(1, true).progress(0, true);
