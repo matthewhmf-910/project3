@@ -24,6 +24,12 @@
       "where": "end-card stamp, from 7.75 s",
       "source": "HANDOFF.md",
       "source_text": "`06_STAMP.png` | Identity Badge | \"夏野豆行 · DAILY RITUAL\" circular brand stamp"
+    },
+    {
+      "text": "XIAOYE COFFEE",
+      "where": "end card brand line, from 7.85 s",
+      "source": "HANDOFF.md",
+      "source_text": "# Handoff Spec: 夏野豆行 (Xiaoye Coffee)"
     }
   ],
   "not_on_screen_by_design": [

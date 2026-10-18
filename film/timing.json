@@ -7,16 +7,69 @@
   "drop": 4.85,
   "voice": null,
   "hits": {
-    "roll":      { "t": 0.2,    "on": "pickup", "sfx": "roll" },
-    "catch":     { "t": 1.5167, "on": "beat 2", "sfx": "tock" },
-    "rings":     { "t": 2.35,   "on": "beat 3", "sfx": "whoosh" },
-    "ring_pass": { "t": 3.183,  "on": "beat 4", "sfx": "whoosh_soft" },
-    "lift":      { "t": 4.2,    "on": "pickup", "sfx": "lift" },
-    "strike":    { "t": 4.85,   "on": "beat 6 (drop)", "sfx": "slice" },
-    "fall":      { "t": 5.45,   "on": "free", "sfx": "fall" },
-    "reform":    { "t": 5.75,   "on": "free", "sfx": "clicks" },
-    "splash":    { "t": 6.5167, "on": "beat 8", "sfx": "splash" },
-    "stamp":     { "t": 7.7667, "on": "beat 9.5", "sfx": "thud" },
-    "type_land": { "t": 8.1833, "on": "beat 10", "sfx": "settle" }
+    "roll": {
+      "t": 0.2,
+      "on": "pickup",
+      "sfx": "roll"
+    },
+    "catch": {
+      "t": 1.5167,
+      "on": "beat 2",
+      "sfx": "tock"
+    },
+    "rings": {
+      "t": 2.35,
+      "on": "beat 3",
+      "sfx": "whoosh"
+    },
+    "ring_pass": {
+      "t": 3.183,
+      "on": "beat 4",
+      "sfx": "whoosh_soft"
+    },
+    "lift": {
+      "t": 4.2,
+      "on": "pickup",
+      "sfx": "lift"
+    },
+    "strike": {
+      "t": 4.85,
+      "on": "beat 6 (drop)",
+      "sfx": "slice"
+    },
+    "fall": {
+      "t": 5.45,
+      "on": "free",
+      "sfx": "fall"
+    },
+    "reform": {
+      "t": 5.8,
+      "on": "free",
+      "sfx": "clicks",
+      "letters": {
+        "L": 5.8,
+        "C": 5.98,
+        "O1": 5.98,
+        "O2": 6.06,
+        "E": 6.05,
+        "S": 6.1,
+        "T": 6.15
+      }
+    },
+    "splash": {
+      "t": 6.5167,
+      "on": "beat 8",
+      "sfx": "splash"
+    },
+    "stamp": {
+      "t": 7.7667,
+      "on": "beat 9.5",
+      "sfx": "thud"
+    },
+    "type_land": {
+      "t": 8.1833,
+      "on": "beat 10",
+      "sfx": "settle"
+    }
   }
 }

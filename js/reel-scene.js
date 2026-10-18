@@ -18,6 +18,7 @@ XY.buildReel = function (canvas) {
   const W = 1536, H = 2731, DURATION = 10;
   // shared clock with the score (film/timing.json -> js/timing.js); picture is cut to the audio
   const TM = Object.assign({ catch: 1.57, rings: 2.45, strike: 4.85, splash: 6.5, stamp: 7.93, type_land: 8.1 }, window.REEL_TIMING || {});
+  const RL = Object.assign({ L: 5.8, C: 5.98, O1: 5.98, O2: 6.06, E: 6.05, S: 6.1, T: 6.15 }, (window.REEL_TIMING_DETAIL || {}).reform);
 
   const BEATS = [
     // re-timed after critic round 1: the cut was stalling, so its slack went to FALL and HERO
@@ -42,7 +43,7 @@ XY.buildReel = function (canvas) {
   const ts = TYPE.w / cool.w;
   TYPE.h = cool.h * ts;
   const typeRect = (r) => ({ x: TYPE.x + (r.x - cool.x) * ts, y: TYPE.y + (r.y - cool.y) * ts, w: r.w * ts, h: r.h * ts });
-  const TYPE_HOME = { x: 228 - TYPE.x, y: 700 - TYPE.y }; // end-card position of the type block (glass rim overlaps COFFEE, as on the poster)
+  const TYPE_HOME = { x: 228 - TYPE.x, y: 760 - TYPE.y }; // end-card position of the type block (glass rim overlaps COFFEE, as on the poster)
 
   const LEMON = { w: 250, h: 169 }; // 1.25x after critic round 1: readable at phone size
   // anchored at its lower end, which feeds the C; steep enough that the waiting lemons are in frame
@@ -74,6 +75,7 @@ XY.buildReel = function (canvas) {
   pngLayer("07_SHAPE_SAGE.png", product(rect("07_SHAPE_SAGE.png")), -110);
   const terracotta = pngLayer("08_SHAPE_TERRACOTTA.png", product(rect("08_SHAPE_TERRACOTTA.png")), -90);
   const copy = XY.posterCopy(layer("", { x: 0, y: 0, w: W, h: H }, -60));
+  XY.el("p", "copy__brand", copy, "Xiaoye Coffee"); // end mark (HANDOFF.md: "夏野豆行 (Xiaoye Coffee)")
   pngLayer("03_WOOD_COASTER.png", product(rect("03_WOOD_COASTER.png")), -20);
   pngLayer("01_CUP_LEMON.png", product(cup), 0);
   pngLayer("02_SPOON.png", product(rect("02_SPOON.png")), 14);
@@ -185,6 +187,13 @@ XY.buildReel = function (canvas) {
     gsap.set(d, { xPercent: -50, yPercent: -50 });
     return d;
   });
+  const crown = layer("crown", null, 63);
+  crown.innerHTML = '<svg viewBox="0 0 200 100" aria-hidden="true"><path fill="#e7c9a2" d="' +
+    Array.from({ length: 13 }, (_, i) => {
+      const x = 10 + i * 15, h = 40 + ((i * 37) % 5) * 9;
+      return `M${x - 5} 100 Q${x - 2} ${100 - h * 0.6} ${x} ${100 - h} Q${x + 2} ${100 - h * 0.6} ${x + 5} 100 Z`;
+    }).join(" ") + '"/></svg>';
+  gsap.set(crown, { xPercent: -50, yPercent: -100, x: LAND.x, y: LAND.y + 40, width: 300, height: 150, transformOrigin: "50% 100%" });
   const ripple = layer("ripple", null, 58);
   gsap.set(ripple, { xPercent: -50, yPercent: -50, x: LAND.x, y: LAND.y + 24 });
   const ripple2 = layer("ripple ripple--inner", null, 58);
@@ -207,6 +216,7 @@ XY.buildReel = function (canvas) {
     .set(lemonA, { autoAlpha: 1, z: 2 }, 0)
     .set(wheel, { autoAlpha: 0, rotationX: 0, rotationY: 60, rotation: 0, scale: 1 }, 0)
     .set(shadow, { autoAlpha: 0, scale: 0.4 }, 0)
+    .set(crown, { autoAlpha: 0 }, 0)
     .set(stage.offset, { s: 1 }, 0)
     .fromTo(cam, { rx: 6, ry: -7, x: 0 }, { rx: 3, ry: 5, duration: 7.6, ease: "sine.inOut" }, 0);
 
@@ -270,12 +280,16 @@ XY.buildReel = function (canvas) {
     .to(wheel, { x: "+=70", y: "+=22", rotationY: 8, rotation: 14, duration: 0.38, ease: "power2.out" }, HIT + 0.02) // peels face-on
     .to(lemonA, { x: "-=18", duration: 0.25, ease: "power2.out" }, HIT + 0.02)
     .to(rampGroup, { x: -900, duration: 0.6, ease: "power2.in" }, 5.3)   // off-camera during the close-up, so it never re-enters
-    // the stub rolls back out through the rings (visible, unhurried), then the word re-forms
+    // the stub rolls back out through the rings (visible, unhurried), then the word re-forms;
+    // every letter lands on its click in film/timing.json (hits.reform.letters)
     .to(lemonA, { x: -260, y: axisY(-260), rotation: "-=300", duration: 1.0, ease: "power1.in" }, 5.3)
-    .to([O1, O2], { rotationY: 0, duration: 0.45, stagger: 0.08, ease: "back.out(1.4)" }, 5.75)
-    .to(C, { x: 0, duration: 0.4 }, 5.8)
-    .to(Lb, { y: 0, rotation: 0, duration: 0.5, ease: "power3.inOut" }, 5.85)
-    .to([E, S, T], { x: 0, duration: 0.4, stagger: 0.05 }, 5.95);
+    .to(Lb, { y: 0, rotation: 0, duration: 0.5, ease: "power3.inOut" }, RL.L - 0.5)
+    .to(O1, { rotationY: 0, duration: 0.45, ease: "power3.out" }, RL.O1 - 0.45)
+    .to(O2, { rotationY: 0, duration: 0.45, ease: "power3.out" }, RL.O2 - 0.45)
+    .to(C, { x: 0, duration: 0.4, ease: "power3.out" }, RL.C - 0.4)
+    .to(E, { x: 0, duration: 0.4, ease: "power3.out" }, RL.E - 0.4)
+    .to(S, { x: 0, duration: 0.4, ease: "power3.out" }, RL.S - 0.4)
+    .to(T, { x: 0, duration: 0.4, ease: "power3.out" }, RL.T - 0.4);
   juice.forEach((d, i) => {
     const a = -Math.PI * (0.25 + 0.5 * (i / (juice.length - 1)));
     tl.fromTo(d, { x: cutX + 6, y: tip.y, autoAlpha: 1, scale: 1 },
@@ -291,9 +305,11 @@ XY.buildReel = function (canvas) {
     .to(wheel, { y: LAND.y - 14, duration: 0.18, ease: "power2.out", yoyo: true, repeat: 1 }, SPLASH)
     .fromTo(wheel.firstChild, { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 45% 0%)", duration: 0.3, ease: "power2.out", immediateRender: false }, SPLASH) // sinks into the foam
     .to(shadow, { autoAlpha: 0.7, scale: 1, duration: 0.25, ease: "power2.out" }, SPLASH - 0.1)
-    .fromTo(ripple, { autoAlpha: 0.95, scale: 0.5 }, { autoAlpha: 0, scale: 1.6, duration: 0.85, ease: "power2.out", immediateRender: false }, SPLASH)
-    .fromTo(ripple2, { autoAlpha: 0.8, scale: 0.4 }, { autoAlpha: 0, scale: 1.1, duration: 0.8, ease: "power2.out", immediateRender: false }, SPLASH + 0.1)
-    .fromTo(cam, { x: 0 }, { x: -7, duration: 0.033, yoyo: true, repeat: 3, ease: "sine.inOut", immediateRender: false }, SPLASH); // impact
+    .fromTo(ripple, { autoAlpha: 0.95, scale: 0.5 }, { autoAlpha: 0, scale: 1.0, duration: 0.85, ease: "power2.out", immediateRender: false }, SPLASH)
+    .fromTo(ripple2, { autoAlpha: 0.8, scale: 0.4 }, { autoAlpha: 0, scale: 0.85, duration: 0.8, ease: "power2.out", immediateRender: false }, SPLASH + 0.1)
+    .fromTo(cam, { x: 0 }, { x: -7, duration: 0.033, yoyo: true, repeat: 3, ease: "sine.inOut", immediateRender: false }, SPLASH) // impact
+    .fromTo(crown, { autoAlpha: 1, scaleY: 0.25, scaleX: 0.7 }, { scaleY: 1, scaleX: 1.05, duration: 0.16, ease: "power2.out", immediateRender: false }, SPLASH) // on the impact frame
+    .to(crown, { autoAlpha: 0, scaleY: 0.4, duration: 0.25, ease: "power2.in" }, SPLASH + 0.16)
   drops.forEach((d, i) => {
     const a = -Math.PI * (0.12 + (0.76 * i) / (drops.length - 1)); // symmetric crown out of the surface
     const r = 120 + ((i * 37) % 3) * 50;
@@ -310,8 +326,9 @@ XY.buildReel = function (canvas) {
   tl.to(cam, { rx: 0, ry: 0, duration: 1.1, ease: "sine.inOut" }, 7.10)
     .to(typeGroup, { x: TYPE_HOME.x, y: TYPE_HOME.y, duration: 0.75, ease: "power3.inOut" }, TM.type_land - 0.75) // lands on the beat
     // the stamp is pressed: it lands (thud) on the off-beat, then settles
-    .fromTo(stamp, { autoAlpha: 0, scale: 1.35, rotation: -18 }, { autoAlpha: 1, scale: 0.97, rotation: 0, duration: 0.2, ease: "power3.in", immediateRender: false }, TM.stamp - 0.2)
-    .to(stamp, { scale: 1, duration: 0.35, ease: "back.out(2)" }, TM.stamp)
+    .set(stamp, { autoAlpha: 1 }, TM.stamp - 0.16)  // no fade: it is pressed
+    .fromTo(stamp, { scale: 1.6, rotation: -14 }, { scale: 0.94, rotation: 0, duration: 0.16, ease: "power4.in", immediateRender: false }, TM.stamp - 0.16)
+    .to(stamp, { scale: 1, duration: 0.3, ease: "back.out(2.5)" }, TM.stamp)
     .to(copy, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, 7.85)       // end card readable from 8.4 s
     .to(wheel, { rotation: "+=16", duration: 2.4, ease: "sine.inOut" }, 7.10)
     .to(stage.offset, { s: 1.03, duration: 1.4, ease: "sine.inOut" }, 8.10);         // the hold keeps breathing to the last frame
@@ -332,10 +349,8 @@ XY.buildReel = function (canvas) {
     [HIT, 930, 800, 2.0],         // the stroke, close
     [5.35, 900, 850, 1.85],
     [6.0, 700, 1250, 1.2],        // FALL: pull out ahead of the wheel (word re-forming in frame)...
-    [6.45, 620, LAND.y - 260, 1.1], // ...arriving as it lands
-    [6.95, 600, LAND.y - 220, 1.16], // and pushing in through the impact (no stall)
-    [7.4, 640, LAND.y - 300, 1.06],
-    [8.2, W / 2, H / 2, 1.0],     // HERO: the full poster
+    [6.45, 620, LAND.y - 260, 1.1], // ...arriving as it lands, then one eased move into the end card
+    [8.3, W / 2, H / 2, 1.0],     // HERO: the full poster
     [DURATION, W / 2, H / 2, 1.0],
   ];
   const tangents = KEYS.map((k, i) => (i === 0 || i === KEYS.length - 1) ? [0, 0, 0] :

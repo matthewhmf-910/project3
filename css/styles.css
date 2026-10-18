@@ -350,3 +350,8 @@ a { color: inherit; }
 .ramp__front { height: 34px; }
 .ramp__stop { top: -86px; width: 34px; height: 90px; }
 .ramp__wall { height: 64px; background: linear-gradient(#a3ad8b, #8d9874); border-radius: 6px 6px 0 0; transform-origin: 0 100%; }
+.is-reel .copy__brand { position: absolute; right: 210px; top: 668px; font-size: 40px; font-weight: 600; letter-spacing: .22em; color: var(--ink); text-align: right; }
+.copy__brand { display: none; }
+.is-reel .copy__brand { display: block; }
+.crown { opacity: 0; visibility: hidden; }
+.crown svg { width: 100%; height: 100%; display: block; }

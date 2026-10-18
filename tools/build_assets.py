@@ -190,8 +190,9 @@ body &= ~paper
 glass_zone = glass_outline & ~body
 
 local_bg = cv2.medianBlur(L.astype(np.uint8), 31).astype(np.float32)
-contrast = L - local_bg
-glass_a = np.clip(0.05 + np.clip(np.abs(contrast) - 9, 0, None) / 30, 0, 0.9)  # ignore paper tooth
+# smoothed so paper grain behind the glass is not drawn as white speckle; only real rim strokes survive
+contrast = cv2.GaussianBlur(L - local_bg, (0, 0), 1.6)
+glass_a = np.clip(0.04 + np.clip(np.abs(contrast) - 14, 0, None) / 28, 0, 0.85)  # ignore paper tooth
 highlight = np.array([255, 252, 246], np.float32)
 shade = np.array([70, 58, 46], np.float32)
 glass_rgb = np.where((contrast > 0)[..., None], highlight, shade) * np.ones_like(P)
@@ -339,10 +340,8 @@ st.update(w=218, h=round(218 * st["h"] / st["w"], 1), x=1238, y=41)
 sage = (
     [(1536, 250), (586, 640)]
     + bezier((586, 640), (300, 760), (272, 900))
-    + [(270, 1084), (0, 1150), (0, 1312), (432, 1182)]
-    + bezier((432, 1182), (410, 1120), (412, 1032))
-    + bezier((412, 1032), (414, 978), (470, 976))
-    + [(1192, 976), (1536, 878)]
+    + [(270, 1084), (0, 1150), (0, 1312), (432, 1182), (478, 1176)]
+    + [(700, 1060), (1192, 976), (1536, 878)]  # runs under the coaster: no cream notch beside its corner
 )
 render_shape("07_SHAPE_SAGE.png", sage, SAGE)
 terracotta = [(1192, 976), (1536, 878), (1536, 1326), (1392, 1326)]
