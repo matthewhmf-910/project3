@@ -173,7 +173,7 @@ def whoosh(t0, length, lo, hi, gain, rise=True):
     return gain * shape * sum(b * wi for b, wi in zip(bands, w))
 
 
-roll = whoosh(H["roll"], 0.95, 500, 1500, 1.6)                                     # roll down the chute
+roll = whoosh(H["roll"], 0.95, 500, 1500, 0.75)                                    # roll down the chute
 roll *= 1 + 0.5 * np.sin(2 * np.pi * 9 * np.clip(t - H["roll"], 0, None))           # a lemon tumbling, not just air
 sfx += roll
 sfx += lp(np.sin(2 * np.pi * 820 * t) * env(H["catch"], 0.001, 0.05) + 0.5 * np.sin(2 * np.pi * 1530 * t) * env(H["catch"], 0.001, 0.03), 4000) * 0.7  # wooden tock
@@ -181,21 +181,32 @@ sfx += hp(noise, 2000) * env(H["catch"], 0.0005, 0.006) * 0.25                  
 sfx += whoosh(H["rings"] - 0.1, 0.35, 1200, 3200, 0.5)                            # rings turn
 sfx += whoosh(H["ring_pass"] - 0.25, 0.45, 900, 2400, 0.75)                       # lemon through the rings
 sfx += whoosh(H["lift"] - 0.05, 0.3, 1500, 4000, 0.35)                            # L lifts
-sfx += hp(noise, 3500) * env(H["strike"], 0.0005, 0.045) * 0.95                   # slice "shk"
+sfx += hp(noise, 3500) * env(H["strike"], 0.003, 0.08) * 0.3                      # slice "shk" (low crest factor: the limiter must not eat it)
 sfx += np.sin(2 * np.pi * 130 * t) * env(H["strike"], 0.002, 0.16) * 0.55          # low hit: the strike is the climax
 sfx += bp(noise, 3000, 9000) * env(H["strike"], 0.003, 0.5) * 0.10                  # cymbal-like swell off the cut
 sfx += np.sin(2 * np.pi * 2960 * t) * env(H["strike"], 0.001, 0.18) * 0.30        # blade ring
-sfx += bp(noise, 2000, 5000) * env(H["strike"], 0.0005, 0.12) * 0.75               # bright body: the climax on a phone too
-sfx += bp(noise, 150, 400) * env(H["strike"], 0.002, 0.14) * 1.4                     # chest: weight a phone can still play
-sfx += np.sin(2 * np.pi * 220 * t) * env(H["strike"], 0.002, 0.12) * 0.5
+sfx += bp(noise, 2000, 5000) * env(H["strike"], 0.004, 0.3) * 0.9                  # bright body: the climax on a phone too
+sfx += bp(noise, 150, 400) * env(H["strike"], 0.006, 0.32) * 1.5                     # chest: weight a phone can still play
+sfx += np.sin(2 * np.pi * 220 * t) * env(H["strike"], 0.004, 0.2) * 0.4
+# the climax as a chord stab on the drop chord (Em9 tones, all above a phone's 200 Hz roll-off).
+# Sustained tones have a low crest factor, so the master's limiter keeps it the loudest moment;
+# a noise burst (~12 dB crest) was being clamped ~10 dB by the limiter and lost to the whooshes.
+xs = t - H["strike"]
+stab_env = np.clip(xs / 0.006, 0, 1) * np.where(xs < 0.16, 1.0, np.exp(-(xs - 0.16) / 0.12)) * (xs >= 0)
+stab = sum(np.sin(2 * np.pi * hz(m) * t + k) * (1 if m < 72 else 0.6) for k, m in enumerate([64, 67, 71, 74, 76, 78]))
+sfx += stab * stab_env * 0.55
 sfx += bp(noise, 2500, 7000) * env(H["strike"] + 0.03, 0.01, 0.06) * 0.12          # juice spritz
-sfx += whoosh(H["fall"], H["splash"] - H["fall"], 600, 2200, 1.0, rise=False)     # the wheel falls
+fall_len = H["splash"] - H["fall"]
+fall = whoosh(H["fall"], fall_len, 600, 2200, 1.0, rise=False)
+# builds toward the splash instead of peaking mid-air (its middle was louder than the strike)
+fall *= np.clip((t - H["fall"]) / fall_len, 0, 1) ** 1.5 * 1.6
+sfx += fall                                                                          # the wheel falls
 for tc in sorted(set(T["hits"]["reform"].get("letters", {}).values())):             # each letter clicks home as it lands
     sfx += bp(noise, 2500, 6000) * env(tc, 0.0005, 0.012) * 0.14  # well under the strike
 sp = H["splash"]
 sfx += lp(noise, 2500) * env(sp, 0.002, 0.07) * 0.8                                # splash body
-sfx += whoosh(5.3, 0.9, 400, 1200, 0.12)                                            # the spent lemon rolls away
-sfx += bp(noise, 1500, 4000) * env(6.17, 0.01, 0.05) * 0.12                          # air flick as it leaves frame
+sfx += whoosh(5.3, 0.9, 400, 1200, 0.05)                                            # the spent lemon rolls away (quiet: not a peak)
+sfx += bp(noise, 1500, 4000) * env(6.17, 0.005, 0.06) * 0.35                         # air flick as it leaves frame
 for k in range(6):                                                                 # bubbles
     tb = sp + 0.04 + k * 0.045
     x = t - tb
@@ -222,19 +233,48 @@ write("sfx.wav", np.stack([sfx, sfx], 1))
 write("mix_raw.wav", mix)
 
 
-def loudnorm(src, dst):
-    """two-pass EBU R128 to -14 LUFS, true peak <= -1.5 dBTP"""
-    first = subprocess.run([FF, "-hide_banner", "-i", src, "-af", "loudnorm=I=-13.5:TP=-1.5:LRA=11:print_format=json", "-f", "null", "-"],
-                           capture_output=True, text=True).stderr
-    m = json.loads(first[first.rindex("{"):first.rindex("}") + 1])
-    af = (f"loudnorm=I=-13.5:TP=-1.5:LRA=11:measured_I={m['input_i']}:measured_TP={m['input_tp']}:"
-          f"measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:offset={m['target_offset']}:linear=true")
-    subprocess.run([FF, "-y", "-loglevel", "error", "-i", src, "-af", af, "-ar", str(SR), dst], check=True)
+def integrated(x):
+    """EBU R128 integrated loudness (LUFS) of a float signal, measured by ffmpeg."""
+    tmp = os.path.join(OUT, "audio", "_measure.wav")
+    wavfile.write(tmp, SR, (np.clip(x, -1, 1) * 32767).astype(np.int16))
+    r = subprocess.run([FF, "-hide_banner", "-i", tmp, "-af", "ebur128", "-f", "null", "-"], capture_output=True, text=True).stderr
+    os.remove(tmp)
+    return float(re.findall(r"I:\s+(-?[\d.]+) LUFS", r)[-1])
+
+
+def master(x, target=-14.0, ceiling_db=-2.0):  # -2.0: AAC encoding adds ~0.4 dB of true peak
+    """Deterministic master: one linear gain to the target loudness, then a look-ahead
+    true-peak limiter (peaks found on a 4x oversampled signal). ffmpeg's loudnorm was
+    replaced because, when linear gain would break the true-peak limit, it silently
+    switches to dynamic mode and compresses: it turned the strike (the climax) down
+    and the quiet passages up, so the shipped mix contradicted the pre-master QA."""
+    from scipy.signal import resample_poly
+    x = np.atleast_2d(x.T).T if x.ndim == 1 else x
+    for _ in range(3):  # gain, limit, re-measure (limiting lowers loudness slightly)
+        g = 10 ** ((target - integrated(x)) / 20)
+        x = x * g
+        ceil = 10 ** (ceiling_db / 20)
+        peak = np.max([np.abs(resample_poly(x[:, c], 4, 1)).reshape(-1, 4).max(1)[: len(x)] for c in range(x.shape[1])], 0)
+        need = np.minimum(1.0, ceil / np.maximum(peak, 1e-9))
+        look = int(0.005 * SR)  # 5 ms look-ahead: gain is already down when the peak arrives
+        from scipy.ndimage import minimum_filter1d
+        gr = minimum_filter1d(need, size=2 * look + 1)
+        rel = np.exp(-1 / (0.06 * SR))  # 60 ms release
+        out = np.empty_like(gr)
+        cur = 1.0
+        for i, v in enumerate(gr):
+            cur = v if v < cur else v + (cur - v) * rel
+            out[i] = cur
+        x = x * out[:, None]
+        if abs(integrated(x) - target) < 0.3:
+            break
+    return x
 
 
 A = os.path.join(OUT, "audio")
-loudnorm(os.path.join(A, "mix_raw.wav"), os.path.join(A, "mix.wav"))
-loudnorm(os.path.join(A, "music_raw.wav"), os.path.join(A, "music_only.wav"))
+for name, sig in (("mix.wav", mix), ("music_only.wav", music)):
+    m = master(sig / max(1e-9, np.abs(sig).max()) * 0.5)
+    wavfile.write(os.path.join(A, name), SR, (np.clip(m, -1, 1) * 32767).astype(np.int16))
 for wav, mp4 in (("mix.wav", "reel_sound.mp4"), ("music_only.wav", "reel_music_only.mp4")):
     subprocess.run([FF, "-y", "-loglevel", "error", "-i", os.path.join(OUT, "reel.mp4"), "-i", os.path.join(A, wav),
                     "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "256k", "-shortest",
@@ -284,13 +324,15 @@ for k in ("catch", "strike", "splash", "stamp"):
     print(f"sync {k:7s}: onset {onset:.3f}s vs {t0:.3f}s ({(onset - t0) * 1000:+.0f} ms) {'ok' if ok else 'OFF'}")
     if not ok:
         fail.append("sync " + k)
-st = lambda a, b: db(mix[int(a * SR):int(b * SR), 0])
+shipped = os.path.join(A, "_shipped.wav")
+subprocess.run([FF, "-y", "-loglevel", "error", "-i", os.path.join(OUT, "reel_sound.mp4"), "-ac", "1", "-ar", str(SR), shipped], check=True)
+mix_hp = hp(wavfile.read(shipped)[1].astype(np.float64) / 32768, 200)  # measured on what ships
+st = lambda a, b: db(mix_hp[int(a * SR):int(b * SR)])
 strike_l, reform_l = st(H["strike"], H["strike"] + 0.4), st(H["reform"], H["reform"] + 0.4)
 print(f"climax: strike {strike_l:.1f} dB vs reform {reform_l:.1f} dB (strike must be louder)")
 if strike_l <= reform_l:
     fail.append("climax")
 # and on a phone: the strike's 250 ms must beat every other 250 ms window in the film by >= 2 dB
-mix_hp = hp(mix[:, 0], 200)
 w = int(0.25 * SR)
 starts = np.arange(0, N - w, int(0.025 * SR))
 lv = np.array([db(mix_hp[a:a + w]) for a in starts])

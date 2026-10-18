@@ -255,9 +255,9 @@ XY.buildReel = function (canvas) {
     .to(lemonA, { x: 540, y: axisY(540), rotation: 352, z: 30, duration: 0.6, ease: "sine.inOut" }, 2.4)
     .to([O1, O2], { rotationY: 52, duration: 0.45, stagger: 0.1, ease: "back.out(2.2)" }, TM.rings) // on the beat; a readable turn
     .to(lemonA, { x: 610, y: axisY(610), duration: 0.18, ease: "sine.inOut" }, 3.0)
-    .to(C, { x: 34, duration: 0.12, ease: "power3.in" }, TM.ring_pass - 0.12)                  // the shove, on the beat
+    .to(C, { x: 60, rotation: -5, duration: 0.12, ease: "power3.in" }, TM.ring_pass - 0.12)    // the shove, on the beat
     .to(lemonA, { x: 760, y: axisY(760), duration: 0.55, ease: "power3.out" }, TM.ring_pass)    // shot through both rings
-    .to(C, { x: 4, duration: 0.45, ease: "back.out(2)" }, TM.ring_pass);
+    .to(C, { x: 4, rotation: 0, duration: 0.45, ease: "back.out(2)" }, TM.ring_pass);         // recoil
 
   // 04 CUT 3.9-6.0 ---------------------------------------------------------
   const tip = { x: 835, y: axisY(835) };          // lemon tip ends at x 960, across the L's stem
@@ -305,7 +305,7 @@ XY.buildReel = function (canvas) {
     .to(wheel, { y: LAND.y, duration: SPLASH - FALL, ease: "sine.in" }, FALL)       // moving from the first frame, accelerating
     .to(wheel, { rotationX: 20, rotationY: 0, rotation: 200, scale: 1.5, duration: SPLASH - FALL, ease: "power1.in" }, FALL)
     .to(wheel, { y: LAND.y - 14, duration: 0.18, ease: "power2.out", yoyo: true, repeat: 1 }, SPLASH)
-    .fromTo(wheel.firstChild, { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 24% 0%)", duration: 0.5, ease: "sine.out", immediateRender: false }, SPLASH) // settles into the foam, still a wheel
+    .to(wheel, { rotationX: 28, duration: 0.5, ease: "sine.out" }, SPLASH + 0.1) // settles back onto the foam, round
     .to(shadow, { autoAlpha: 0.7, scale: 1, duration: 0.25, ease: "power2.out" }, SPLASH - 0.1)
 
     .fromTo(cam, { x: 0 }, { x: -7, duration: 0.033, yoyo: true, repeat: 3, ease: "sine.inOut", immediateRender: false }, SPLASH) // impact
@@ -328,8 +328,9 @@ XY.buildReel = function (canvas) {
     .to(typeGroup, { y: TYPE_HOME.y, duration: 0.22, ease: "back.out(3)" }, TM.type_land)
     // the stamp is pressed: it lands (thud) on the off-beat, then settles
     // arrives already moving from off the headline (top-left), visible within 2 frames, then presses
-    .fromTo(stamp, { autoAlpha: 0, x: -90, y: -90, scale: 1.3, rotation: -14 },
-      { autoAlpha: 1, x: 0, y: 0, scale: 0.94, rotation: 0, duration: 0.2, ease: "power3.in", immediateRender: false }, TM.stamp - 0.2)
+    .fromTo(stamp, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.067, ease: "none", immediateRender: false }, TM.stamp - 0.2) // visible in 2 frames
+    .fromTo(stamp, { x: -90, y: -90, scale: 1.3, rotation: -14 },
+      { x: 0, y: 0, scale: 0.94, rotation: 0, duration: 0.2, ease: "power3.in", immediateRender: false }, TM.stamp - 0.2)
     .to(stamp, { scale: 1, duration: 0.3, ease: "back.out(2.5)" }, TM.stamp)
     .to(copy, { autoAlpha: 1, y: 0, duration: 0.45, ease: "power2.out" }, TM.type_land) // after the type lands; readable from ~8.6 s
     .to(wheel, { rotation: "+=16", duration: 2.4, ease: "sine.inOut" }, 7.10)
@@ -351,8 +352,9 @@ XY.buildReel = function (canvas) {
     [4.4, 990, 850, 1.75],        // CUT approach; left edge in the C|O gap
     [HIT, 930, 800, 2.0],         // the stroke, close
     [5.35, 900, 850, 1.85],
-    [6.0, 700, 1250, 1.2],        // FALL: pull out ahead of the wheel (word re-forming in frame)...
-    [6.45, 620, LAND.y - 260, 1.1], // ...arriving as it lands, then one eased move into the end card
+    [5.8, 910, 900, 1.3],         // pull out so the re-formed COOLEST reads whole (T was cropped)
+    [6.25, 790, 1250, 1.14],      // FALL: down with the wheel, whole word still in frame...
+    [6.45, 760, LAND.y - 260, 1.1], // ...arriving as it lands, then one eased move into the end card
     [8.3, W / 2, H / 2, 1.0],     // HERO: the full poster
     [DURATION, W / 2, H / 2, 1.0],
   ];
