@@ -233,7 +233,7 @@ XY.buildReel = function (canvas) {
   // 02 CATCH 1.2-2.4 -------------------------------------------------------
   const bowl = { x: bowlPt.x, y: bowlPt.y }; // sitting in the C's mouth
   const drop = TM.catch - 0.42; // the lemon lands in the C exactly on the beat
-  tl.to(lemonA, { z: 34, duration: 0.15, ease: "none" }, drop) // in front of the C's bowl: the catch reads
+  tl.to(lemonA, { z: 26, duration: 0.15, ease: "none" }, drop) // just behind the C's strokes: in front (z 34) it hid the upper arm and the C read as an S (critic 14)
     .to(lemonA, { x: bowl.x, duration: 0.42, ease: "power1.out" }, drop)
     .to(lemonA, { y: bowl.y, rotation: 360, duration: 0.42, ease: "power2.in" }, drop)
     .to(C, { scaleY: 0.9, scaleX: 1.06, duration: 0.09, ease: "power2.out" }, TM.catch)
