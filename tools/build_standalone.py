@@ -45,7 +45,8 @@ html = read("index.html")
 css = read("css/styles.css").replace('url("../assets/11_BACKGROUND_IVORY.png")', 'url("%s")' % data_uri("11_BACKGROUND_IVORY.png"))
 
 # every asset referenced by markup or scripts, embedded once
-used = sorted(set(re.findall(r"\d{2,}_[A-Z_]+\.png|1000355615\.png", read("js/hero.js") + read("js/reel.js") + html)))
+scripts = "".join(read("js/" + f) for f in sorted(os.listdir(os.path.join(ROOT, "js"))) if f.endswith(".js"))  # every script (reel-scene.js uses 12_LEMON.png)
+used = sorted(set(re.findall(r"\d{2,}_[A-Z_]+\.png|1000355615\.png", scripts + html)))
 used = [f for f in used if f != "11_BACKGROUND_IVORY.png" and os.path.exists(os.path.join(ROOT, "assets", f))]
 asset_js = "window.ASSET_DATA = {\n" + ",\n".join('"%s": "%s"' % (f, data_uri(f)) for f in used) + "\n};\n" + \
     "document.addEventListener('DOMContentLoaded', function () {\n" \

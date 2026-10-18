@@ -38,3 +38,24 @@ Each round records the measured numbers before and after the fix, so progress is
 | Waiting lemons cropped at frame edge | **Kept on purpose.** Reference panel 01 has the queue entering from the frame edge. | — |
 | Mask halos / hard coaster edge | **Not fixed.** Needs real 4K assets (open issue). | — |
 | QA script | The stub after the cut is labelled a prop, not key action; fully off-screen rects are ignored; ring halves are named. | QA: PASS |
+
+## Rounds 3-14 (detail in the commit messages, `git log -- film js/reel-scene.js`)
+| rounds | main problems found | fixes |
+| --- | --- | --- |
+| 3-5 | Word never re-formed after the cut; motion blur smeared the camera; dirty glass; splash off the contact frame | Letters re-form on clicks; adaptive blur with the camera frozen at the frame centre; cleaned glass; splash timed to contact |
+| 6-7 | No score; splash, juice and crown **never visible** (GSAP `fromTo` with `autoAlpha` only in the start vars) | Synthesised score and effects from `timing.json` (one clock for picture and sound); five calls fixed; `film/lint.py` added |
+| 8-11 | Strike not the climax on phones; wheel hang; camera handover fights; feed hid the lemon's travel; stamp before the type | Strike chord stab (low crest), deterministic master, QA on the shipped file; steady wide feed; visible C shove on the beat; stamp after the type lands |
+| 12-13 | "Tint seam" across the wheel; end card crowding | Seam was the shadow plane (z 59) cutting the tilted wheel (z 60), moved to z 4; end card re-laid out with a collision check; encoded true-peak loop |
+| 14 | Splash heard, not seen; C read as "S" ("SOOL"); wheel over the glass rim; roll 8 dB faint; stray click 6.176 s; no duck at the type land; E/S/T no visible settle | Drops thrown clear of the wheel + ring at its base; C tilt 22° to 12° and the lemon tucked behind its strokes; wheel lands on the back half of the slice; roll visible and audible from 0.2 s; flick removed; duck added; per-letter settle |
+
+## Round 15: critic 15 said **ship**
+Measured on the shipped file: −14.5 LUFS, true peak −1.9 dBTP, phone −15.6 LUFS; every hit within one frame; strike the loudest 250 ms window; frozen 0.07 s; end card in safe area, no collisions; contrast ≥ 4.7:1. Delivered as `dist/film/coolest-coffee-reel-v8.mp4`.
+
+Polish the critic listed as acceptable for a 10 s social cut (not done; candidates for a v9):
+1. 4.3–5.4 s: C of COOLEST/COFFEE cropped at the strike (camera ~80 px right would show the whole word).
+2. 5.83–6.2 s: the spent lemon half crosses the re-forming C and leaves frame unresolved.
+3. Hero wheel is a flat vector disc with no contact shadow (squash ~0.6 to match the slice; soft shadow).
+4. Splash drops read as opaque beads (translucent, stretched along motion).
+5. E/S/T settle still ≤ 3 px; roll still under the music on phones at 0.2–0.4 s.
+
+Source-asset-limited / client decisions: AI-looking poster props, no photographed lemon wheel, no CTA, typeset stamp, "concept" label, XIAOYE spelling (see brief.md).
