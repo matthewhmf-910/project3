@@ -36,22 +36,46 @@
       window.FILM = {
         fps: 30, duration: DURATION, beats: BEATS.map((b) => ({ name: b.name, t: b.t })),
         ready: () => Promise.all([document.fonts.ready, ...[...document.images].map((i) => i.decode().catch(() => {}))]),
-        set(t) {
+        set(t, camT) {
           tl.pause();
-          tl.seek(t, false);
+          if (camT != null && camT !== t) {
+            // camera from the frame's centre time, objects from the sample time:
+            // motion blur then comes only from things that move, never from the camera
+            tl.seek(camT, false);
+            const cam = { ...stage.cam }, off = { ...stage.offset };
+            tl.seek(t, false);
+            Object.assign(stage.cam, cam);
+            Object.assign(stage.offset, off);
+          } else {
+            tl.seek(t, false);
+          }
           stage.renderCam();
         },
         // resolves once Chrome has painted the new state (two rAFs): without this, large
         // layers were sometimes captured before rasterising and silently missing from a frame
-        seek(t) {
-          this.set(t);
+        seek(t, camT) {
+          this.set(t, camT);
           return new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
         },
-        // everything that moves, as one string: equal at both shutter edges = no blur needed
-        signature(t) {
-          this.set(t);
-          return [stage.rig, ...document.querySelectorAll(".layer, .letter img, .lemon img")]
-            .map((n) => n.style.transform + n.style.opacity + n.style.clipPath + n.style.visibility).join("|");
+        // largest on-screen displacement (px) of any visible object across the shutter,
+        // with the camera held at the frame's centre: decides how many samples a frame needs
+        motion(a, b, camT) {
+          const boxes = () => [...document.querySelectorAll(".layer, .letter")].map((n) => {
+            if (getComputedStyle(n).visibility === "hidden") return null;
+            const r = n.getBoundingClientRect();
+            return [r.left, r.top, r.right, r.bottom];
+          });
+          this.set(a, camT);
+          const A = boxes();
+          this.set(b, camT);
+          const B = boxes();
+          let max = 0;
+          A.forEach((p, i) => {
+            const q = B[i];
+            if (!p || !q) return;
+            for (let k = 0; k < 4; k++) max = Math.max(max, Math.abs(p[k] - q[k]));
+          });
+          return max;
         },
         // on-screen text and marks, in video px, for the safe-zone check
         textRects() {

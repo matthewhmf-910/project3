@@ -3,8 +3,10 @@
  *   node film/render.js [outDir] [--fps 30] [--sub 3] [--from 0] [--to <sec>]
  *
  * Every frame n is FILM.seek(n / fps): no timers, no wall clock. Each frame is
- * the average of `sub` samples spread over a 180-degree shutter (half a frame),
- * so fast moves get real motion blur and still frames stay sharp. Writes
+ * the average of samples spread over a 180-degree shutter (half a frame). The
+ * camera is held at the frame's centre time, so only moving objects blur, and
+ * the sample count follows their on-screen travel (~4 px per sample, max --sub),
+ * so fast strikes smear smoothly and still frames stay sharp. Writes
  * frames/f_0000.png..., rects.json (text positions per frame for QA), then
  * encodes reel.mp4 with ffmpeg (H.264, yuv420p).
  */
@@ -16,7 +18,8 @@ const { chromium } = require(process.env.PLAYWRIGHT_PATH || "/opt/node22/lib/nod
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf("--" + k); return i >= 0 ? +args[i + 1] : d; };
 const out = path.resolve(args[0] && !args[0].startsWith("--") ? args[0] : "dist/film");
-const FPS = opt("fps", 30), SUB = opt("sub", 3), STEP = opt("step", 1); // --step N: quick preview of every Nth frame
+const FPS = opt("fps", 30), STEP = opt("step", 1); // --step N: quick preview of every Nth frame
+const SUB = opt("sub", 40); // max samples per frame; the actual count follows on-screen motion (~4 px per sample)
 const ffmpeg = process.env.FFMPEG || execFileSync("python3", ["-c", "import imageio_ffmpeg as f; print(f.get_ffmpeg_exe())"]).toString().trim();
 
 (async () => {
@@ -46,14 +49,15 @@ const ffmpeg = process.env.FFMPEG || execFileSync("python3", ["-c", "import imag
       continue;
     }
     const files = [];
-    // still frame (nothing differs across the shutter) -> one sample is enough
-    const moving = SUB > 1 && await page.evaluate(([a, b]) => FILM.signature(a) !== FILM.signature(b),
-      [Math.max(0, (n - 0.25) / FPS), (n + 0.25) / FPS]);
-    const samples = moving ? SUB : 1;
-    blurred += moving ? 1 : 0;
+    // samples follow the largest object displacement across the half-frame shutter, so fast
+    // strikes get a continuous smear instead of stacked copies; still frames get one sample
+    const px = SUB > 1 ? await page.evaluate(([a, b, c]) => FILM.motion(a, b, c),
+      [Math.max(0, (n - 0.25) / FPS), (n + 0.25) / FPS, n / FPS]) : 0;
+    const samples = Math.max(1, Math.min(SUB, Math.ceil(px / 4)));
+    blurred += samples > 1 ? 1 : 0;
     for (let s = 0; s < samples; s++) {
       const t = (n + (samples > 1 ? (s / (samples - 1) - 0.5) * 0.5 : 0)) / FPS; // centred on the frame, half-frame shutter
-      await page.evaluate((t) => FILM.seek(Math.max(0, t)), t);
+      await page.evaluate(([t, c]) => FILM.seek(Math.max(0, t), c), [t, n / FPS]);
       const f = path.join(subs, `f_${String(n).padStart(4, "0")}_${s}.png`);
       await page.screenshot({ path: f });
       files.push(f);

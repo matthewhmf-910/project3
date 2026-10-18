@@ -200,7 +200,10 @@ save_layer("01_CUP_LEMON.png", cup_rgb, cup_a)
 # exploded view never shows a hole: inpaint structure, then re-add grain
 # sampled from the visible wood, then a soft ring where the glass stood.
 coaster_vis = largest_component(coaster_raw)
-coaster_full = hull(coaster_vis)
+# Only rebuild wood where the cup or spoon actually hid it: the convex hull's
+# corners outside the real coaster are background (they showed as a cream sliver).
+occluders = cv2.dilate((glass_outline | spoon).astype(np.uint8), np.ones((61, 61))).astype(bool)
+coaster_full = fill_holes(coaster_vis | (hull(coaster_vis) & occluders))
 missing = coaster_full & ~coaster_vis
 # low-frequency light from wood well away from the contact shadow (normalised convolution)
 far = coaster_vis & ~cv2.dilate(missing.astype(np.uint8), np.ones((41, 41))).astype(bool)

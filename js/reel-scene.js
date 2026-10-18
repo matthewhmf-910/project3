@@ -5,9 +5,9 @@
  *   01 ROLL   0.0-1.2  A rolls down; B/C remain behind the stop.
  *   02 CATCH  1.2-2.4  C turns upward and physically supports A.
  *   03 FEED   2.4-3.9  C pushes the same whole lemon through OO.
- *   04 CUT    3.9-5.7  Only original L cuts. One stroke, one wheel.
- *   05 FALL   5.7-7.3  Separate wheel lands; blade stays above rim.
- *   06 HERO   7.3-10   Settles into the original poster identity (no hard reset).
+ *   04 CUT    3.9-5.45 Only original L cuts. One stroke, one wheel.
+ *   05 FALL   5.45-7.1 Separate wheel lands while the word re-forms.
+ *   06 HERO   7.1-10   Settles into the original poster identity (no hard reset).
  *
  * Canvas is 1536 x 2731 design px. Letters are windows onto the single
  * 04_TYPE_COOLEST.png using the letter bounds measured by build_assets.py.
@@ -22,9 +22,9 @@ XY.buildReel = function (canvas) {
     { name: "Roll", t: [0, 1.2], desc: "A rolls down. B and C stay behind the stop." },
     { name: "Catch", t: [1.2, 2.4], desc: "C turns upward and physically supports A." },
     { name: "Feed", t: [2.4, 3.9], desc: "C pushes the same whole lemon through the OO." },
-    { name: "Cut", t: [3.9, 5.7], desc: "Only the original L cuts. One stroke, one wheel." },
-    { name: "Fall", t: [5.7, 7.3], desc: "The wheel lands in the glass. The blade stays above the rim." },
-    { name: "Hero", t: [7.3, 10], desc: "Everything settles back into the poster, with one fresh wheel added." },
+    { name: "Cut", t: [3.9, 5.45], desc: "Only the original L cuts. One stroke, one wheel." },
+    { name: "Fall", t: [5.45, 7.1], desc: "The wheel lands in the glass while the word re-forms." },
+    { name: "Hero", t: [7.1, 10], desc: "Everything settles back into the poster, with one fresh wheel added." },
   ];
 
   /* ---------------------------------------------------------------- geometry */
@@ -142,25 +142,26 @@ XY.buildReel = function (canvas) {
 
   // the fresh wheel + splash
   const wheel = layer("wheel", null, 60);
+  // organic wheel: 10 irregular wedge segments with their own shading, pith web, uneven rind
+  const seg = (i) => {
+    const a0 = (i / 10) * Math.PI * 2 + 0.14 + Math.sin(i * 2.3) * 0.03, a1 = ((i + 1) / 10) * Math.PI * 2 + 0.06 + Math.sin(i * 1.7) * 0.03;
+    const r0 = 7, r1 = 39.5 - (i % 3) * 0.8, p = (r, a) => `${(50 + r * Math.cos(a)).toFixed(2)} ${(50 + r * Math.sin(a)).toFixed(2)}`;
+    return `<path d="M${p(r0, a0 + 0.08)} L${p(r1, a0 + 0.035)} A${r1} ${r1} 0 0 1 ${p(r1, a1 - 0.035)} L${p(r0, a1 - 0.08)} Z" fill="url(#seg)"/>`;
+  };
   wheel.innerHTML =
     '<svg viewBox="0 0 100 100" aria-hidden="true"><defs>' +
-    '<radialGradient id="pulp" cx="46%" cy="44%" r="55%"><stop offset="0" stop-color="#fff6c4"/><stop offset=".55" stop-color="#f8dc63"/><stop offset="1" stop-color="#e9bd2c"/></radialGradient>' +
-    '<radialGradient id="rind" cx="50%" cy="50%" r="50%"><stop offset=".86" stop-color="#f2c41f"/><stop offset=".97" stop-color="#c98f0c"/><stop offset="1" stop-color="#9c6a07"/></radialGradient>' +
-    '<linearGradient id="gloss" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/></linearGradient>' +
-    '<filter id="cells" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4"/>' +
-    '<feColorMatrix values="0 0 0 0 1  0 0 0 0 0.93  0 0 0 0 0.6  0 0 0 0.55 -0.12"/><feComposite in2="SourceGraphic" operator="in"/></filter>' +
-    '<clipPath id="pulpclip"><circle cx="50" cy="50" r="41"/></clipPath></defs>' +
-    '<circle cx="50" cy="50" r="49.5" fill="url(#rind)"/><circle cx="50" cy="50" r="45" fill="#fbf1cc"/>' +
-    '<circle cx="50" cy="50" r="41" fill="url(#pulp)"/>' +
-    '<circle cx="50" cy="50" r="41" fill="#fff" filter="url(#cells)" clip-path="url(#pulpclip)"/>' +
-    '<g stroke="#fdf5d6" stroke-linecap="round">' +
-    Array.from({ length: 10 }, (_, i) => {
-      const a = (i / 10) * Math.PI * 2 + 0.12;
-      return `<line stroke-width="${2.6 - (i % 3) * 0.4}" x1="${50 + 6 * Math.cos(a)}" y1="${50 + 6 * Math.sin(a)}" x2="${50 + 40.5 * Math.cos(a)}" y2="${50 + 40.5 * Math.sin(a)}"/>`;
-    }).join("") +
-    '</g><circle cx="50" cy="50" r="5.5" fill="#fbf1cc"/>' +
-    '<ellipse cx="37" cy="41" rx="2.2" ry="3.6" fill="#fffbe6" transform="rotate(30 37 41)"/><ellipse cx="61" cy="57" rx="2.2" ry="3.6" fill="#fffbe6" transform="rotate(-20 61 57)"/>' +
-    '<circle cx="50" cy="50" r="45" fill="url(#gloss)"/></svg>';
+    '<radialGradient id="seg" cx="50%" cy="50%" r="50%" gradientUnits="userSpaceOnUse" fx="50" fy="50"><stop offset="0" stop-color="#fff2b0"/><stop offset=".55" stop-color="#f6d14a"/><stop offset=".8" stop-color="#eebf2a"/></radialGradient>' +
+    '<radialGradient id="rind" cx="48%" cy="46%" r="52%"><stop offset=".86" stop-color="#f0c11c"/><stop offset=".95" stop-color="#d39a0e"/><stop offset="1" stop-color="#94640a"/></radialGradient>' +
+    '<radialGradient id="pith" cx="50%" cy="50%" r="50%"><stop offset=".2" stop-color="#f7ecc4"/><stop offset="1" stop-color="#efe0a8"/></radialGradient>' +
+    '<linearGradient id="gloss" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".4" stop-color="#fff" stop-opacity="0"/></linearGradient>' +
+    '<filter id="cells" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" seed="7"/>' +
+    '<feColorMatrix values="0 0 0 0 1  0 0 0 0 0.95  0 0 0 0 0.62  0 0 0 0.75 -0.2"/><feComposite in2="SourceGraphic" operator="in"/></filter></defs>' +
+    '<ellipse cx="50" cy="50" rx="49.6" ry="49" fill="url(#rind)"/><circle cx="50" cy="50" r="44.5" fill="url(#pith)"/>' +
+    '<g>' + Array.from({ length: 10 }, (_, i) => seg(i)).join("") + '</g>' +
+    '<g filter="url(#cells)">' + Array.from({ length: 10 }, (_, i) => seg(i)).join("") + '</g>' +
+    '<circle cx="50" cy="50" r="5" fill="#f5e7b6"/>' +
+    '<ellipse cx="38" cy="42" rx="2" ry="3.4" fill="#fffbe6" transform="rotate(30 38 42)"/><ellipse cx="61" cy="58" rx="2" ry="3.4" fill="#fffbe6" transform="rotate(-20 61 58)"/>' +
+    '<circle cx="50" cy="50" r="44" fill="url(#gloss)"/></svg>';
   gsap.set(wheel, { xPercent: -50, yPercent: -50, width: 150, height: 150 });
 
   const LAND = { x: 478, y: PY + 222 }; // inside the rim, leaning on the dried slice's left edge
@@ -172,6 +173,8 @@ XY.buildReel = function (canvas) {
     return d;
   });
   const flash = layer("flash", null, 66);
+  const slit = layer("slit", null, 67); // the bright slice line on the contact frame
+  gsap.set(slit, { xPercent: -50, yPercent: -50, rotation: -8 });
   gsap.set(flash, { xPercent: -50, yPercent: -50 });
   const juice = Array.from({ length: 4 }, () => {
     const d = layer("drop drop--juice", null, 64);
@@ -221,7 +224,7 @@ XY.buildReel = function (canvas) {
 
   // 02 CATCH 1.2-2.4 -------------------------------------------------------
   const bowl = { x: bowlPt.x, y: bowlPt.y }; // sitting in the C's mouth
-  tl.to(lemonA, { z: 36, duration: 0.15, ease: "none" }, 1.15)
+  tl.to(lemonA, { z: 26, duration: 0.15, ease: "none" }, 1.15) // behind the C's strokes: held, not covering
     .to(lemonA, { x: bowl.x, duration: 0.42, ease: "power1.out" }, 1.15)
     .to(lemonA, { y: bowl.y, rotation: 360, duration: 0.42, ease: "power2.in" }, 1.15)
     .to(C, { scaleY: 0.9, scaleX: 1.06, duration: 0.09, ease: "power2.out" }, 1.57)
@@ -236,30 +239,38 @@ XY.buildReel = function (canvas) {
   tl.to(C, { x: 0, y: 0, rotation: 0, duration: 0.6, ease: "sine.inOut" }, 2.4)
     .to(lemonA, { x: 540, y: axisY(540), rotation: 352, z: 30, duration: 0.6, ease: "sine.inOut" }, 2.4)
     .to([O1, O2], { rotationY: 40, duration: 0.45, stagger: 0.1, ease: "back.out(1.6)" }, 2.45)
-    .to(C, { x: 56, duration: 0.4, ease: "power2.out" }, 2.95)
+    .to(C, { x: 30, duration: 0.4, ease: "power2.out" }, 2.95) // short push: C never overlaps the first O
     .to(lemonA, { x: 760, y: axisY(760), duration: 0.95, ease: "power2.inOut" }, 2.95)
-    .to(C, { x: 30, duration: 0.5, ease: "sine.inOut" }, 3.35);
+    .to(C, { x: 16, duration: 0.5, ease: "sine.inOut" }, 3.35);
 
   // 04 CUT 3.9-6.0 ---------------------------------------------------------
   const tip = { x: 835, y: axisY(835) };          // lemon tip ends at x 960, across the L's stem
   const cutX = tip.x + LEMON.w / 2 - LEMON.w * 0.225;
-  const HIT = 5.05;
-  tl.to(Lb, { y: -300, rotation: -8, duration: 0.45, ease: "power3.out" }, 3.9)
-    .to([E, S, T], { x: 36, duration: 0.45, stagger: 0.05, ease: "power2.out" }, 3.95)
-    .to(lemonA, { x: tip.x, y: tip.y, duration: 0.35, ease: "power2.inOut" }, 4.15)
-    .to(Lb, { y: -308, rotation: -17, duration: 0.32, ease: "sine.inOut" }, 4.45)       // wind-up: creep back
-    .to(Lb, { rotation: -15.5, duration: 0.04, yoyo: true, repeat: 3, ease: "sine.inOut" }, 4.74) // tremble at the top
+  const HIT = 4.85;
+  tl.to(lemonA, { x: tip.x, y: tip.y, duration: 0.35, ease: "power2.inOut" }, 3.9)       // the tip slides under the L first
+    .to([E, S, T], { x: 36, duration: 0.4, stagger: 0.05, ease: "power2.out" }, 4.0)
+    .to(Lb, { y: -300, rotation: -8, duration: 0.3, ease: "power3.out" }, 4.2)          // quick lift
+    .to(Lb, { y: -310, rotation: -17, duration: 0.2, ease: "sine.out" }, 4.5)          // anticipation: tilt back
+    .to(Lb, { rotation: -15.8, duration: 0.03, yoyo: true, repeat: 1, ease: "sine.inOut" }, 4.64)
     .to(Lb, { y: -14, rotation: 2, duration: 0.15, ease: "power4.in" }, HIT - 0.15)     // one stroke
     .set(lemonA.img, { clipPath: "inset(0% 22.5% 0% 0%)" }, HIT)
     .set(cut, { autoAlpha: 1 }, HIT)
     .set(wheel, { autoAlpha: 1, x: cutX + 12, y: tip.y, rotationY: 60 }, HIT)
     .set(flash, { x: cutX, y: tip.y }, HIT)
+    .fromTo(slit, { autoAlpha: 1, scaleY: 1 }, { autoAlpha: 0, scaleY: 1.3, duration: 0.1, ease: "power1.out", immediateRender: false }, HIT)
+    .set(slit, { x: cutX, y: tip.y }, HIT)
     .fromTo(cam, { x: 0 }, { x: 12, duration: 0.033, yoyo: true, repeat: 3, ease: "sine.inOut", immediateRender: false }, HIT)
     .fromTo(flash, { autoAlpha: 0.9, scale: 0.4 }, { autoAlpha: 0, scale: 1.3, duration: 0.12, ease: "power2.out", immediateRender: false }, HIT)
     .to(Lb, { y: -280, rotation: 5, duration: 0.45, ease: "back.out(2)" }, HIT + 0.067)  // contact holds 2 frames, then rebounds
     .to(wheel, { x: "+=70", y: "+=22", rotationY: 8, rotation: 14, duration: 0.38, ease: "power2.out" }, HIT + 0.02) // peels face-on
     .to(lemonA, { x: "-=18", duration: 0.25, ease: "power2.out" }, HIT + 0.02)
-    .to(rampGroup, { x: -900, duration: 0.6, ease: "power2.in" }, 5.5);   // off-camera during the close-up, so it never re-enters
+    .to(rampGroup, { x: -900, duration: 0.6, ease: "power2.in" }, 5.3)   // off-camera during the close-up, so it never re-enters
+    // the stub rolls back out through the rings (visible, unhurried), then the word re-forms
+    .to(lemonA, { x: -260, y: axisY(-260), rotation: "-=300", duration: 1.0, ease: "power1.in" }, 5.3)
+    .to([O1, O2], { rotationY: 0, duration: 0.45, stagger: 0.08, ease: "back.out(1.4)" }, 5.75)
+    .to(C, { x: 0, duration: 0.4 }, 5.8)
+    .to(Lb, { y: 0, rotation: 0, duration: 0.5, ease: "power3.inOut" }, 5.85)
+    .to([E, S, T], { x: 0, duration: 0.4, stagger: 0.05 }, 5.95);
   juice.forEach((d, i) => {
     const a = -Math.PI * (0.25 + 0.5 * (i / (juice.length - 1)));
     tl.fromTo(d, { x: cutX + 6, y: tip.y, autoAlpha: 1, scale: 1 },
@@ -268,38 +279,34 @@ XY.buildReel = function (canvas) {
   });
 
   // 05 FALL 6.0-7.6 --------------------------------------------------------
-  const FALL = 5.7, SPLASH = 6.75;
+  const FALL = 5.45, SPLASH = 6.5;
   tl.to(wheel, { x: LAND.x, duration: SPLASH - FALL, ease: "sine.inOut" }, FALL)
     .to(wheel, { y: LAND.y, duration: SPLASH - FALL, ease: "power2.in" }, FALL)
     .to(wheel, { rotationX: 25, rotationY: 0, rotation: 200, scale: 1.5, duration: SPLASH - FALL, ease: "power1.in" }, FALL)
-    .to(wheel, { y: LAND.y - 18, duration: 0.2, ease: "power2.out", yoyo: true, repeat: 1 }, SPLASH)
+    .to(wheel, { y: LAND.y - 14, duration: 0.18, ease: "power2.out", yoyo: true, repeat: 1 }, SPLASH)
+    .fromTo(wheel.firstChild, { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 34% 0%)", duration: 0.3, ease: "power2.out", immediateRender: false }, SPLASH + 0.04) // sinks into the foam
     .to(shadow, { autoAlpha: 0.7, scale: 1, duration: 0.25, ease: "power2.out" }, SPLASH - 0.1)
     .fromTo(ripple, { autoAlpha: 0.95, scale: 0.2 }, { autoAlpha: 0, scale: 1.6, duration: 0.85, ease: "power2.out", immediateRender: false }, SPLASH)
     .fromTo(ripple2, { autoAlpha: 0.8, scale: 0.15 }, { autoAlpha: 0, scale: 1.1, duration: 0.8, ease: "power2.out", immediateRender: false }, SPLASH + 0.12);
   drops.forEach((d, i) => {
-    const a = -Math.PI * (0.15 + (0.7 * i) / (drops.length - 1));
+    const a = -Math.PI * (0.12 + (0.76 * i) / (drops.length - 1)); // symmetric crown out of the surface
     const r = 120 + ((i * 37) % 3) * 50;
     const size = 0.7 + (i % 4) * 0.2;
     // a crown: drops leave stretched along their path, round off at the top, then fall
     // drops start at the wheel's rim on the contact frame, so the splash is visible immediately
-    const sx = LAND.x + Math.cos(a) * 95, sy = LAND.y + Math.sin(a) * 40;
+    const sx = LAND.x + Math.cos(a) * 80, sy = LAND.y + 30 + Math.sin(a) * 20;
     tl.fromTo(d, { x: sx, y: sy, autoAlpha: 1, scaleX: size * 0.7, scaleY: size * 1.6, rotation: (a * 180) / Math.PI + 90 },
         { x: sx + Math.cos(a) * r, y: sy + Math.sin(a) * r * 1.3, scaleX: size, scaleY: size, duration: 0.26, ease: "power2.out", immediateRender: false }, SPLASH)
       .to(d, { y: "+=90", autoAlpha: 0, scaleX: size * 0.6, scaleY: size * 1.2, duration: 0.32, ease: "power2.in" }, SPLASH + 0.26);
   });
 
-  // 06 HERO 7.3-10 ---------------------------------------------------------
-  tl.to(cam, { rx: 0, ry: 0, duration: 1.1, ease: "sine.inOut" }, 7.30)
-    .to([O1, O2], { rotationY: 0, duration: 0.5, stagger: 0.08, ease: "power2.out" }, 7.30)
-    .to(lemonA, { x: -300, y: axisY(-300), rotation: "-=200", duration: 0.7, ease: "power2.in" }, 7.25) // the stub rolls back out the way it came
-    .to(C, { x: 0, duration: 0.45 }, 7.35)
-    .to(Lb, { y: 0, rotation: 0, duration: 0.55, ease: "power3.inOut" }, 7.40)
-    .to([E, S, T], { x: 0, duration: 0.45, stagger: 0.05 }, 7.45)
-    .to(typeGroup, { x: TYPE_HOME.x, y: TYPE_HOME.y, duration: 0.75, ease: "power3.inOut" }, 7.55)
-    .to(stamp, { autoAlpha: 1, scale: 1, rotation: 0, duration: 0.6, ease: "back.out(1.6)" }, 7.95)
-    .to(copy, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, 8.05)       // end card readable from 8.6 s
-    .to(wheel, { rotation: "+=16", duration: 2.4, ease: "sine.inOut" }, 7.30)
-    .to(stage.offset, { s: 1.03, duration: 1.4, ease: "sine.inOut" }, 8.30);         // the hold keeps breathing to the last frame
+  // 06 HERO 7.1-10 ---------------------------------------------------------
+  tl.to(cam, { rx: 0, ry: 0, duration: 1.1, ease: "sine.inOut" }, 7.10)
+    .to(typeGroup, { x: TYPE_HOME.x, y: TYPE_HOME.y, duration: 0.75, ease: "power3.inOut" }, 7.35)
+    .to(stamp, { autoAlpha: 1, scale: 1, rotation: 0, duration: 0.6, ease: "back.out(1.6)" }, 7.75)
+    .to(copy, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, 7.85)       // end card readable from 8.4 s
+    .to(wheel, { rotation: "+=16", duration: 2.4, ease: "sine.inOut" }, 7.10)
+    .to(stage.offset, { s: 1.03, duration: 1.4, ease: "sine.inOut" }, 8.10);         // the hold keeps breathing to the last frame
   if (tl.duration() < DURATION) tl.to({}, { duration: DURATION - tl.duration() });
 
   /* Camera: one continuous spline through framing keys, so it never stops,
@@ -313,13 +320,13 @@ XY.buildReel = function (canvas) {
     [1.25, 400, 1000, 1.3],       // ROLL: follow the lemon; frame reads "COOL"
     [2.1, 360, 930, 1.6],         // CATCH: medium on ramp + C
     [3.3, 668, 880, 1.6],         // FEED: track the OO; right edge in the E|S gap
-    [4.6, 990, 850, 1.75],        // CUT approach; left edge in the C|O gap
+    [4.4, 990, 850, 1.75],        // CUT approach; left edge in the C|O gap
     [HIT, 930, 800, 2.0],         // the stroke, close
-    [5.6, 900, 850, 1.9],
-    [6.25, 700, 1250, 1.2],       // FALL: pull out ahead of the wheel...
-    [6.65, 620, LAND.y - 260, 1.1], // ...and settle before it lands, so only the wheel moves fast
-    [7.3, 630, LAND.y - 280, 1.08],
-    [8.4, W / 2, H / 2, 1.0],     // HERO: the full poster
+    [5.35, 900, 850, 1.85],
+    [6.0, 700, 1250, 1.2],        // FALL: pull out ahead of the wheel (word re-forming in frame)...
+    [6.45, 620, LAND.y - 260, 1.1], // ...settling as it lands, still drifting after
+    [7.1, 640, LAND.y - 300, 1.05],
+    [8.2, W / 2, H / 2, 1.0],     // HERO: the full poster
     [DURATION, W / 2, H / 2, 1.0],
   ];
   const tangents = KEYS.map((k, i) => (i === 0 || i === KEYS.length - 1) ? [0, 0, 0] :
