@@ -38,7 +38,7 @@
       "sfx": "slice"
     },
     "fall": {
-      "t": 5.45,
+      "t": 5.15,
       "on": "free",
       "sfx": "fall"
     },

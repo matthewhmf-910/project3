@@ -299,7 +299,7 @@ XY.buildReel = function (canvas) {
   });
 
   // 05 FALL 6.0-7.6 --------------------------------------------------------
-  const FALL = HIT + 0.3, SPLASH = TM.splash; // no hang at the L
+  const FALL = TM.fall || HIT + 0.3, SPLASH = TM.splash; // falls 0.3 s after the cut: no hang at the L
   tl.to(wheel, { x: LAND.x, duration: SPLASH - FALL, ease: "sine.out" }, FALL)   // arcs away from the type first
     .to(wheel, { y: LAND.y, duration: SPLASH - FALL, ease: "power1.in" }, FALL)
     .to(wheel, { rotationX: 20, rotationY: 0, rotation: 200, scale: 1.5, duration: SPLASH - FALL, ease: "power1.in" }, FALL)
