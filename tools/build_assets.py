@@ -187,12 +187,16 @@ paper = (L > 185) & ((P[..., 0] - P[..., 2]) < 40) & upper
 paper = cv2.morphologyEx(paper.astype(np.uint8), cv2.MORPH_OPEN, np.ones((3, 3))).astype(bool)
 paper = fill_holes(largest_component(paper & body))  # the one background patch, not pale glass highlights
 body &= ~paper
+# smooth the foam's top edge where the paper was cut away (it read as a torn cream patch)
+bm = cv2.morphologyEx(body.astype(np.uint8), cv2.MORPH_OPEN, np.ones((15, 15)))
+bm = cv2.morphologyEx(bm, cv2.MORPH_CLOSE, np.ones((15, 15)))
+body = (cv2.GaussianBlur(bm.astype(np.float32), (0, 0), 3) > 0.5) & glass_outline
 glass_zone = glass_outline & ~body
 
 local_bg = cv2.medianBlur(L.astype(np.uint8), 31).astype(np.float32)
 # smoothed so paper grain behind the glass is not drawn as white speckle; only real rim strokes survive
 contrast = cv2.GaussianBlur(L - local_bg, (0, 0), 1.6)
-glass_a = np.clip(0.04 + np.clip(np.abs(contrast) - 18, 0, None) / 28, 0, 0.85)  # ignore paper tooth
+glass_a = np.clip(np.clip(np.abs(contrast) - 22, 0, None) / 26, 0, 0.85)  # no base tint: only real rim strokes (tint read as blotches)
 glass_a = cv2.GaussianBlur(glass_a, (0, 0), 1.2)  # no speckle: reflections stay as soft strokes
 highlight = np.array([255, 252, 246], np.float32)
 shade = np.array([70, 58, 46], np.float32)

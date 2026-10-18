@@ -13,9 +13,9 @@ window.ASSET_MANIFEST = {
     },
     "01_CUP_LEMON.png": {
       "x": 532.0,
-      "y": 486.0,
+      "y": 487.0,
       "w": 653.0,
-      "h": 686.0
+      "h": 685.0
     },
     "03_WOOD_COASTER.png": {
       "x": 404.0,

@@ -170,10 +170,10 @@ XY.buildReel = function (canvas) {
     '<circle cx="50" cy="50" r="44" fill="url(#gloss)"/></svg>';
   gsap.set(wheel, { xPercent: -50, yPercent: -50, width: 150, height: 150 });
 
-  const LAND = { x: 545, y: PY + 245 }; // in the foam against the dried slice, well inside the rim
+  const LAND = { x: 560, y: PY + 205 }; // in the foam against the dried slice, behind the glass's front rim line
   const shadow = layer("wheel-shadow", null, 59);
   gsap.set(shadow, { xPercent: -50, yPercent: -50, x: LAND.x + 10, y: LAND.y + 34 });
-  const drops = Array.from({ length: 10 }, () => {
+  const drops = Array.from({ length: 8 }, () => {
     const d = layer("drop", null, 62);
     gsap.set(d, { xPercent: -50, yPercent: -50, x: LAND.x, y: LAND.y });
     return d;
@@ -218,7 +218,7 @@ XY.buildReel = function (canvas) {
     .set(shadow, { autoAlpha: 0, scale: 0.4 }, 0)
     .set(crown, { autoAlpha: 0 }, 0)
     .set(stage.offset, { s: 1 }, 0)
-    .fromTo(cam, { rx: 6, ry: -7, x: 0 }, { rx: 3, ry: 5, x: 0, duration: 7.6, ease: "sine.inOut" }, 0);
+    .fromTo(cam, { rx: 6, ry: -7, x: 0 }, { rx: 3, ry: 5, x: 0, duration: 7.1, ease: "sine.inOut" }, 0); // hands over to the HERO move at 7.1
 
   // 01 ROLL 0-1.2 ----------------------------------------------------------
   // frame one is the settled poster; A rocks against the stop, then lets go
@@ -301,7 +301,7 @@ XY.buildReel = function (canvas) {
   // 05 FALL 6.0-7.6 --------------------------------------------------------
   const FALL = TM.fall || HIT + 0.3, SPLASH = TM.splash; // falls 0.3 s after the cut: no hang at the L
   tl.to(wheel, { x: LAND.x, duration: SPLASH - FALL, ease: "sine.out" }, FALL)   // arcs away from the type first
-    .to(wheel, { y: LAND.y, duration: SPLASH - FALL, ease: "power1.in" }, FALL)
+    .to(wheel, { y: LAND.y, duration: SPLASH - FALL, ease: "sine.in" }, FALL)       // moving from the first frame, accelerating
     .to(wheel, { rotationX: 20, rotationY: 0, rotation: 200, scale: 1.5, duration: SPLASH - FALL, ease: "power1.in" }, FALL)
     .to(wheel, { y: LAND.y - 14, duration: 0.18, ease: "power2.out", yoyo: true, repeat: 1 }, SPLASH)
     .fromTo(wheel.firstChild, { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 45% 0%)", duration: 0.3, ease: "power2.out", immediateRender: false }, SPLASH) // sinks into the foam
@@ -311,20 +311,21 @@ XY.buildReel = function (canvas) {
     .fromTo(cam, { x: 0 }, { x: -7, duration: 0.033, yoyo: true, repeat: 3, ease: "sine.inOut", immediateRender: false }, SPLASH) // impact
 
   drops.forEach((d, i) => {
-    const a = -Math.PI * (0.12 + (0.76 * i) / (drops.length - 1)); // symmetric crown out of the surface
-    const r = 120 + ((i * 37) % 3) * 50;
-    const size = 0.7 + (i % 4) * 0.2;
+    const a = -Math.PI * (0.2 + (0.6 * i) / (drops.length - 1)); // symmetric, mostly upward
+    const r = 55 + ((i * 37) % 3) * 22;                            // short arcs: they fall back inside the glass
+    const size = 0.55 + (i % 4) * 0.12;
     // a crown: drops leave stretched along their path, round off at the top, then fall
     // drops start at the wheel's rim on the contact frame, so the splash is visible immediately
     const sx = LAND.x + Math.cos(a) * 80, sy = LAND.y + 30 + Math.sin(a) * 20;
-    tl.fromTo(d, { x: sx, y: sy, autoAlpha: 1, scaleX: size * 0.7, scaleY: size * 1.6, rotation: (a * 180) / Math.PI + 90 },
-        { x: sx + Math.cos(a) * r * 0.8, y: sy + Math.sin(a) * r, autoAlpha: 1, rotation: (a * 180) / Math.PI + 90, scaleX: size, scaleY: size, duration: 0.4, ease: "power1.out", immediateRender: false }, SPLASH)
-      .to(d, { y: "+=80", autoAlpha: 0, scaleX: size * 0.6, scaleY: size * 1.2, duration: 0.3, ease: "power2.in" }, SPLASH + 0.4);
+    tl.fromTo(d, { x: sx, y: sy, autoAlpha: 1, scale: size },
+        { x: sx + Math.cos(a) * r, y: sy + Math.sin(a) * r * 1.4, autoAlpha: 1, scale: size, duration: 0.16, ease: "power2.out", immediateRender: false }, SPLASH)
+      .to(d, { x: sx + Math.cos(a) * r * 1.5, y: sy + 30, autoAlpha: 0, scale: size * 0.7, duration: 0.16, ease: "power2.in" }, SPLASH + 0.16); // back into the drink
   });
 
   // 06 HERO 7.1-10 ---------------------------------------------------------
   tl.to(cam, { rx: 0, ry: 0, duration: 1.1, ease: "sine.inOut" }, 7.10)
-    .to(typeGroup, { x: TYPE_HOME.x, y: TYPE_HOME.y, duration: 0.75, ease: "power3.inOut" }, TM.type_land - 0.75) // lands on the beat
+    .to(typeGroup, { x: TYPE_HOME.x, y: TYPE_HOME.y + 6, duration: 0.75, ease: "power2.inOut" }, TM.type_land - 0.75) // lands on the beat
+    .to(typeGroup, { y: TYPE_HOME.y, duration: 0.2, ease: "back.out(3)" }, TM.type_land)
     // the stamp is pressed: it lands (thud) on the off-beat, then settles
     // arrives already moving from off the headline (top-left), visible within 2 frames, then presses
     .fromTo(stamp, { autoAlpha: 0, x: -90, y: -90, scale: 1.3, rotation: -14 },

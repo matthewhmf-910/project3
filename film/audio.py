@@ -153,12 +153,8 @@ music += (hp(noise, 8000) * hats * 0.12)[:, None]
 riser = hp(noise, 1500) * np.clip((t - (H["strike"] - 0.65)) / 0.65, 0, 1) ** 2 * (t < H["strike"]) * 0.18
 music += riser[:, None]
 music *= np.where(t < H["strike"], 0.75, 1.1)[:, None]
-# end button: one mallet note on the last beat, then a 150 ms tail to silence (no click on loop)
-last = beats[-1]
-xb = t - last
-on = (xb >= 0)
-music[on] += (np.sin(2 * np.pi * hz(74) * xb[on]) * np.exp(-xb[on] / 0.12) * 0.2)[:, None]
-music *= np.clip((DUR - t) / 0.15, 0, 1)[:, None]
+# ending: the resolving chord decays over the last 0.6 s to silence (no chop, no click on loop)
+music *= np.clip((DUR - t) / 0.6, 0, 1)[:, None] ** 1.5
 music = np.stack([hp(music[:, 0], 110), hp(music[:, 1], 110)], 1)  # no sub energy a phone cannot play
 
 # ------------------------------------------------------------------ sound effects
@@ -186,11 +182,13 @@ sfx += whoosh(H["rings"] - 0.1, 0.35, 1200, 3200, 0.9)                          
 sfx += whoosh(H["ring_pass"] - 0.25, 0.45, 900, 2400, 0.75)                       # lemon through the rings
 sfx += whoosh(H["lift"] - 0.05, 0.3, 1500, 4000, 0.35)                            # L lifts
 sfx += hp(noise, 3500) * env(H["strike"], 0.0005, 0.045) * 0.95                   # slice "shk"
+sfx += np.sin(2 * np.pi * 130 * t) * env(H["strike"], 0.002, 0.16) * 0.55          # low hit: the strike is the climax
+sfx += bp(noise, 3000, 9000) * env(H["strike"], 0.003, 0.5) * 0.10                  # cymbal-like swell off the cut
 sfx += np.sin(2 * np.pi * 2960 * t) * env(H["strike"], 0.001, 0.18) * 0.10        # blade ring
 sfx += bp(noise, 2500, 7000) * env(H["strike"] + 0.03, 0.01, 0.06) * 0.12          # juice spritz
-sfx += whoosh(H["fall"], H["splash"] - H["fall"], 600, 2200, 1.0, rise=False)     # the wheel falls
+sfx += whoosh(H["fall"], H["splash"] - H["fall"], 600, 2200, 0.75, rise=False)    # the wheel falls (peaks under the reform)
 for tc in sorted(set(T["hits"]["reform"].get("letters", {}).values())):             # each letter clicks home as it lands
-    sfx += bp(noise, 2500, 6000) * env(tc, 0.0005, 0.012) * 0.45
+    sfx += bp(noise, 2500, 6000) * env(tc, 0.0005, 0.012) * 0.22  # -6 dB: the reform must not outshout the strike
 sp = H["splash"]
 sfx += lp(noise, 2500) * env(sp, 0.002, 0.07) * 0.8                                # splash body
 for k in range(6):                                                                 # bubbles
@@ -199,13 +197,13 @@ for k in range(6):                                                              
     on = (x >= 0) & (x < 0.08)
     f = 900 + 500 * k % 700 + 2500 * x[on]
     sfx[on] += np.sin(2 * np.pi * np.cumsum(np.full(on.sum(), 1.0) * f) / SR) * np.exp(-x[on] / 0.02) * 0.08
-sfx += lp(np.sin(2 * np.pi * 180 * t) * env(H["stamp"], 0.003, 0.08), 600) * 0.5   # stamp body
+sfx += lp(np.sin(2 * np.pi * 240 * t) * env(H["stamp"], 0.003, 0.08), 800) * 0.5   # stamp body (above phone roll-off)
 sfx += bp(noise, 1200, 5000) * env(H["stamp"], 0.001, 0.035) * 0.45               # the slap of the press
 sfx += hp(noise, 5000) * env(H["type_land"], 0.002, 0.25) * 0.16                  # settle shimmer
-sfx *= np.clip((DUR - t) / 0.15, 0, 1)
+sfx *= np.clip((DUR - t) / 0.4, 0, 1)
 
 # duck the music a touch under the biggest hits
-duck = 1 - 0.5 * np.maximum.reduce([env(H[k], 0.01, 0.18) for k in ("catch", "strike", "splash", "stamp")])
+duck = 1 - 0.5 * np.maximum.reduce([env(H[k], 0.01, 0.18) for k in ("catch", "splash", "stamp")])  # not the strike: it is the drop
 MUSIC_GAIN = 0.42  # music sits low; effects ride 6-10 dB over it
 music_mix = music * duck[:, None] * MUSIC_GAIN
 mix = music_mix + np.stack([sfx * 0.95, sfx * 1.05], 1)
@@ -279,4 +277,9 @@ for k in ("catch", "strike", "splash", "stamp"):
     print(f"sync {k:7s}: onset {onset:.3f}s vs {t0:.3f}s ({(onset - t0) * 1000:+.0f} ms) {'ok' if ok else 'OFF'}")
     if not ok:
         fail.append("sync " + k)
+st = lambda a, b: db(mix[int(a * SR):int(b * SR), 0])
+strike_l, reform_l = st(H["strike"], H["strike"] + 0.4), st(H["reform"], H["reform"] + 0.4)
+print(f"climax: strike {strike_l:.1f} dB vs reform {reform_l:.1f} dB (strike must be louder)")
+if strike_l <= reform_l:
+    fail.append("climax")
 print("AUDIO RESULT:", "PASS" if not fail else "FAIL " + ", ".join(fail))
