@@ -355,3 +355,4 @@ a { color: inherit; }
 .is-reel .copy__brand { display: block; }
 .crown { opacity: 0; visibility: hidden; }
 .crown svg { width: 100%; height: 100%; display: block; }
+.ripple--foam { width: 360px; height: 80px; border: 10px solid rgba(214, 178, 138, .9); }

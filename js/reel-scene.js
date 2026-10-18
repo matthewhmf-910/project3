@@ -48,7 +48,7 @@ XY.buildReel = function (canvas) {
   const LEMON = { w: 250, h: 169 }; // 1.25x after critic round 1: readable at phone size
   // anchored at its lower end, which feeds the C; steep enough that the waiting lemons are in frame
   // long enough that A really rolls (~200 px). Waiting lemons enter from the frame edge, as in reference panel 01.
-  const RAMP = { endX: 372, endY: 668 + DY, angle: 60, length: 900, stop: 416 }; // runs on past the frame edge
+  const RAMP = { endX: 372, endY: 668 + DY, angle: 42, length: 900, stop: 416 }; // runs on past the frame edge
   const ux = Math.cos((RAMP.angle * Math.PI) / 180), uy = Math.sin((RAMP.angle * Math.PI) / 180);
   RAMP.x = RAMP.endX - RAMP.length * ux;
   RAMP.y = RAMP.endY - RAMP.length * uy;
@@ -171,7 +171,9 @@ XY.buildReel = function (canvas) {
   gsap.set(wheel, { xPercent: -50, yPercent: -50, width: 150, height: 150 });
 
   const LAND = { x: 560, y: PY + 205 }; // in the foam against the dried slice, behind the glass's front rim line
-  const shadow = layer("wheel-shadow", null, 59);
+  // flat on the foam, far behind the wheel: at z 59 the tilted wheel crossed this plane and the
+  // shadow was drawn over half the wheel (the "tint seam" from its centre, critics 12-13)
+  const shadow = layer("wheel-shadow", null, 4);
   gsap.set(shadow, { xPercent: -50, yPercent: -50, x: LAND.x + 10, y: LAND.y + 34 });
   const drops = Array.from({ length: 8 }, () => {
     const d = layer("drop", null, 62);
@@ -194,12 +196,12 @@ XY.buildReel = function (canvas) {
       return `M${x - 5} 100 Q${x - 2} ${100 - h * 0.6} ${x} ${100 - h} Q${x + 2} ${100 - h * 0.6} ${x + 5} 100 Z`;
     }).join(" ") + '"/></svg>';
   gsap.set(crown, { xPercent: -50, yPercent: -100, x: LAND.x, y: LAND.y + 40, width: 300, height: 150, transformOrigin: "50% 100%" });
-  const ripple = layer("ripple", null, 58);
+  const ripple = layer("ripple ripple--foam", null, 4); // on the foam plane, behind the wheel
   gsap.set(ripple, { xPercent: -50, yPercent: -50, x: LAND.x, y: LAND.y + 24 });
   const ripple2 = layer("ripple ripple--inner", null, 58);
   gsap.set(ripple2, { xPercent: -50, yPercent: -50, x: LAND.x, y: LAND.y + 24 });
 
-  const stamp = pngLayer("06_STAMP.png", { x: 140, y: 486, w: 400, h: 402 }, 40); // clear of the left edge and the top UI band; above the C
+  const stamp = pngLayer("06_STAMP.png", { x: 140, y: 500, w: 368, h: 370 }, 40); // clear of the left edge and the top UI band; above the C
 
   /* ---------------------------------------------------------------- timeline */
   const cam = stage.cam;
@@ -308,6 +310,7 @@ XY.buildReel = function (canvas) {
     .to(shadow, { autoAlpha: 0.7, scale: 1, duration: 0.25, ease: "power2.out" }, SPLASH - 0.1)
 
     .fromTo(cam, { x: 0 }, { x: -7, duration: 0.033, yoyo: true, repeat: 3, ease: "sine.inOut", immediateRender: false }, SPLASH) // impact
+    .fromTo(ripple, { autoAlpha: 0.9, scale: 0.45 }, { autoAlpha: 0, scale: 0.85, duration: 0.45, ease: "power2.out", immediateRender: false }, SPLASH) // a ring in the foam
 
   drops.forEach((d, i) => {
     const a = -Math.PI * (0.2 + (0.6 * i) / (drops.length - 1)); // symmetric, mostly upward
@@ -317,8 +320,8 @@ XY.buildReel = function (canvas) {
     // drops start at the wheel's rim on the contact frame, so the splash is visible immediately
     const sx = LAND.x + Math.cos(a) * 80, sy = LAND.y + 30 + Math.sin(a) * 20;
     const rot = (a * 180) / Math.PI + 90;
-    tl.fromTo(d, { x: sx, y: sy, autoAlpha: i % 2 ? 0 : 0.95, scaleX: size * 0.5, scaleY: size * 1.8, rotation: rot },
-        { x: sx + Math.cos(a) * r, y: sy + Math.sin(a) * r * 1.4, autoAlpha: 0, scaleX: size * 0.4, scaleY: size * 1.2, rotation: rot, duration: 0.14, ease: "power2.out", immediateRender: false }, SPLASH); // gone in ~4 frames
+    tl.fromTo(d, { x: sx, y: sy, autoAlpha: 0.95, scaleX: size * 0.55, scaleY: size * 1.6, rotation: rot },
+        { x: sx + Math.cos(a) * r, y: sy + Math.sin(a) * r * 1.4, autoAlpha: 0, scaleX: size * 0.45, scaleY: size * 1.1, rotation: rot, duration: 0.2, ease: "power2.out", immediateRender: false }, SPLASH); // ~6 frames
   });
 
   // 06 HERO 7.1-10 ---------------------------------------------------------

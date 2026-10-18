@@ -220,6 +220,9 @@ sfx *= np.clip((DUR - t) / 0.4, 0, 1)
 
 # duck the music a touch under the biggest hits
 duck = 1 - 0.5 * np.maximum.reduce([env(H[k], 0.01, 0.18) for k in ("catch", "splash", "stamp")])  # not the strike: it is the drop
+# ~2 dB under the roll and the letter clicks, so the small sounds read
+quiet = ((t >= H["roll"]) & (t < H["roll"] + 1.0)) | ((t >= H["reform"] - 0.05) & (t < H["reform"] + 0.45))
+duck = duck * np.where(quiet, 0.8, 1.0)
 MUSIC_GAIN = 0.42  # music sits low; effects ride 6-10 dB over it
 music_mix = music * duck[:, None] * MUSIC_GAIN
 mix = music_mix + np.stack([sfx * 0.95, sfx * 1.05], 1)
