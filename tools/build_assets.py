@@ -192,7 +192,8 @@ glass_zone = glass_outline & ~body
 local_bg = cv2.medianBlur(L.astype(np.uint8), 31).astype(np.float32)
 # smoothed so paper grain behind the glass is not drawn as white speckle; only real rim strokes survive
 contrast = cv2.GaussianBlur(L - local_bg, (0, 0), 1.6)
-glass_a = np.clip(0.04 + np.clip(np.abs(contrast) - 14, 0, None) / 28, 0, 0.85)  # ignore paper tooth
+glass_a = np.clip(0.04 + np.clip(np.abs(contrast) - 18, 0, None) / 28, 0, 0.85)  # ignore paper tooth
+glass_a = cv2.GaussianBlur(glass_a, (0, 0), 1.2)  # no speckle: reflections stay as soft strokes
 highlight = np.array([255, 252, 246], np.float32)
 shade = np.array([70, 58, 46], np.float32)
 glass_rgb = np.where((contrast > 0)[..., None], highlight, shade) * np.ones_like(P)

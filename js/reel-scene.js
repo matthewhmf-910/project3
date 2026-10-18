@@ -43,7 +43,7 @@ XY.buildReel = function (canvas) {
   const ts = TYPE.w / cool.w;
   TYPE.h = cool.h * ts;
   const typeRect = (r) => ({ x: TYPE.x + (r.x - cool.x) * ts, y: TYPE.y + (r.y - cool.y) * ts, w: r.w * ts, h: r.h * ts });
-  const TYPE_HOME = { x: 228 - TYPE.x, y: 760 - TYPE.y }; // end-card position of the type block (glass rim overlaps COFFEE, as on the poster)
+  const TYPE_HOME = { x: 228 - TYPE.x, y: 800 - TYPE.y }; // end-card position of the type block (glass rim overlaps COFFEE, as on the poster)
 
   const LEMON = { w: 250, h: 169 }; // 1.25x after critic round 1: readable at phone size
   // anchored at its lower end, which feeds the C; steep enough that the waiting lemons are in frame
@@ -208,7 +208,7 @@ XY.buildReel = function (canvas) {
 
   // initial state lives in the timeline (set at 0) so seeking backwards always restores it
   tl.set(copy, { autoAlpha: 0, y: 30 }, 0)
-    .set(stamp, { autoAlpha: 0, scale: 1.35, rotation: -18 }, 0)
+    .set(stamp, { autoAlpha: 0, x: -90, y: -90, scale: 1.3, rotation: -14 }, 0)
     .set(typeGroup, { x: 0, y: 0 }, 0)
     .set(rampGroup, { x: 0, autoAlpha: 1 }, 0)
     .set(lemonA.img, { clipPath: "inset(0% 0% 0% 0%)" }, 0)
@@ -218,7 +218,7 @@ XY.buildReel = function (canvas) {
     .set(shadow, { autoAlpha: 0, scale: 0.4 }, 0)
     .set(crown, { autoAlpha: 0 }, 0)
     .set(stage.offset, { s: 1 }, 0)
-    .fromTo(cam, { rx: 6, ry: -7, x: 0 }, { rx: 3, ry: 5, duration: 7.6, ease: "sine.inOut" }, 0);
+    .fromTo(cam, { rx: 6, ry: -7, x: 0 }, { rx: 3, ry: 5, x: 0, duration: 7.6, ease: "sine.inOut" }, 0);
 
   // 01 ROLL 0-1.2 ----------------------------------------------------------
   // frame one is the settled poster; A rocks against the stop, then lets go
@@ -234,12 +234,12 @@ XY.buildReel = function (canvas) {
     .fromTo(lemonB, { rotation: RAMP.angle }, { rotation: RAMP.angle + 8, duration: 0.25, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.3)
     // C swings into a cradle under the end of the ramp, eased in and out
     .fromTo(C, { x: 0, y: 0, rotation: 0, scaleX: 1, scaleY: 1 },
-      { x: CUP.x - C.center.x, y: CUP.y - C.center.y, rotation: -22, duration: 0.6, ease: "back.inOut(1.2)" }, 0.55);
+      { x: CUP.x - C.center.x, y: CUP.y - C.center.y, scaleX: 1, scaleY: 1, rotation: -22, duration: 0.6, ease: "back.inOut(1.2)" }, 0.55);
 
   // 02 CATCH 1.2-2.4 -------------------------------------------------------
   const bowl = { x: bowlPt.x, y: bowlPt.y }; // sitting in the C's mouth
   const drop = TM.catch - 0.42; // the lemon lands in the C exactly on the beat
-  tl.to(lemonA, { z: 26, duration: 0.15, ease: "none" }, drop) // behind the C's strokes: held, not covering
+  tl.to(lemonA, { z: 34, duration: 0.15, ease: "none" }, drop) // in front of the C's bowl: the catch reads
     .to(lemonA, { x: bowl.x, duration: 0.42, ease: "power1.out" }, drop)
     .to(lemonA, { y: bowl.y, rotation: 360, duration: 0.42, ease: "power2.in" }, drop)
     .to(C, { scaleY: 0.9, scaleX: 1.06, duration: 0.09, ease: "power2.out" }, TM.catch)
@@ -277,30 +277,31 @@ XY.buildReel = function (canvas) {
     .fromTo(cam, { x: 0 }, { x: 12, duration: 0.033, yoyo: true, repeat: 3, ease: "sine.inOut", immediateRender: false }, HIT)
     .fromTo(flash, { autoAlpha: 0.9, scale: 0.4 }, { autoAlpha: 0, scale: 1.3, duration: 0.12, ease: "power2.out", immediateRender: false }, HIT)
     .to(Lb, { y: -280, rotation: 5, duration: 0.45, ease: "back.out(2)" }, HIT + 0.067)  // contact holds 2 frames, then rebounds
-    .to(wheel, { x: "+=70", y: "+=22", rotationY: 8, rotation: 14, duration: 0.38, ease: "power2.out" }, HIT + 0.02) // peels face-on
+    .to(wheel, { x: "+=70", y: "+=22", rotationY: 8, rotation: 14, duration: 0.28, ease: "power2.out" }, HIT + 0.02) // peels face-on
     .to(lemonA, { x: "-=18", duration: 0.25, ease: "power2.out" }, HIT + 0.02)
     .to(rampGroup, { x: -900, duration: 0.6, ease: "power2.in" }, 5.3)   // off-camera during the close-up, so it never re-enters
     // the stub rolls back out through the rings (visible, unhurried), then the word re-forms;
     // every letter lands on its click in film/timing.json (hits.reform.letters)
     .to(lemonA, { x: -260, y: axisY(-260), rotation: "-=300", duration: 1.0, ease: "power1.in" }, 5.3)
-    .to(Lb, { y: 0, rotation: 0, duration: 0.5, ease: "power3.inOut" }, RL.L - 0.5)
-    .to(O1, { rotationY: 0, duration: 0.45, ease: "power3.out" }, RL.O1 - 0.45)
-    .to(O2, { rotationY: 0, duration: 0.45, ease: "power3.out" }, RL.O2 - 0.45)
-    .to(C, { x: 0, duration: 0.4, ease: "power3.out" }, RL.C - 0.4)
-    .to(E, { x: 0, duration: 0.4, ease: "power3.out" }, RL.E - 0.4)
-    .to(S, { x: 0, duration: 0.4, ease: "power3.out" }, RL.S - 0.4)
-    .to(T, { x: 0, duration: 0.4, ease: "power3.out" }, RL.T - 0.4);
+    // eased INTO the landing: contact is the last frame of each move, where its click sits
+    .to(Lb, { y: 0, rotation: 0, duration: 0.45, ease: "power2.in" }, RL.L - 0.45)
+    .to(O1, { rotationY: 0, duration: 0.4, ease: "power2.in" }, RL.O1 - 0.4)
+    .to(O2, { rotationY: 0, duration: 0.4, ease: "power2.in" }, RL.O2 - 0.4)
+    .to(C, { x: 0, duration: 0.35, ease: "power2.in" }, RL.C - 0.35)
+    .to(E, { x: 0, duration: 0.35, ease: "power2.in" }, RL.E - 0.35)
+    .to(S, { x: 0, duration: 0.35, ease: "power2.in" }, RL.S - 0.35)
+    .to(T, { x: 0, duration: 0.35, ease: "power2.in" }, RL.T - 0.35);
   juice.forEach((d, i) => {
     const a = -Math.PI * (0.25 + 0.5 * (i / (juice.length - 1)));
     tl.fromTo(d, { x: cutX + 6, y: tip.y, autoAlpha: 1, scale: 1 },
-        { x: cutX + 6 + Math.cos(a) * 70 + 30, y: tip.y + Math.sin(a) * 60, duration: 0.22, ease: "power2.out", immediateRender: false }, HIT)
+        { x: cutX + 6 + Math.cos(a) * 70 + 30, y: tip.y + Math.sin(a) * 60, autoAlpha: 1, scale: 1, duration: 0.22, ease: "power2.out", immediateRender: false }, HIT)
       .to(d, { y: "+=110", autoAlpha: 0, scale: 0.6, duration: 0.3, ease: "power2.in" }, HIT + 0.22);
   });
 
   // 05 FALL 6.0-7.6 --------------------------------------------------------
-  const FALL = 5.45, SPLASH = TM.splash;
-  tl.to(wheel, { x: LAND.x, duration: SPLASH - FALL, ease: "sine.inOut" }, FALL)
-    .to(wheel, { y: LAND.y, duration: SPLASH - FALL, ease: "power2.in" }, FALL)
+  const FALL = HIT + 0.3, SPLASH = TM.splash; // no hang at the L
+  tl.to(wheel, { x: LAND.x, duration: SPLASH - FALL, ease: "sine.out" }, FALL)   // arcs away from the type first
+    .to(wheel, { y: LAND.y, duration: SPLASH - FALL, ease: "power1.in" }, FALL)
     .to(wheel, { rotationX: 20, rotationY: 0, rotation: 200, scale: 1.5, duration: SPLASH - FALL, ease: "power1.in" }, FALL)
     .to(wheel, { y: LAND.y - 14, duration: 0.18, ease: "power2.out", yoyo: true, repeat: 1 }, SPLASH)
     .fromTo(wheel.firstChild, { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 45% 0%)", duration: 0.3, ease: "power2.out", immediateRender: false }, SPLASH) // sinks into the foam
@@ -308,8 +309,7 @@ XY.buildReel = function (canvas) {
     .fromTo(ripple, { autoAlpha: 0.95, scale: 0.5 }, { autoAlpha: 0, scale: 1.0, duration: 0.85, ease: "power2.out", immediateRender: false }, SPLASH)
     .fromTo(ripple2, { autoAlpha: 0.8, scale: 0.4 }, { autoAlpha: 0, scale: 0.85, duration: 0.8, ease: "power2.out", immediateRender: false }, SPLASH + 0.1)
     .fromTo(cam, { x: 0 }, { x: -7, duration: 0.033, yoyo: true, repeat: 3, ease: "sine.inOut", immediateRender: false }, SPLASH) // impact
-    .fromTo(crown, { autoAlpha: 1, scaleY: 0.25, scaleX: 0.7 }, { scaleY: 1, scaleX: 1.05, duration: 0.16, ease: "power2.out", immediateRender: false }, SPLASH) // on the impact frame
-    .to(crown, { autoAlpha: 0, scaleY: 0.4, duration: 0.25, ease: "power2.in" }, SPLASH + 0.16)
+
   drops.forEach((d, i) => {
     const a = -Math.PI * (0.12 + (0.76 * i) / (drops.length - 1)); // symmetric crown out of the surface
     const r = 120 + ((i * 37) % 3) * 50;
@@ -318,7 +318,7 @@ XY.buildReel = function (canvas) {
     // drops start at the wheel's rim on the contact frame, so the splash is visible immediately
     const sx = LAND.x + Math.cos(a) * 80, sy = LAND.y + 30 + Math.sin(a) * 20;
     tl.fromTo(d, { x: sx, y: sy, autoAlpha: 1, scaleX: size * 0.7, scaleY: size * 1.6, rotation: (a * 180) / Math.PI + 90 },
-        { x: sx + Math.cos(a) * r * 0.8, y: sy + Math.sin(a) * r, scaleX: size, scaleY: size, duration: 0.4, ease: "power1.out", immediateRender: false }, SPLASH)
+        { x: sx + Math.cos(a) * r * 0.8, y: sy + Math.sin(a) * r, autoAlpha: 1, rotation: (a * 180) / Math.PI + 90, scaleX: size, scaleY: size, duration: 0.4, ease: "power1.out", immediateRender: false }, SPLASH)
       .to(d, { y: "+=80", autoAlpha: 0, scaleX: size * 0.6, scaleY: size * 1.2, duration: 0.3, ease: "power2.in" }, SPLASH + 0.4);
   });
 
@@ -326,8 +326,9 @@ XY.buildReel = function (canvas) {
   tl.to(cam, { rx: 0, ry: 0, duration: 1.1, ease: "sine.inOut" }, 7.10)
     .to(typeGroup, { x: TYPE_HOME.x, y: TYPE_HOME.y, duration: 0.75, ease: "power3.inOut" }, TM.type_land - 0.75) // lands on the beat
     // the stamp is pressed: it lands (thud) on the off-beat, then settles
-    .set(stamp, { autoAlpha: 1 }, TM.stamp - 0.16)  // no fade: it is pressed
-    .fromTo(stamp, { scale: 1.6, rotation: -14 }, { scale: 0.94, rotation: 0, duration: 0.16, ease: "power4.in", immediateRender: false }, TM.stamp - 0.16)
+    // arrives already moving from off the headline (top-left), visible within 2 frames, then presses
+    .fromTo(stamp, { autoAlpha: 0, x: -90, y: -90, scale: 1.3, rotation: -14 },
+      { autoAlpha: 1, x: 0, y: 0, scale: 0.94, rotation: 0, duration: 0.2, ease: "power3.in", immediateRender: false }, TM.stamp - 0.2)
     .to(stamp, { scale: 1, duration: 0.3, ease: "back.out(2.5)" }, TM.stamp)
     .to(copy, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, 7.85)       // end card readable from 8.4 s
     .to(wheel, { rotation: "+=16", duration: 2.4, ease: "sine.inOut" }, 7.10)

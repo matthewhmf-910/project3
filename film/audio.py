@@ -141,6 +141,24 @@ for i, (c0, notes) in enumerate(CH):
         k += 1
         tt += BEAT / 2
 music += np.stack([mallet * 0.9, mallet * 1.1], 1)
+
+# air: closed hats on the 8ths from the drop (8 kHz+), so the score is not dull
+hats = np.zeros(N)
+for b in beats:
+    for half in (0, BEAT / 2):
+        if H["strike"] - 0.01 <= b + half < DUR - 0.2:
+            hats += env(b + half, 0.001, 0.02) * (0.6 if half else 0.35)
+music += (hp(noise, 8000) * hats * 0.12)[:, None]
+# riser into the strike, then a real drop: pre-drop music sits ~2.5 dB lower, post-drop ~+0.8 dB
+riser = hp(noise, 1500) * np.clip((t - (H["strike"] - 0.65)) / 0.65, 0, 1) ** 2 * (t < H["strike"]) * 0.18
+music += riser[:, None]
+music *= np.where(t < H["strike"], 0.75, 1.1)[:, None]
+# end button: one mallet note on the last beat, then a 150 ms tail to silence (no click on loop)
+last = beats[-1]
+xb = t - last
+on = (xb >= 0)
+music[on] += (np.sin(2 * np.pi * hz(74) * xb[on]) * np.exp(-xb[on] / 0.12) * 0.2)[:, None]
+music *= np.clip((DUR - t) / 0.15, 0, 1)[:, None]
 music = np.stack([hp(music[:, 0], 110), hp(music[:, 1], 110)], 1)  # no sub energy a phone cannot play
 
 # ------------------------------------------------------------------ sound effects
@@ -165,7 +183,7 @@ sfx += roll
 sfx += lp(np.sin(2 * np.pi * 820 * t) * env(H["catch"], 0.001, 0.05) + 0.5 * np.sin(2 * np.pi * 1530 * t) * env(H["catch"], 0.001, 0.03), 4000) * 0.9  # wooden tock
 sfx += hp(noise, 2000) * env(H["catch"], 0.0005, 0.006) * 0.25                   # tock click
 sfx += whoosh(H["rings"] - 0.1, 0.35, 1200, 3200, 0.9)                            # rings turn
-sfx += whoosh(H["ring_pass"] - 0.25, 0.45, 900, 2400, 0.35)                       # lemon through the rings
+sfx += whoosh(H["ring_pass"] - 0.25, 0.45, 900, 2400, 0.75)                       # lemon through the rings
 sfx += whoosh(H["lift"] - 0.05, 0.3, 1500, 4000, 0.35)                            # L lifts
 sfx += hp(noise, 3500) * env(H["strike"], 0.0005, 0.045) * 0.95                   # slice "shk"
 sfx += np.sin(2 * np.pi * 2960 * t) * env(H["strike"], 0.001, 0.18) * 0.10        # blade ring
@@ -183,7 +201,8 @@ for k in range(6):                                                              
     sfx[on] += np.sin(2 * np.pi * np.cumsum(np.full(on.sum(), 1.0) * f) / SR) * np.exp(-x[on] / 0.02) * 0.08
 sfx += lp(np.sin(2 * np.pi * 180 * t) * env(H["stamp"], 0.003, 0.08), 600) * 0.5   # stamp body
 sfx += bp(noise, 1200, 5000) * env(H["stamp"], 0.001, 0.035) * 0.45               # the slap of the press
-sfx += hp(noise, 7000) * env(H["type_land"], 0.002, 0.25) * 0.05                  # settle shimmer
+sfx += hp(noise, 5000) * env(H["type_land"], 0.002, 0.25) * 0.16                  # settle shimmer
+sfx *= np.clip((DUR - t) / 0.15, 0, 1)
 
 # duck the music a touch under the biggest hits
 duck = 1 - 0.5 * np.maximum.reduce([env(H[k], 0.01, 0.18) for k in ("catch", "strike", "splash", "stamp")])
