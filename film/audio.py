@@ -184,13 +184,15 @@ sfx += whoosh(H["lift"] - 0.05, 0.3, 1500, 4000, 0.35)                          
 sfx += hp(noise, 3500) * env(H["strike"], 0.0005, 0.045) * 0.95                   # slice "shk"
 sfx += np.sin(2 * np.pi * 130 * t) * env(H["strike"], 0.002, 0.16) * 0.55          # low hit: the strike is the climax
 sfx += bp(noise, 3000, 9000) * env(H["strike"], 0.003, 0.5) * 0.10                  # cymbal-like swell off the cut
-sfx += np.sin(2 * np.pi * 2960 * t) * env(H["strike"], 0.001, 0.18) * 0.10        # blade ring
+sfx += np.sin(2 * np.pi * 2960 * t) * env(H["strike"], 0.001, 0.18) * 0.30        # blade ring
+sfx += bp(noise, 2000, 5000) * env(H["strike"], 0.0005, 0.12) * 0.75               # bright body: the climax on a phone too
 sfx += bp(noise, 2500, 7000) * env(H["strike"] + 0.03, 0.01, 0.06) * 0.12          # juice spritz
 sfx += whoosh(H["fall"], H["splash"] - H["fall"], 600, 2200, 1.0, rise=False)     # the wheel falls
 for tc in sorted(set(T["hits"]["reform"].get("letters", {}).values())):             # each letter clicks home as it lands
-    sfx += bp(noise, 2500, 6000) * env(tc, 0.0005, 0.012) * 0.22  # -6 dB: the reform must not outshout the strike
+    sfx += bp(noise, 2500, 6000) * env(tc, 0.0005, 0.012) * 0.14  # well under the strike
 sp = H["splash"]
 sfx += lp(noise, 2500) * env(sp, 0.002, 0.07) * 0.8                                # splash body
+sfx += whoosh(5.3, 0.9, 400, 1200, 0.25)                                            # the spent lemon rolls away
 for k in range(6):                                                                 # bubbles
     tb = sp + 0.04 + k * 0.045
     x = t - tb
@@ -284,4 +286,11 @@ strike_l, reform_l = st(H["strike"], H["strike"] + 0.4), st(H["reform"], H["refo
 print(f"climax: strike {strike_l:.1f} dB vs reform {reform_l:.1f} dB (strike must be louder)")
 if strike_l <= reform_l:
     fail.append("climax")
+# and on a phone (everything under 200 Hz removed)
+mix_hp = hp(mix[:, 0], 200)
+stp = lambda a, b: db(mix_hp[int(a * SR):int(b * SR)])
+sp_l, rp_l = stp(H["strike"], H["strike"] + 0.4), stp(H["reform"], H["reform"] + 0.4)
+print(f"climax on phone: strike {sp_l:.1f} dB vs reform {rp_l:.1f} dB")
+if sp_l <= rp_l:
+    fail.append("climax on phone")
 print("AUDIO RESULT:", "PASS" if not fail else "FAIL " + ", ".join(fail))

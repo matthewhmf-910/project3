@@ -253,7 +253,7 @@ XY.buildReel = function (canvas) {
   const axisY = (x) => O1.center.y + ((x - O1.center.x) * (O2.center.y - O1.center.y)) / (O2.center.x - O1.center.x);
   tl.to(C, { x: 0, y: 0, rotation: 0, duration: 0.6, ease: "sine.inOut" }, 2.4)
     .to(lemonA, { x: 540, y: axisY(540), rotation: 352, z: 30, duration: 0.6, ease: "sine.inOut" }, 2.4)
-    .to([O1, O2], { rotationY: 40, duration: 0.45, stagger: 0.1, ease: "back.out(1.6)" }, TM.rings) // on the beat
+    .to([O1, O2], { rotationY: 52, duration: 0.45, stagger: 0.1, ease: "back.out(2.2)" }, TM.rings) // on the beat; a readable turn
     .to(C, { x: 12, duration: 0.4, ease: "power2.out" }, 2.95) // a nudge: the C never touches the first O
     .to(lemonA, { x: 760, y: axisY(760), duration: 0.95, ease: "power2.inOut" }, 2.95)
     .to(C, { x: 4, duration: 0.5, ease: "sine.inOut" }, 3.35);
@@ -317,21 +317,21 @@ XY.buildReel = function (canvas) {
     // a crown: drops leave stretched along their path, round off at the top, then fall
     // drops start at the wheel's rim on the contact frame, so the splash is visible immediately
     const sx = LAND.x + Math.cos(a) * 80, sy = LAND.y + 30 + Math.sin(a) * 20;
-    tl.fromTo(d, { x: sx, y: sy, autoAlpha: 1, scale: size },
-        { x: sx + Math.cos(a) * r, y: sy + Math.sin(a) * r * 1.4, autoAlpha: 1, scale: size, duration: 0.16, ease: "power2.out", immediateRender: false }, SPLASH)
-      .to(d, { x: sx + Math.cos(a) * r * 1.5, y: sy + 30, autoAlpha: 0, scale: size * 0.7, duration: 0.16, ease: "power2.in" }, SPLASH + 0.16); // back into the drink
+    const rot = (a * 180) / Math.PI + 90;
+    tl.fromTo(d, { x: sx, y: sy, autoAlpha: i % 2 ? 0 : 0.95, scaleX: size * 0.5, scaleY: size * 1.8, rotation: rot },
+        { x: sx + Math.cos(a) * r, y: sy + Math.sin(a) * r * 1.4, autoAlpha: 0, scaleX: size * 0.4, scaleY: size * 1.2, rotation: rot, duration: 0.14, ease: "power2.out", immediateRender: false }, SPLASH); // gone in ~4 frames
   });
 
   // 06 HERO 7.1-10 ---------------------------------------------------------
   tl.to(cam, { rx: 0, ry: 0, duration: 1.1, ease: "sine.inOut" }, 7.10)
-    .to(typeGroup, { x: TYPE_HOME.x, y: TYPE_HOME.y + 6, duration: 0.75, ease: "power2.inOut" }, TM.type_land - 0.75) // lands on the beat
-    .to(typeGroup, { y: TYPE_HOME.y, duration: 0.2, ease: "back.out(3)" }, TM.type_land)
+    .to(typeGroup, { x: TYPE_HOME.x, y: TYPE_HOME.y + 10, duration: 0.75, ease: "power2.in" }, TM.type_land - 0.75) // arrives with speed on the beat
+    .to(typeGroup, { y: TYPE_HOME.y, duration: 0.22, ease: "back.out(3)" }, TM.type_land)
     // the stamp is pressed: it lands (thud) on the off-beat, then settles
     // arrives already moving from off the headline (top-left), visible within 2 frames, then presses
     .fromTo(stamp, { autoAlpha: 0, x: -90, y: -90, scale: 1.3, rotation: -14 },
       { autoAlpha: 1, x: 0, y: 0, scale: 0.94, rotation: 0, duration: 0.2, ease: "power3.in", immediateRender: false }, TM.stamp - 0.2)
     .to(stamp, { scale: 1, duration: 0.3, ease: "back.out(2.5)" }, TM.stamp)
-    .to(copy, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, 7.85)       // end card readable from 8.4 s
+    .to(copy, { autoAlpha: 1, y: 0, duration: 0.45, ease: "power2.out" }, TM.type_land) // after the type lands; readable from ~8.6 s
     .to(wheel, { rotation: "+=16", duration: 2.4, ease: "sine.inOut" }, 7.10)
     .to(stage.offset, { s: 1.03, duration: 1.4, ease: "sine.inOut" }, 8.10);         // the hold keeps breathing to the last frame
   if (tl.duration() < DURATION) tl.to({}, { duration: DURATION - tl.duration() });
@@ -345,8 +345,9 @@ XY.buildReel = function (canvas) {
     [0.0, W / 2, H / 2, 1.0],
     [0.35, 740, 1330, 1.03],      // frame one: the whole poster, already breathing
     [1.25, 400, 1000, 1.3],       // ROLL: follow the lemon; frame reads "COOL"
-    [2.1, 360, 930, 1.6],         // CATCH: medium on ramp + C
-    [3.3, 668, 880, 1.6],         // FEED: track the OO; right edge in the E|S gap
+    [2.1, 380, 930, 1.6],         // CATCH: medium on ramp + C
+    [2.7, 600, 890, 1.48],        // FEED: settle on the C-O-O-L run and HOLD, so the lemon visibly
+    [3.6, 650, 880, 1.5],         //       crosses the frame through both rings (tracking hid its travel)
     [4.4, 990, 850, 1.75],        // CUT approach; left edge in the C|O gap
     [HIT, 930, 800, 2.0],         // the stroke, close
     [5.35, 900, 850, 1.85],

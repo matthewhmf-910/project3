@@ -15,7 +15,7 @@
     },
     {
       "text": "SLOW BREW / GOOD MOOD",
-      "where": "end card, from 7.85 s",
+      "where": "end card, from 8.18 s",
       "source": "assets/_source/poster_hero.png",
       "source_text": "SLOW BREW GOOD MOOD (poster, top left)"
     },
@@ -27,7 +27,7 @@
     },
     {
       "text": "XIAOYE COFFEE",
-      "where": "end card brand line, from 7.85 s",
+      "where": "end card brand line, from 8.18 s",
       "source": "HANDOFF.md",
       "source_text": "# Handoff Spec: 夏野豆行 (Xiaoye Coffee)"
     }
