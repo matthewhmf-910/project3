@@ -19,7 +19,7 @@ const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf("--" + k); return i >= 0 ? +args[i + 1] : d; };
 const out = path.resolve(args[0] && !args[0].startsWith("--") ? args[0] : "dist/film");
 const FPS = opt("fps", 30), STEP = opt("step", 1); // --step N: quick preview of every Nth frame
-const SUB = opt("sub", 40); // max samples per frame; the actual count follows on-screen motion (~4 px per sample)
+const SUB = opt("sub", 24); // max samples per frame; the actual count follows on-screen motion (~4 px per sample)
 const ffmpeg = process.env.FFMPEG || execFileSync("python3", ["-c", "import imageio_ffmpeg as f; print(f.get_ffmpeg_exe())"]).toString().trim();
 
 (async () => {

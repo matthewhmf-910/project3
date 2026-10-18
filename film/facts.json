@@ -15,13 +15,13 @@
     },
     {
       "text": "SLOW BREW / GOOD MOOD",
-      "where": "end card, from 8.35 s",
+      "where": "end card, from 7.85 s",
       "source": "assets/_source/poster_hero.png",
       "source_text": "SLOW BREW GOOD MOOD (poster, top left)"
     },
     {
       "text": "夏野豆行 · DAILY RITUAL",
-      "where": "end-card stamp, from 8.25 s",
+      "where": "end-card stamp, from 7.75 s",
       "source": "HANDOFF.md",
       "source_text": "`06_STAMP.png` | Identity Badge | \"夏野豆行 · DAILY RITUAL\" circular brand stamp"
     }

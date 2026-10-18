@@ -45,7 +45,7 @@ XY.buildReel = function (canvas) {
   const LEMON = { w: 250, h: 169 }; // 1.25x after critic round 1: readable at phone size
   // anchored at its lower end, which feeds the C; steep enough that the waiting lemons are in frame
   // long enough that A really rolls (~200 px). Waiting lemons enter from the frame edge, as in reference panel 01.
-  const RAMP = { endX: 372, endY: 668 + DY, angle: 60, length: 680, stop: 196 };
+  const RAMP = { endX: 372, endY: 668 + DY, angle: 60, length: 900, stop: 416 }; // runs on past the frame edge
   const ux = Math.cos((RAMP.angle * Math.PI) / 180), uy = Math.sin((RAMP.angle * Math.PI) / 180);
   RAMP.x = RAMP.endX - RAMP.length * ux;
   RAMP.y = RAMP.endY - RAMP.length * uy;
@@ -117,9 +117,11 @@ XY.buildReel = function (canvas) {
 
   // ramp with lemons B and C behind the stop
   const rampGroup = layer("group", null, 30);
+  const wall = layer("ramp__wall", null, -30, rampGroup); // back wall: reads as a channel, lemons sit in it
   const ramp = layer("ramp", null, 0, rampGroup);
   ramp.innerHTML = '<i class="ramp__lip"></i><i class="ramp__top"></i><i class="ramp__face"></i><i class="ramp__stop" style="left:' + RAMP.stop + 'px"></i>';
   gsap.set(ramp, { x: RAMP.x, y: RAMP.y, rotation: RAMP.angle, transformOrigin: "0 0", width: RAMP.length + 40 });
+  gsap.set(wall, { x: RAMP.x + ux * 0 + uy * 0, y: RAMP.y, rotation: RAMP.angle, transformOrigin: "0 100%", yPercent: -100, width: RAMP.length + 40, z: -30 });
   const lip = layer("ramp__front", null, 0, rampGroup); // front wall of the trough, in front of every lemon
   gsap.set(lip, { x: RAMP.x, y: RAMP.y, rotation: RAMP.angle, transformOrigin: "0 0", width: RAMP.length + 40, z: 8 });
 
@@ -136,7 +138,7 @@ XY.buildReel = function (canvas) {
   const lemonA = lemon(canvas, 2);
   const putOnRamp = (n, d, spin) => gsap.set(n, { ...onRamp(d), rotation: RAMP.angle + (spin || 0) });
   putOnRamp(lemonC, RAMP.stop - 20 - LEMON.w * 1.1); // queued behind B, further back in depth
-  gsap.set(lemonC, { z: -20, scale: 0.94 });
+  gsap.set(lemonC, { z: 3, scale: 0.94 });
   putOnRamp(lemonB, RAMP.stop - 20 - LEMON.w / 2);
   putOnRamp(lemonA, RAMP.stop + 20 + LEMON.w / 2);
 
@@ -164,7 +166,7 @@ XY.buildReel = function (canvas) {
     '<circle cx="50" cy="50" r="44" fill="url(#gloss)"/></svg>';
   gsap.set(wheel, { xPercent: -50, yPercent: -50, width: 150, height: 150 });
 
-  const LAND = { x: 478, y: PY + 222 }; // inside the rim, leaning on the dried slice's left edge
+  const LAND = { x: 545, y: PY + 245 }; // in the foam against the dried slice, well inside the rim
   const shadow = layer("wheel-shadow", null, 59);
   gsap.set(shadow, { xPercent: -50, yPercent: -50, x: LAND.x + 10, y: LAND.y + 34 });
   const drops = Array.from({ length: 10 }, () => {
@@ -210,7 +212,7 @@ XY.buildReel = function (canvas) {
   // frame one is the settled poster; A rocks against the stop, then lets go
   const rollStart = onRamp(RAMP.stop + 20 + LEMON.w / 2);
   // the C tips 40 degrees so its mouth faces up-right under the ramp's end: still readable as a C
-  const mouth = [Math.cos((-30 * Math.PI) / 180), Math.sin((-30 * Math.PI) / 180)];
+  const mouth = [Math.cos((-22 * Math.PI) / 180), Math.sin((-22 * Math.PI) / 180)];
   const rollEnd = onRamp(RAMP.length - LEMON.w / 2 - 10);
   // A drops off the ramp's end into the C's mouth; the C's centre sits behind the mouth
   const bowlPt = { x: rollEnd.x + 125, y: rollEnd.y + 95 };
@@ -220,7 +222,7 @@ XY.buildReel = function (canvas) {
     .fromTo(lemonB, { rotation: RAMP.angle }, { rotation: RAMP.angle + 8, duration: 0.25, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.3)
     // C swings into a cradle under the end of the ramp, eased in and out
     .fromTo(C, { x: 0, y: 0, rotation: 0, scaleX: 1, scaleY: 1 },
-      { x: CUP.x - C.center.x, y: CUP.y - C.center.y, rotation: -30, duration: 0.6, ease: "back.inOut(1.2)" }, 0.55);
+      { x: CUP.x - C.center.x, y: CUP.y - C.center.y, rotation: -22, duration: 0.6, ease: "back.inOut(1.2)" }, 0.55);
 
   // 02 CATCH 1.2-2.4 -------------------------------------------------------
   const bowl = { x: bowlPt.x, y: bowlPt.y }; // sitting in the C's mouth
@@ -239,9 +241,9 @@ XY.buildReel = function (canvas) {
   tl.to(C, { x: 0, y: 0, rotation: 0, duration: 0.6, ease: "sine.inOut" }, 2.4)
     .to(lemonA, { x: 540, y: axisY(540), rotation: 352, z: 30, duration: 0.6, ease: "sine.inOut" }, 2.4)
     .to([O1, O2], { rotationY: 40, duration: 0.45, stagger: 0.1, ease: "back.out(1.6)" }, 2.45)
-    .to(C, { x: 30, duration: 0.4, ease: "power2.out" }, 2.95) // short push: C never overlaps the first O
+    .to(C, { x: 12, duration: 0.4, ease: "power2.out" }, 2.95) // a nudge: the C never touches the first O
     .to(lemonA, { x: 760, y: axisY(760), duration: 0.95, ease: "power2.inOut" }, 2.95)
-    .to(C, { x: 16, duration: 0.5, ease: "sine.inOut" }, 3.35);
+    .to(C, { x: 4, duration: 0.5, ease: "sine.inOut" }, 3.35);
 
   // 04 CUT 3.9-6.0 ---------------------------------------------------------
   const tip = { x: 835, y: axisY(835) };          // lemon tip ends at x 960, across the L's stem
@@ -282,12 +284,13 @@ XY.buildReel = function (canvas) {
   const FALL = 5.45, SPLASH = 6.5;
   tl.to(wheel, { x: LAND.x, duration: SPLASH - FALL, ease: "sine.inOut" }, FALL)
     .to(wheel, { y: LAND.y, duration: SPLASH - FALL, ease: "power2.in" }, FALL)
-    .to(wheel, { rotationX: 25, rotationY: 0, rotation: 200, scale: 1.5, duration: SPLASH - FALL, ease: "power1.in" }, FALL)
+    .to(wheel, { rotationX: 20, rotationY: 0, rotation: 200, scale: 1.5, duration: SPLASH - FALL, ease: "power1.in" }, FALL)
     .to(wheel, { y: LAND.y - 14, duration: 0.18, ease: "power2.out", yoyo: true, repeat: 1 }, SPLASH)
-    .fromTo(wheel.firstChild, { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 34% 0%)", duration: 0.3, ease: "power2.out", immediateRender: false }, SPLASH + 0.04) // sinks into the foam
+    .fromTo(wheel.firstChild, { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 45% 0%)", duration: 0.3, ease: "power2.out", immediateRender: false }, SPLASH) // sinks into the foam
     .to(shadow, { autoAlpha: 0.7, scale: 1, duration: 0.25, ease: "power2.out" }, SPLASH - 0.1)
-    .fromTo(ripple, { autoAlpha: 0.95, scale: 0.2 }, { autoAlpha: 0, scale: 1.6, duration: 0.85, ease: "power2.out", immediateRender: false }, SPLASH)
-    .fromTo(ripple2, { autoAlpha: 0.8, scale: 0.15 }, { autoAlpha: 0, scale: 1.1, duration: 0.8, ease: "power2.out", immediateRender: false }, SPLASH + 0.12);
+    .fromTo(ripple, { autoAlpha: 0.95, scale: 0.5 }, { autoAlpha: 0, scale: 1.6, duration: 0.85, ease: "power2.out", immediateRender: false }, SPLASH)
+    .fromTo(ripple2, { autoAlpha: 0.8, scale: 0.4 }, { autoAlpha: 0, scale: 1.1, duration: 0.8, ease: "power2.out", immediateRender: false }, SPLASH + 0.1)
+    .fromTo(cam, { x: 0 }, { x: -7, duration: 0.033, yoyo: true, repeat: 3, ease: "sine.inOut", immediateRender: false }, SPLASH); // impact
   drops.forEach((d, i) => {
     const a = -Math.PI * (0.12 + (0.76 * i) / (drops.length - 1)); // symmetric crown out of the surface
     const r = 120 + ((i * 37) % 3) * 50;
@@ -296,8 +299,8 @@ XY.buildReel = function (canvas) {
     // drops start at the wheel's rim on the contact frame, so the splash is visible immediately
     const sx = LAND.x + Math.cos(a) * 80, sy = LAND.y + 30 + Math.sin(a) * 20;
     tl.fromTo(d, { x: sx, y: sy, autoAlpha: 1, scaleX: size * 0.7, scaleY: size * 1.6, rotation: (a * 180) / Math.PI + 90 },
-        { x: sx + Math.cos(a) * r, y: sy + Math.sin(a) * r * 1.3, scaleX: size, scaleY: size, duration: 0.26, ease: "power2.out", immediateRender: false }, SPLASH)
-      .to(d, { y: "+=90", autoAlpha: 0, scaleX: size * 0.6, scaleY: size * 1.2, duration: 0.32, ease: "power2.in" }, SPLASH + 0.26);
+        { x: sx + Math.cos(a) * r * 0.8, y: sy + Math.sin(a) * r, scaleX: size, scaleY: size, duration: 0.4, ease: "power1.out", immediateRender: false }, SPLASH)
+      .to(d, { y: "+=80", autoAlpha: 0, scaleX: size * 0.6, scaleY: size * 1.2, duration: 0.3, ease: "power2.in" }, SPLASH + 0.4);
   });
 
   // 06 HERO 7.1-10 ---------------------------------------------------------
@@ -324,8 +327,9 @@ XY.buildReel = function (canvas) {
     [HIT, 930, 800, 2.0],         // the stroke, close
     [5.35, 900, 850, 1.85],
     [6.0, 700, 1250, 1.2],        // FALL: pull out ahead of the wheel (word re-forming in frame)...
-    [6.45, 620, LAND.y - 260, 1.1], // ...settling as it lands, still drifting after
-    [7.1, 640, LAND.y - 300, 1.05],
+    [6.45, 620, LAND.y - 260, 1.1], // ...arriving as it lands
+    [6.95, 600, LAND.y - 220, 1.16], // and pushing in through the impact (no stall)
+    [7.4, 640, LAND.y - 300, 1.06],
     [8.2, W / 2, H / 2, 1.0],     // HERO: the full poster
     [DURATION, W / 2, H / 2, 1.0],
   ];

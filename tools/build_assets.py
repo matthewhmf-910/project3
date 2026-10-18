@@ -178,6 +178,15 @@ specks = cv2.morphologyEx(cup_raw.astype(np.uint8), cv2.MORPH_OPEN, np.ones((3, 
 glass_outline = hull(specks) & ~cv2.dilate(spoon.astype(np.uint8), np.ones((5, 5))).astype(bool)
 body = fill_holes(largest_component(cv2.morphologyEx(cup_raw.astype(np.uint8), cv2.MORPH_OPEN, np.ones((9, 9))) > 0))
 body &= glass_outline
+# The poster's cream paper shows through the upper glass; SAM counted it as body.
+# Paper is pale and nearly neutral (R-B < 40); foam and lemon are warm (R-B ~ 75+).
+ys_, xs_ = np.where(glass_outline)
+upper = np.zeros_like(body)
+upper[: ys_.min() + int((ys_.max() - ys_.min()) * 0.45)] = True
+paper = (L > 185) & ((P[..., 0] - P[..., 2]) < 40) & upper
+paper = cv2.morphologyEx(paper.astype(np.uint8), cv2.MORPH_OPEN, np.ones((3, 3))).astype(bool)
+paper = fill_holes(largest_component(paper & body))  # the one background patch, not pale glass highlights
+body &= ~paper
 glass_zone = glass_outline & ~body
 
 local_bg = cv2.medianBlur(L.astype(np.uint8), 31).astype(np.float32)
