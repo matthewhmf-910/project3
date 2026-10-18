@@ -159,7 +159,7 @@ XY.buildReel = function (canvas) {
     '<radialGradient id="seg" cx="50%" cy="50%" r="50%" gradientUnits="userSpaceOnUse" fx="50" fy="50"><stop offset="0" stop-color="#fff2b0"/><stop offset=".55" stop-color="#f6d14a"/><stop offset=".8" stop-color="#eebf2a"/></radialGradient>' +
     '<radialGradient id="rind" cx="48%" cy="46%" r="52%"><stop offset=".86" stop-color="#f0c11c"/><stop offset=".95" stop-color="#d39a0e"/><stop offset="1" stop-color="#94640a"/></radialGradient>' +
     '<radialGradient id="pith" cx="50%" cy="50%" r="50%"><stop offset=".2" stop-color="#f7ecc4"/><stop offset="1" stop-color="#efe0a8"/></radialGradient>' +
-    '<linearGradient id="gloss" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".4" stop-color="#fff" stop-opacity="0"/></linearGradient>' +
+    '<radialGradient id="gloss" cx="34%" cy="30%" r="45%"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>' +
     '<filter id="cells" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" seed="7"/>' +
     '<feColorMatrix values="0 0 0 0 1  0 0 0 0 0.95  0 0 0 0 0.62  0 0 0 0.75 -0.2"/><feComposite in2="SourceGraphic" operator="in"/></filter></defs>' +
     '<ellipse cx="50" cy="50" rx="49.6" ry="49" fill="url(#rind)"/><circle cx="50" cy="50" r="44.5" fill="url(#pith)"/>' +
@@ -199,7 +199,7 @@ XY.buildReel = function (canvas) {
   const ripple2 = layer("ripple ripple--inner", null, 58);
   gsap.set(ripple2, { xPercent: -50, yPercent: -50, x: LAND.x, y: LAND.y + 24 });
 
-  const stamp = pngLayer("06_STAMP.png", { x: 96, y: 425, w: 400, h: 402 }, 40); // ~280 px on screen; below the top UI band, above the C
+  const stamp = pngLayer("06_STAMP.png", { x: 140, y: 486, w: 400, h: 402 }, 40); // clear of the left edge and the top UI band; above the C
 
   /* ---------------------------------------------------------------- timeline */
   const cam = stage.cam;
@@ -254,8 +254,7 @@ XY.buildReel = function (canvas) {
   tl.to(C, { x: 0, y: 0, rotation: 0, duration: 0.6, ease: "sine.inOut" }, 2.4)
     .to(lemonA, { x: 540, y: axisY(540), rotation: 352, z: 30, duration: 0.6, ease: "sine.inOut" }, 2.4)
     .to([O1, O2], { rotationY: 52, duration: 0.45, stagger: 0.1, ease: "back.out(2.2)" }, TM.rings) // on the beat; a readable turn
-    .to(lemonA, { x: 610, y: axisY(610), duration: 0.18, ease: "sine.inOut" }, 3.0)
-    .to(C, { x: 60, rotation: -5, duration: 0.12, ease: "power3.in" }, TM.ring_pass - 0.12)    // the shove, on the beat
+    .to(C, { x: 60, rotation: -5, duration: 0.14, ease: "power3.in" }, TM.ring_pass - 0.14)    // the shove: contact on the beat
     .to(lemonA, { x: 760, y: axisY(760), duration: 0.55, ease: "power3.out" }, TM.ring_pass)    // shot through both rings
     .to(C, { x: 4, rotation: 0, duration: 0.45, ease: "back.out(2)" }, TM.ring_pass);         // recoil
 

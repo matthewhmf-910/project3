@@ -109,6 +109,17 @@ if action:
 print("end card (9.4-10s) inside safe area:", "no " + str(sorted(endcard)) if endcard else "yes")
 print("key action (lemon, wheel) inside safe area:", "no " + str(sorted(action)) if action else "yes")
 
+# 3b. end-card collisions: no text/stamp box overlaps another element on the last frame
+last_r = {r["label"]: r for r in rects[str(len(files) - 1)]}
+def overlaps(A, B):
+    return not (A["x"] + A["w"] <= B["x"] or B["x"] + B["w"] <= A["x"] or A["y"] + A["h"] <= B["y"] or B["y"] + B["h"] <= A["y"])
+marks = [k for k in last_r if k.startswith("copy:") or k == "stamp"]
+others = [k for k in last_r if k.startswith(("copy:", "letter:")) or k == "stamp"]
+hits = sorted({tuple(sorted((a, b))) for a in marks for b in others if a != b and overlaps(last_r[a], last_r[b])})
+print("end-card collisions:", hits or "none")
+if hits:
+    fail.append("end-card collision")
+
 # 4. contrast of end-card text on its actual background
 def lin(c):
     c = c / 255

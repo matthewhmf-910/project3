@@ -179,7 +179,7 @@ sfx += roll
 sfx += lp(np.sin(2 * np.pi * 820 * t) * env(H["catch"], 0.001, 0.05) + 0.5 * np.sin(2 * np.pi * 1530 * t) * env(H["catch"], 0.001, 0.03), 4000) * 0.7  # wooden tock
 sfx += hp(noise, 2000) * env(H["catch"], 0.0005, 0.006) * 0.25                   # tock click
 sfx += whoosh(H["rings"] - 0.1, 0.35, 1200, 3200, 0.5)                            # rings turn
-sfx += whoosh(H["ring_pass"] - 0.25, 0.45, 900, 2400, 0.75)                       # lemon through the rings
+sfx += whoosh(H["ring_pass"] - 0.02, 0.45, 900, 2400, 0.75)                       # lemon through the rings (from the contact)
 sfx += whoosh(H["lift"] - 0.05, 0.3, 1500, 4000, 0.35)                            # L lifts
 sfx += hp(noise, 3500) * env(H["strike"], 0.003, 0.08) * 0.3                      # slice "shk" (low crest factor: the limiter must not eat it)
 sfx += np.sin(2 * np.pi * 130 * t) * env(H["strike"], 0.002, 0.16) * 0.55          # low hit: the strike is the climax
@@ -242,7 +242,7 @@ def integrated(x):
     return float(re.findall(r"I:\s+(-?[\d.]+) LUFS", r)[-1])
 
 
-def master(x, target=-14.0, ceiling_db=-2.0):  # -2.0: AAC encoding adds ~0.4 dB of true peak
+def master(x, target=-14.0, ceiling_db=-2.4):  # -2.0: AAC encoding adds ~0.4 dB of true peak
     """Deterministic master: one linear gain to the target loudness, then a look-ahead
     true-peak limiter (peaks found on a 4x oversampled signal). ffmpeg's loudnorm was
     replaced because, when linear gain would break the true-peak limit, it silently

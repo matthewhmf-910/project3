@@ -335,7 +335,7 @@ a { color: inherit; }
 .foot__brand span { font-family: "Noto Serif TC", var(--font-serif); letter-spacing: .1em; }
 
 /* reel end card: text and stamp sit inside the 9:16 safe area (top 11.5%, bottom 20%, right 13% are platform UI) */
-.is-reel .copy__kicker { left: auto; right: 210px; top: 400px; text-align: right; font-size: 88px; line-height: 1.45; }
+.is-reel .copy__kicker { left: auto; right: 210px; top: 380px; text-align: right; font-size: 88px; line-height: 1.32; }
 .is-reel .copy__ritual, .is-reel .copy__ritual-rule { display: none; } /* the stamp already says it */
 .drop--juice { width: 18px; height: 18px; background: #f3cf3e; }
 .wheel-shadow { width: 330px; height: 90px; border-radius: 50%; background: radial-gradient(closest-side, rgba(70, 40, 15, .45), rgba(70, 40, 15, 0)); opacity: 0; visibility: hidden; }
@@ -350,7 +350,7 @@ a { color: inherit; }
 .ramp__front { height: 34px; }
 .ramp__stop { top: -86px; width: 34px; height: 90px; }
 .ramp__wall { height: 64px; background: linear-gradient(#a3ad8b, #8d9874); border-radius: 6px 6px 0 0; transform-origin: 0 100%; }
-.is-reel .copy__brand { position: absolute; right: 210px; top: 664px; font-size: 72px; font-weight: 600; letter-spacing: .1em; color: var(--ink); text-align: right; }
+.is-reel .copy__brand { position: absolute; right: 210px; top: 626px; font-size: 90px; font-weight: 600; letter-spacing: .06em; color: var(--ink); text-align: right; }
 .copy__brand { display: none; }
 .is-reel .copy__brand { display: block; }
 .crown { opacity: 0; visibility: hidden; }
