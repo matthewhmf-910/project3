@@ -186,7 +186,7 @@ sfx += np.sin(2 * np.pi * 130 * t) * env(H["strike"], 0.002, 0.16) * 0.55       
 sfx += bp(noise, 3000, 9000) * env(H["strike"], 0.003, 0.5) * 0.10                  # cymbal-like swell off the cut
 sfx += np.sin(2 * np.pi * 2960 * t) * env(H["strike"], 0.001, 0.18) * 0.10        # blade ring
 sfx += bp(noise, 2500, 7000) * env(H["strike"] + 0.03, 0.01, 0.06) * 0.12          # juice spritz
-sfx += whoosh(H["fall"], H["splash"] - H["fall"], 600, 2200, 0.75, rise=False)    # the wheel falls (peaks under the reform)
+sfx += whoosh(H["fall"], H["splash"] - H["fall"], 600, 2200, 1.0, rise=False)     # the wheel falls
 for tc in sorted(set(T["hits"]["reform"].get("letters", {}).values())):             # each letter clicks home as it lands
     sfx += bp(noise, 2500, 6000) * env(tc, 0.0005, 0.012) * 0.22  # -6 dB: the reform must not outshout the strike
 sp = H["splash"]
@@ -257,7 +257,9 @@ if phone < -17:
 def db(x):
     return 20 * np.log10(np.sqrt(np.mean(x ** 2)) + 1e-9)
 for k in ("roll", "catch", "rings", "lift", "strike", "fall", "splash", "stamp"):
-    a, b = int(H[k] * SR), int((H[k] + (0.4 if k in ("roll", "fall") else 0.1)) * SR)
+    # sustained sounds are judged over their whole length, hits over the first 100 ms
+    length = {"roll": 0.95, "fall": H["splash"] - H["fall"]}.get(k, 0.1)
+    a, b = int(H[k] * SR), int((H[k] + length) * SR)
     margin = db(sfx[a:b]) - db(music_mix[a:b, 0])
     need = 3 if k in ("catch", "strike", "splash", "stamp", "rings") else 0
     print(f"sfx over music {k:7s}: {margin:+.1f} dB (need >= +{need})")
