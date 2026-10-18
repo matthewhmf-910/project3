@@ -170,7 +170,7 @@ XY.buildReel = function (canvas) {
     '<circle cx="50" cy="50" r="44" fill="url(#gloss)"/></svg>';
   gsap.set(wheel, { xPercent: -50, yPercent: -50, width: 150, height: 150 });
 
-  const LAND = { x: 560, y: PY + 205 }; // in the foam against the dried slice, behind the glass's front rim line
+  const LAND = { x: 780, y: PY + 225 }; // on the back half of the dried slice, clear of the glass's front rim (critic 14)
   // flat on the foam, far behind the wheel: at z 59 the tilted wheel crossed this plane and the
   // shadow was drawn over half the wheel (the "tint seam" from its centre, critics 12-13)
   const shadow = layer("wheel-shadow", null, 4);
@@ -189,17 +189,10 @@ XY.buildReel = function (canvas) {
     gsap.set(d, { xPercent: -50, yPercent: -50 });
     return d;
   });
-  const crown = layer("crown", null, 63);
-  crown.innerHTML = '<svg viewBox="0 0 200 100" aria-hidden="true"><path fill="#e7c9a2" d="' +
-    Array.from({ length: 13 }, (_, i) => {
-      const x = 10 + i * 15, h = 40 + ((i * 37) % 5) * 9;
-      return `M${x - 5} 100 Q${x - 2} ${100 - h * 0.6} ${x} ${100 - h} Q${x + 2} ${100 - h * 0.6} ${x + 5} 100 Z`;
-    }).join(" ") + '"/></svg>';
-  gsap.set(crown, { xPercent: -50, yPercent: -100, x: LAND.x, y: LAND.y + 40, width: 300, height: 150, transformOrigin: "50% 100%" });
   const ripple = layer("ripple ripple--foam", null, 4); // on the foam plane, behind the wheel
-  gsap.set(ripple, { xPercent: -50, yPercent: -50, x: LAND.x, y: LAND.y + 24 });
+  gsap.set(ripple, { xPercent: -50, yPercent: -50, x: LAND.x, y: LAND.y + 95 }); // at the wheel's base, not through its middle
   const ripple2 = layer("ripple ripple--inner", null, 58);
-  gsap.set(ripple2, { xPercent: -50, yPercent: -50, x: LAND.x, y: LAND.y + 24 });
+  gsap.set(ripple2, { xPercent: -50, yPercent: -50, x: LAND.x, y: LAND.y + 95 });
 
   const stamp = pngLayer("06_STAMP.png", { x: 140, y: 500, w: 368, h: 370 }, 40); // clear of the left edge and the top UI band; above the C
 
@@ -218,15 +211,14 @@ XY.buildReel = function (canvas) {
     .set(lemonA, { autoAlpha: 1, z: 2 }, 0)
     .set(wheel, { autoAlpha: 0, rotationX: 0, rotationY: 60, rotation: 0, scale: 1 }, 0)
     .set(shadow, { autoAlpha: 0, scale: 0.4 }, 0)
-    .set(crown, { autoAlpha: 0 }, 0)
     .set(stage.offset, { s: 1 }, 0)
     .fromTo(cam, { rx: 6, ry: -7, x: 0 }, { rx: 3, ry: 5, x: 0, duration: 7.1, ease: "sine.inOut" }, 0); // hands over to the HERO move at 7.1
 
   // 01 ROLL 0-1.2 ----------------------------------------------------------
   // frame one is the settled poster; A rocks against the stop, then lets go
   const rollStart = onRamp(RAMP.stop + 20 + LEMON.w / 2);
-  // the C tips 40 degrees so its mouth faces up-right under the ramp's end: still readable as a C
-  const mouth = [Math.cos((-22 * Math.PI) / 180), Math.sin((-22 * Math.PI) / 180)];
+  // the C tips only 12 degrees: at -22 it read as an S (critic 14); its mouth still faces the ramp's end
+  const mouth = [Math.cos((-12 * Math.PI) / 180), Math.sin((-12 * Math.PI) / 180)];
   const rollEnd = onRamp(RAMP.length - LEMON.w / 2 - 10);
   // A drops off the ramp's end into the C's mouth; the C's centre sits behind the mouth
   const bowlPt = { x: rollEnd.x + 125, y: rollEnd.y + 95 };
@@ -236,7 +228,7 @@ XY.buildReel = function (canvas) {
     .fromTo(lemonB, { rotation: RAMP.angle }, { rotation: RAMP.angle + 8, duration: 0.25, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.3)
     // C swings into a cradle under the end of the ramp, eased in and out
     .fromTo(C, { x: 0, y: 0, rotation: 0, scaleX: 1, scaleY: 1 },
-      { x: CUP.x - C.center.x, y: CUP.y - C.center.y, scaleX: 1, scaleY: 1, rotation: -22, duration: 0.6, ease: "back.inOut(1.2)" }, 0.55);
+      { x: CUP.x - C.center.x, y: CUP.y - C.center.y, scaleX: 1, scaleY: 1, rotation: -12, duration: 0.6, ease: "back.inOut(1.2)" }, 0.55);
 
   // 02 CATCH 1.2-2.4 -------------------------------------------------------
   const bowl = { x: bowlPt.x, y: bowlPt.y }; // sitting in the C's mouth
@@ -310,18 +302,20 @@ XY.buildReel = function (canvas) {
     .to(shadow, { autoAlpha: 0.7, scale: 1, duration: 0.25, ease: "power2.out" }, SPLASH - 0.1)
 
     .fromTo(cam, { x: 0 }, { x: -7, duration: 0.033, yoyo: true, repeat: 3, ease: "sine.inOut", immediateRender: false }, SPLASH) // impact
-    .fromTo(ripple, { autoAlpha: 0.9, scale: 0.45 }, { autoAlpha: 0, scale: 0.85, duration: 0.45, ease: "power2.out", immediateRender: false }, SPLASH) // a ring in the foam
+    .fromTo(ripple, { autoAlpha: 0.9, scale: 0.75 }, { autoAlpha: 0, scale: 1.4, duration: 0.45, ease: "power2.out", immediateRender: false }, SPLASH) // a ring in the foam
 
+  // critic 14: the splash was heard but not seen (20 px drops under the wheel, a ring hidden by it).
+  // Now: a ring wider than the wheel at its base, drops thrown clear of it and held for ~8 frames
+  tl.fromTo(ripple2, { autoAlpha: 0.95, scale: 0.8 }, { autoAlpha: 0, scale: 1.7, duration: 0.5, ease: "power2.out", immediateRender: false }, SPLASH + 0.03);
   drops.forEach((d, i) => {
-    const a = -Math.PI * (0.2 + (0.6 * i) / (drops.length - 1)); // symmetric, mostly upward
-    const r = 55 + ((i * 37) % 3) * 22;                            // short arcs: they fall back inside the glass
-    const size = 0.55 + (i % 4) * 0.12;
-    // a crown: drops leave stretched along their path, round off at the top, then fall
-    // drops start at the wheel's rim on the contact frame, so the splash is visible immediately
-    const sx = LAND.x + Math.cos(a) * 80, sy = LAND.y + 30 + Math.sin(a) * 20;
-    const rot = (a * 180) / Math.PI + 90;
-    tl.fromTo(d, { x: sx, y: sy, autoAlpha: 0.95, scaleX: size * 0.55, scaleY: size * 1.6, rotation: rot },
-        { x: sx + Math.cos(a) * r, y: sy + Math.sin(a) * r * 1.4, autoAlpha: 0, scaleX: size * 0.45, scaleY: size * 1.1, rotation: rot, duration: 0.2, ease: "power2.out", immediateRender: false }, SPLASH); // ~6 frames
+    const a = -Math.PI * (0.15 + (0.7 * i) / (drops.length - 1)); // symmetric, mostly upward
+    const r = 90 + ((i * 37) % 3) * 30;
+    const size = 1.3 + (i % 4) * 0.2;
+    const sx = LAND.x + Math.cos(a) * 120, sy = LAND.y + 85 + Math.sin(a) * 25; // from the foam either side of the wheel
+    const px = sx + Math.cos(a) * r, py = sy + Math.sin(a) * r * 1.3;
+    tl.fromTo(d, { x: sx, y: sy, autoAlpha: 1, scaleX: size * 0.6, scaleY: size * 1.5, rotation: (a * 180) / Math.PI + 90 },
+        { x: px, y: py, autoAlpha: 1, rotation: (a * 180) / Math.PI + 90, scaleX: size, scaleY: size, duration: 0.16, ease: "power2.out", immediateRender: false }, SPLASH)
+      .to(d, { x: px + Math.cos(a) * 20, y: py + 60, autoAlpha: 0, scale: size * 0.6, duration: 0.2, ease: "power2.in" }, SPLASH + 0.16);
   });
 
   // 06 HERO 7.1-10 ---------------------------------------------------------

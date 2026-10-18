@@ -175,6 +175,7 @@ def whoosh(t0, length, lo, hi, gain, rise=True):
 
 roll = whoosh(H["roll"], 0.95, 500, 1500, 0.75)                                    # roll down the chute
 roll *= 1 + 0.5 * np.sin(2 * np.pi * 9 * np.clip(t - H["roll"], 0, None))           # a lemon tumbling, not just air
+roll *= 0.25 + 0.75 * np.clip((t - H["roll"]) / 0.5, 0, 1)                           # follows the power2.in roll: was +8 dB over the picture at 0.2-0.4 s
 sfx += roll
 sfx += lp(np.sin(2 * np.pi * 820 * t) * env(H["catch"], 0.001, 0.05) + 0.5 * np.sin(2 * np.pi * 1530 * t) * env(H["catch"], 0.001, 0.03), 4000) * 0.7  # wooden tock
 sfx += hp(noise, 2000) * env(H["catch"], 0.0005, 0.006) * 0.25                   # tock click
@@ -206,7 +207,6 @@ for tc in sorted(set(T["hits"]["reform"].get("letters", {}).values())):         
 sp = H["splash"]
 sfx += lp(noise, 2500) * env(sp, 0.002, 0.07) * 0.8                                # splash body
 sfx += whoosh(5.3, 0.9, 400, 1200, 0.05)                                            # the spent lemon rolls away (quiet: not a peak)
-sfx += bp(noise, 1500, 4000) * env(6.17, 0.005, 0.06) * 0.35                         # air flick as it leaves frame
 for k in range(6):                                                                 # bubbles
     tb = sp + 0.04 + k * 0.045
     x = t - tb
@@ -219,7 +219,7 @@ sfx += hp(noise, 5000) * env(H["type_land"], 0.002, 0.25) * 0.16                
 sfx *= np.clip((DUR - t) / 0.4, 0, 1)
 
 # duck the music a touch under the biggest hits
-duck = 1 - 0.5 * np.maximum.reduce([env(H[k], 0.01, 0.18) for k in ("catch", "splash", "stamp")])  # not the strike: it is the drop
+duck = 1 - 0.5 * np.maximum.reduce([env(H[k], 0.01, 0.18) for k in ("catch", "splash", "type_land", "stamp")])  # not the strike: it is the drop
 # ~2 dB under the roll and the letter clicks, so the small sounds read
 quiet = ((t >= H["roll"]) & (t < H["roll"] + 1.0)) | ((t >= H["reform"] - 0.05) & (t < H["reform"] + 0.45))
 duck = duck * np.where(quiet, 0.8, 1.0)
