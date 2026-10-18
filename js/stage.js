@@ -16,7 +16,8 @@
   XY.M = window.ASSET_MANIFEST;
   XY.reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   XY.finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
-  XY.asset = (file) => "assets/" + file;
+  // the standalone build (tools/build_standalone.py) inlines assets into window.ASSET_DATA
+  XY.asset = (file) => (window.ASSET_DATA && window.ASSET_DATA[file]) || "assets/" + file;
   XY.rect = (file) => XY.M.layers[file];
 
   XY.place = function (el, r) {

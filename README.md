@@ -14,6 +14,10 @@ python3 -m http.server 8000   # then open http://localhost:8000
 | **The reel** | A 10 s, 9:16 GSAP timeline that follows the storyboard: 01 Roll, 02 Catch, 03 Feed, 04 Cut, 05 Fall, 06 Hero. It autoplays when it scrolls into view and has play/pause, a scrubber with beat ticks, and buttons to jump to each beat. The C/O/O/L letters are windows onto the single `04_TYPE_COOLEST.png`. |
 | **The window** | The storefront photo (`1000355615.png`) starts as a greyscale "ghost plate" and fills in with colour from the pavement up as you scroll, on a tiltable 3D card. |
 
+## Standalone file
+
+`python3 tools/build_standalone.py` writes `dist/xiaoye-coffee-standalone.html` (~3.3 MB). It is one file with every asset, GSAP and the scripts inlined, so it opens by double-click with no server and works offline. Only the Google Fonts stylesheet is external; offline, the page falls back to system fonts.
+
 ## Structure
 
 ```
