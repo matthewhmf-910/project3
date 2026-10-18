@@ -198,6 +198,9 @@ local_bg = cv2.medianBlur(L.astype(np.uint8), 31).astype(np.float32)
 contrast = cv2.GaussianBlur(L - local_bg, (0, 0), 1.6)
 glass_a = np.clip(np.clip(np.abs(contrast) - 22, 0, None) / 26, 0, 0.85)  # no base tint: only real rim strokes (tint read as blotches)
 glass_a = cv2.GaussianBlur(glass_a, (0, 0), 1.2)  # no speckle: reflections stay as soft strokes
+# drop isolated flecks (they read as grey specks floating outside the rim); keep real rim strokes
+n_, lab_, st_, _ = cv2.connectedComponentsWithStats((glass_a > 0.08).astype(np.uint8), 8)
+glass_a[np.isin(lab_, [i for i in range(1, n_) if st_[i, cv2.CC_STAT_AREA] < 400])] = 0
 highlight = np.array([255, 252, 246], np.float32)
 shade = np.array([70, 58, 46], np.float32)
 glass_rgb = np.where((contrast > 0)[..., None], highlight, shade) * np.ones_like(P)

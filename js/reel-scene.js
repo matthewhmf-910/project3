@@ -17,7 +17,7 @@ XY.buildReel = function (canvas) {
   const viewport = canvas.closest(".viewport");
   const W = 1536, H = 2731, DURATION = 10;
   // shared clock with the score (film/timing.json -> js/timing.js); picture is cut to the audio
-  const TM = Object.assign({ catch: 1.57, rings: 2.45, strike: 4.85, splash: 6.5, stamp: 7.93, type_land: 8.1 }, window.REEL_TIMING || {});
+  const TM = Object.assign({ catch: 1.57, rings: 2.45, ring_pass: 3.183, strike: 4.85, splash: 6.5, stamp: 8.6, type_land: 8.1 }, window.REEL_TIMING || {});
   const RL = Object.assign({ L: 5.8, C: 5.98, O1: 5.98, O2: 6.06, E: 6.05, S: 6.1, T: 6.15 }, (window.REEL_TIMING_DETAIL || {}).reform);
 
   const BEATS = [
@@ -254,9 +254,10 @@ XY.buildReel = function (canvas) {
   tl.to(C, { x: 0, y: 0, rotation: 0, duration: 0.6, ease: "sine.inOut" }, 2.4)
     .to(lemonA, { x: 540, y: axisY(540), rotation: 352, z: 30, duration: 0.6, ease: "sine.inOut" }, 2.4)
     .to([O1, O2], { rotationY: 52, duration: 0.45, stagger: 0.1, ease: "back.out(2.2)" }, TM.rings) // on the beat; a readable turn
-    .to(C, { x: 12, duration: 0.4, ease: "power2.out" }, 2.95) // a nudge: the C never touches the first O
-    .to(lemonA, { x: 760, y: axisY(760), duration: 0.95, ease: "power2.inOut" }, 2.95)
-    .to(C, { x: 4, duration: 0.5, ease: "sine.inOut" }, 3.35);
+    .to(lemonA, { x: 610, y: axisY(610), duration: 0.18, ease: "sine.inOut" }, 3.0)
+    .to(C, { x: 34, duration: 0.12, ease: "power3.in" }, TM.ring_pass - 0.12)                  // the shove, on the beat
+    .to(lemonA, { x: 760, y: axisY(760), duration: 0.55, ease: "power3.out" }, TM.ring_pass)    // shot through both rings
+    .to(C, { x: 4, duration: 0.45, ease: "back.out(2)" }, TM.ring_pass);
 
   // 04 CUT 3.9-6.0 ---------------------------------------------------------
   const tip = { x: 835, y: axisY(835) };          // lemon tip ends at x 960, across the L's stem
@@ -304,10 +305,9 @@ XY.buildReel = function (canvas) {
     .to(wheel, { y: LAND.y, duration: SPLASH - FALL, ease: "sine.in" }, FALL)       // moving from the first frame, accelerating
     .to(wheel, { rotationX: 20, rotationY: 0, rotation: 200, scale: 1.5, duration: SPLASH - FALL, ease: "power1.in" }, FALL)
     .to(wheel, { y: LAND.y - 14, duration: 0.18, ease: "power2.out", yoyo: true, repeat: 1 }, SPLASH)
-    .fromTo(wheel.firstChild, { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 45% 0%)", duration: 0.3, ease: "power2.out", immediateRender: false }, SPLASH) // sinks into the foam
+    .fromTo(wheel.firstChild, { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 24% 0%)", duration: 0.5, ease: "sine.out", immediateRender: false }, SPLASH) // settles into the foam, still a wheel
     .to(shadow, { autoAlpha: 0.7, scale: 1, duration: 0.25, ease: "power2.out" }, SPLASH - 0.1)
-    .fromTo(ripple, { autoAlpha: 0.95, scale: 0.5 }, { autoAlpha: 0, scale: 1.0, duration: 0.85, ease: "power2.out", immediateRender: false }, SPLASH)
-    .fromTo(ripple2, { autoAlpha: 0.8, scale: 0.4 }, { autoAlpha: 0, scale: 0.85, duration: 0.8, ease: "power2.out", immediateRender: false }, SPLASH + 0.1)
+
     .fromTo(cam, { x: 0 }, { x: -7, duration: 0.033, yoyo: true, repeat: 3, ease: "sine.inOut", immediateRender: false }, SPLASH) // impact
 
   drops.forEach((d, i) => {

@@ -62,8 +62,8 @@
       "sfx": "splash"
     },
     "stamp": {
-      "t": 7.7667,
-      "on": "beat 9.5",
+      "t": 8.6,
+      "on": "beat 10.5 (after the type lands)",
       "sfx": "thud"
     },
     "type_land": {

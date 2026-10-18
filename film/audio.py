@@ -176,9 +176,9 @@ def whoosh(t0, length, lo, hi, gain, rise=True):
 roll = whoosh(H["roll"], 0.95, 500, 1500, 1.6)                                     # roll down the chute
 roll *= 1 + 0.5 * np.sin(2 * np.pi * 9 * np.clip(t - H["roll"], 0, None))           # a lemon tumbling, not just air
 sfx += roll
-sfx += lp(np.sin(2 * np.pi * 820 * t) * env(H["catch"], 0.001, 0.05) + 0.5 * np.sin(2 * np.pi * 1530 * t) * env(H["catch"], 0.001, 0.03), 4000) * 0.9  # wooden tock
+sfx += lp(np.sin(2 * np.pi * 820 * t) * env(H["catch"], 0.001, 0.05) + 0.5 * np.sin(2 * np.pi * 1530 * t) * env(H["catch"], 0.001, 0.03), 4000) * 0.7  # wooden tock
 sfx += hp(noise, 2000) * env(H["catch"], 0.0005, 0.006) * 0.25                   # tock click
-sfx += whoosh(H["rings"] - 0.1, 0.35, 1200, 3200, 0.9)                            # rings turn
+sfx += whoosh(H["rings"] - 0.1, 0.35, 1200, 3200, 0.5)                            # rings turn
 sfx += whoosh(H["ring_pass"] - 0.25, 0.45, 900, 2400, 0.75)                       # lemon through the rings
 sfx += whoosh(H["lift"] - 0.05, 0.3, 1500, 4000, 0.35)                            # L lifts
 sfx += hp(noise, 3500) * env(H["strike"], 0.0005, 0.045) * 0.95                   # slice "shk"
@@ -186,13 +186,16 @@ sfx += np.sin(2 * np.pi * 130 * t) * env(H["strike"], 0.002, 0.16) * 0.55       
 sfx += bp(noise, 3000, 9000) * env(H["strike"], 0.003, 0.5) * 0.10                  # cymbal-like swell off the cut
 sfx += np.sin(2 * np.pi * 2960 * t) * env(H["strike"], 0.001, 0.18) * 0.30        # blade ring
 sfx += bp(noise, 2000, 5000) * env(H["strike"], 0.0005, 0.12) * 0.75               # bright body: the climax on a phone too
+sfx += bp(noise, 150, 400) * env(H["strike"], 0.002, 0.14) * 1.4                     # chest: weight a phone can still play
+sfx += np.sin(2 * np.pi * 220 * t) * env(H["strike"], 0.002, 0.12) * 0.5
 sfx += bp(noise, 2500, 7000) * env(H["strike"] + 0.03, 0.01, 0.06) * 0.12          # juice spritz
 sfx += whoosh(H["fall"], H["splash"] - H["fall"], 600, 2200, 1.0, rise=False)     # the wheel falls
 for tc in sorted(set(T["hits"]["reform"].get("letters", {}).values())):             # each letter clicks home as it lands
     sfx += bp(noise, 2500, 6000) * env(tc, 0.0005, 0.012) * 0.14  # well under the strike
 sp = H["splash"]
 sfx += lp(noise, 2500) * env(sp, 0.002, 0.07) * 0.8                                # splash body
-sfx += whoosh(5.3, 0.9, 400, 1200, 0.25)                                            # the spent lemon rolls away
+sfx += whoosh(5.3, 0.9, 400, 1200, 0.12)                                            # the spent lemon rolls away
+sfx += bp(noise, 1500, 4000) * env(6.17, 0.01, 0.05) * 0.12                          # air flick as it leaves frame
 for k in range(6):                                                                 # bubbles
     tb = sp + 0.04 + k * 0.045
     x = t - tb
@@ -221,10 +224,10 @@ write("mix_raw.wav", mix)
 
 def loudnorm(src, dst):
     """two-pass EBU R128 to -14 LUFS, true peak <= -1.5 dBTP"""
-    first = subprocess.run([FF, "-hide_banner", "-i", src, "-af", "loudnorm=I=-14:TP=-1.5:LRA=11:print_format=json", "-f", "null", "-"],
+    first = subprocess.run([FF, "-hide_banner", "-i", src, "-af", "loudnorm=I=-13.5:TP=-1.5:LRA=11:print_format=json", "-f", "null", "-"],
                            capture_output=True, text=True).stderr
     m = json.loads(first[first.rindex("{"):first.rindex("}") + 1])
-    af = (f"loudnorm=I=-14:TP=-1.5:LRA=11:measured_I={m['input_i']}:measured_TP={m['input_tp']}:"
+    af = (f"loudnorm=I=-13.5:TP=-1.5:LRA=11:measured_I={m['input_i']}:measured_TP={m['input_tp']}:"
           f"measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:offset={m['target_offset']}:linear=true")
     subprocess.run([FF, "-y", "-loglevel", "error", "-i", src, "-af", af, "-ar", str(SR), dst], check=True)
 
@@ -286,11 +289,16 @@ strike_l, reform_l = st(H["strike"], H["strike"] + 0.4), st(H["reform"], H["refo
 print(f"climax: strike {strike_l:.1f} dB vs reform {reform_l:.1f} dB (strike must be louder)")
 if strike_l <= reform_l:
     fail.append("climax")
-# and on a phone (everything under 200 Hz removed)
+# and on a phone: the strike's 250 ms must beat every other 250 ms window in the film by >= 2 dB
 mix_hp = hp(mix[:, 0], 200)
-stp = lambda a, b: db(mix_hp[int(a * SR):int(b * SR)])
-sp_l, rp_l = stp(H["strike"], H["strike"] + 0.4), stp(H["reform"], H["reform"] + 0.4)
-print(f"climax on phone: strike {sp_l:.1f} dB vs reform {rp_l:.1f} dB")
-if sp_l <= rp_l:
+w = int(0.25 * SR)
+starts = np.arange(0, N - w, int(0.025 * SR))
+lv = np.array([db(mix_hp[a:a + w]) for a in starts])
+ts = starts / SR
+in_strike = (ts >= H["strike"] - 0.05) & (ts <= H["strike"] + 0.15)
+strike_max, other_max = lv[in_strike].max(), lv[~((ts > H["strike"] - 0.3) & (ts < H["strike"] + 0.35))].max()
+loudest_other = ts[~((ts > H["strike"] - 0.3) & (ts < H["strike"] + 0.35))][np.argmax(lv[~((ts > H["strike"] - 0.3) & (ts < H["strike"] + 0.35))])]
+print(f"climax on phone: strike {strike_max:.1f} dB vs loudest other 250 ms {other_max:.1f} dB at {loudest_other:.2f}s (need +2)")
+if strike_max < other_max + 2:
     fail.append("climax on phone")
 print("AUDIO RESULT:", "PASS" if not fail else "FAIL " + ", ".join(fail))
