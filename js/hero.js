@@ -73,6 +73,13 @@
   const phases = [...document.querySelectorAll("#heroPhases li")];
   const maxZ = Math.max(...LAYERS.map((l) => l.z)) - Math.min(...LAYERS.map((l) => l.z));
   let depthBoost = 1;
+  const last = {};
+  // write a style only when it changes; every write invalidates the canvas subtree
+  function setVar(node, name, value) {
+    if (last[name] === value) return;
+    last[name] = value;
+    node.style.setProperty(name, value);
+  }
 
   function render() {
     const e = Math.min(1.2, scroll.e + stage.hover.lift + toggle.e);
@@ -80,16 +87,17 @@
     for (const L of LAYERS) {
       L.node.style.transform = `translate3d(${L.dx * e}px, ${L.dy * e}px, ${L.base + L.z * ez}px)`;
     }
-    canvas.style.setProperty("--labels", Math.max(0, Math.min(1, (e - 0.45) / 0.35)).toFixed(3));
-    canvas.style.setProperty("--shadow", Math.min(1, e * 1.6).toFixed(3));
+    setVar(canvas, "--labels", Math.max(0, Math.min(1, (e - 0.45) / 0.35)).toFixed(2));
+    setVar(canvas, "--shadow", Math.min(1, e * 1.6).toFixed(2));
     stage.renderCam();
-    depthOut.value = Math.round(maxZ * ez);
+    const depth = String(Math.round(maxZ * ez));
+    if (depthOut.value !== depth) depthOut.value = depth;
   }
 
   /* ---- layout: landscape poster, or 9:16 on narrow / tall screens */
   let portrait = null;
   function layout() {
-    const vw = window.innerWidth, vh = window.innerHeight;
+    const vw = XY.viewW(), vh = XY.viewH();
     const nowPortrait = vw < 720 || vw / vh < 0.8;
     if (nowPortrait !== portrait) {
       portrait = nowPortrait;
@@ -154,4 +162,7 @@
     .to(scroll, { e: 1, rx: 20, ry: -30, s: 0.8, duration: 0.34 })                      // separate
     .to(scroll, { rx: 9, ry: 24, duration: 0.3, ease: "sine.inOut" })                    // orbit
     .to(scroll, { e: 0, rx: 0, ry: 0, s: 1, duration: 0.24 });                          // reassemble
+
+  // created after the pin so its range includes the pin spacing (ScrollTrigger refreshes in creation order)
+  XY.cullOffscreen(stage, viewport.closest(".hero"));
 })();

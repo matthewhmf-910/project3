@@ -11,6 +11,7 @@
  */
 (function () {
   gsap.registerPlugin(ScrollTrigger);
+  ScrollTrigger.config({ ignoreMobileResize: true });
 
   const XY = (window.XY = {});
   XY.M = window.ASSET_MANIFEST;
@@ -19,6 +20,11 @@
   // the standalone build (tools/build_standalone.py) inlines assets into window.ASSET_DATA
   XY.asset = (file) => (window.ASSET_DATA && window.ASSET_DATA[file]) || "assets/" + file;
   XY.rect = (file) => XY.M.layers[file];
+  /* Size scenes from clientWidth, never innerWidth: on phones innerWidth grows
+     with any horizontal overflow, which fed back into the stage size and
+     snowballed the page to ~2.5x the screen width. */
+  XY.viewW = () => document.documentElement.clientWidth;
+  XY.viewH = () => window.innerHeight;
 
   XY.place = function (el, r) {
     el.style.left = r.x + "px";
@@ -88,6 +94,17 @@
     return stage;
   };
 
+  /* Hide a scene's 3D layers while it is fully off screen so the compositor
+     stops carrying them (big win on phones). */
+  XY.cullOffscreen = function (stage, trigger) {
+    ScrollTrigger.create({
+      trigger: trigger || stage.viewport,
+      start: "top bottom",
+      end: "bottom top",
+      onToggle: (self) => (stage.rig.style.visibility = self.isActive ? "" : "hidden"),
+    });
+  };
+
   /* Pointer tilt + Z "lift" on hover. Eased with quickTo so it never fights
      the scroll timeline: both write into separate objects, renderCam sums them. */
   XY.addTilt = function (stage, opts) {
@@ -114,9 +131,14 @@
     });
   };
 
+  /* Phones fire "resize" every time the URL bar shows or hides while scrolling.
+     Re-fitting + ScrollTrigger.refresh() on those made pinned sections jump,
+     so on touch devices only a width change (rotation) triggers a re-layout. */
   XY.onResize = function (fn) {
-    let raf = 0;
+    let raf = 0, lastW = XY.viewW();
     window.addEventListener("resize", () => {
+      if (!XY.finePointer && XY.viewW() === lastW) return;
+      lastW = XY.viewW();
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(fn);
     });

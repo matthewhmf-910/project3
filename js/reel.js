@@ -58,7 +58,7 @@
     return n;
   }
 
-  layer("layer--tile", { x: -240, y: -240, w: W + 480, h: H + 480 }, -160);
+  // paper is the viewport's own (flat) background, not an oversized 3D layer
   pngLayer("07_SHAPE_SAGE.png", product(rect("07_SHAPE_SAGE.png")), -110);
   pngLayer("08_SHAPE_TERRACOTTA.png", product(rect("08_SHAPE_TERRACOTTA.png")), -90);
   const copy = XY.posterCopy(layer("", { x: 0, y: 0, w: W, h: H }, -60));
@@ -136,14 +136,14 @@
   const tl = gsap.timeline({ paused: true, onUpdate: tick, onComplete: ended, defaults: { ease: "power2.inOut" } });
 
   // initial state lives in the timeline (fromTo / set at 0) so seeking backwards always restores it
-  tl.set(copy, { opacity: 0, y: 30 }, 0)
-    .set(stamp, { opacity: 0, scale: 0.7, rotation: -40 }, 0)
+  tl.set(copy, { autoAlpha: 0, y: 30 }, 0)
+    .set(stamp, { autoAlpha: 0, scale: 0.7, rotation: -40 }, 0)
     .set(typeGroup, { x: 0, y: 0 }, 0)
-    .set(rampGroup, { x: 0, opacity: 1 }, 0)
+    .set(rampGroup, { x: 0, autoAlpha: 1 }, 0)
     .set(lemonA.img, { clipPath: "inset(0% 0% 0% 0%)" }, 0)
-    .set(lemonA.querySelector(".lemon__cut"), { opacity: 0 }, 0)
-    .set(lemonA, { opacity: 1, z: 36 }, 0)
-    .set(wheel, { opacity: 0, rotationX: 0, rotationY: 84, rotation: 0, scale: 1 }, 0)
+    .set(lemonA.querySelector(".lemon__cut"), { autoAlpha: 0 }, 0)
+    .set(lemonA, { autoAlpha: 1, z: 36 }, 0)
+    .set(wheel, { autoAlpha: 0, rotationX: 0, rotationY: 84, rotation: 0, scale: 1 }, 0)
     .fromTo(cam, { rx: 6, ry: -7, x: 0 }, { rx: 3, ry: 5, duration: 8.8, ease: "sine.inOut" }, 0);
 
   // 01 ROLL ---------------------------------------------------------------
@@ -181,8 +181,8 @@
     .to(Lb, { y: -385, rotation: -15, duration: 0.65, ease: "sine.inOut" }, 5.2)          // wind-up
     .to(Lb, { y: -12, rotation: 0, duration: 0.2, ease: "power4.in" }, 5.85)               // one stroke
     .set(lemonA.img, { clipPath: "inset(0% 22.5% 0% 0%)" }, 6.05)
-    .set(lemonA.querySelector(".lemon__cut"), { opacity: 1 }, 6.05)
-    .set(wheel, { opacity: 1, x: cutTip.x + 68, y: cutTip.y }, 6.05)
+    .set(lemonA.querySelector(".lemon__cut"), { autoAlpha: 1 }, 6.05)
+    .set(wheel, { autoAlpha: 1, x: cutTip.x + 68, y: cutTip.y }, 6.05)
     .fromTo(typeGroup, { y: 0 }, { y: 7, duration: 0.06, yoyo: true, repeat: 1, ease: "none", immediateRender: false }, 6.05)
     .to(Lb, { y: -290, rotation: 5, duration: 0.45, ease: "back.out(2)" }, 6.08)          // blade rebounds, stays up
     .to(lemonA, { x: "-=16", duration: 0.3, ease: "power2.out" }, 6.08)
@@ -193,26 +193,26 @@
     .to(wheel, { y: LAND.y, duration: 0.95, ease: "power2.in" }, 7.4)
     .to(wheel, { rotationX: 64, rotationY: 0, rotation: 200, scale: 1.6, duration: 0.95, ease: "power1.in" }, 7.4)
     .to(wheel, { y: LAND.y - 16, duration: 0.2, ease: "power2.out", yoyo: true, repeat: 1 }, 8.35)
-    .fromTo(ripple, { opacity: 0.9, scale: 0.2 }, { opacity: 0, scale: 1.5, duration: 0.8, ease: "power2.out", immediateRender: false }, 8.35);
+    .fromTo(ripple, { autoAlpha: 0.9, scale: 0.2 }, { autoAlpha: 0, scale: 1.5, duration: 0.8, ease: "power2.out", immediateRender: false }, 8.35);
   drops.forEach((d, i) => {
     const a = -Math.PI * (0.15 + (0.7 * i) / (drops.length - 1));
     const r = 90 + (i % 3) * 45;
-    tl.fromTo(d, { x: LAND.x, y: LAND.y, opacity: 1, scale: 1 },
+    tl.fromTo(d, { x: LAND.x, y: LAND.y, autoAlpha: 1, scale: 1 },
         { x: LAND.x + Math.cos(a) * r, y: LAND.y + Math.sin(a) * r * 1.2, duration: 0.25, ease: "power2.out", immediateRender: false }, 8.35)
-      .to(d, { y: "+=70", opacity: 0, scale: 0.5, duration: 0.3, ease: "power2.in" }, 8.6);
+      .to(d, { y: "+=70", autoAlpha: 0, scale: 0.5, duration: 0.3, ease: "power2.in" }, 8.6);
   });
 
   // 06 HERO ---------------------------------------------------------------
   tl.to(cam, { rx: 0, ry: 0, duration: 1.2, ease: "power2.inOut" }, 8.8)
     .to([O1, O2], { rotationY: 0, duration: 0.5, stagger: 0.08, ease: "power2.out" }, 8.8)
-    .to(lemonA, { y: "+=300", z: -180, opacity: 0, duration: 0.55, ease: "power2.in" }, 8.8)
-    .to(rampGroup, { x: -900, opacity: 0, duration: 0.7, ease: "power2.in" }, 8.8)
+    .to(lemonA, { y: "+=300", z: -180, autoAlpha: 0, duration: 0.55, ease: "power2.in" }, 8.8)
+    .to(rampGroup, { x: -900, autoAlpha: 0, duration: 0.7, ease: "power2.in" }, 8.8)
     .to(C, { x: 0, duration: 0.45 }, 8.85)
     .to(Lb, { y: 0, rotation: 0, duration: 0.55, ease: "power3.inOut" }, 8.95)
     .to([E, S, T], { x: 0, duration: 0.45, stagger: 0.05 }, 9.0)
     .to(typeGroup, { x: TYPE_HOME.x, y: TYPE_HOME.y, duration: 0.8, ease: "power3.inOut" }, 9.05)
-    .to(stamp, { opacity: 1, scale: 1, rotation: 0, duration: 0.7, ease: "back.out(1.6)" }, 9.3)
-    .to(copy, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 9.4)
+    .to(stamp, { autoAlpha: 1, scale: 1, rotation: 0, duration: 0.7, ease: "back.out(1.6)" }, 9.3)
+    .to(copy, { autoAlpha: 1, y: 0, duration: 0.6, ease: "power2.out" }, 9.4)
     .to({}, { duration: DURATION - tl.duration() > 0 ? DURATION - tl.duration() : 0 });
 
   /* ---------------------------------------------------------------- player UI */
@@ -287,7 +287,7 @@
 
   /* ---------------------------------------------------------------- layout + autoplay */
   function layout() {
-    const vw = window.innerWidth, vh = window.innerHeight;
+    const vw = XY.viewW(), vh = XY.viewH();
     const maxH = Math.min(vh * 0.78, 760);
     const maxW = vw < 880 ? Math.min(vw - 32, 430) : 430;
     stage.fit(maxW, maxH);
@@ -309,6 +309,7 @@
     return;
   }
 
+  XY.cullOffscreen(stage);
   ScrollTrigger.create({
     trigger: viewport,
     start: "top 75%",
