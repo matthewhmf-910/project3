@@ -52,15 +52,33 @@ print("flash frames:", [f"#{n} ({n / 30:.2f}s)" for n in flashes] or "none")
 if flashes:
     fail.append("flash frames")
 
-# 2c. picture sync: each hit's motion event sits within one frame of film/timing.json.
-# The event frame is the largest change in a +-4-frame window (contact / impact).
+# 2c. picture sync: each hit's contact frame sits within one frame of film/timing.json.
+# Contact = where the object's own motion ends, read from its recorded on-screen box:
+# the lemon's / wheel's lowest point, the stamp's most-pressed (smallest) size.
 timing = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "timing.json")))
-for k in ("catch", "strike", "splash", "stamp"):
+rects_all = json.load(open(os.path.join(out, "rects.json")))["rects"]
+def track(label, key):
+    vals = {}
+    for n, rs in rects_all.items():
+        for r in rs:
+            if r["label"] == label:
+                vals[int(n)] = key(r)
+    return vals
+probes = {
+    "catch": ("action:lemon", lambda r: r["y"] + r["h"] / 2, max),  # centre: a rotating box bottoms out early
+    "splash": ("action:wheel", lambda r: r["y"] + r["h"] / 2, max),
+    "stamp": ("stamp", lambda r: -r["w"], max),
+}
+for k, (label, key, pick) in probes.items():
     n0 = round(timing["hits"][k]["t"] * 30)
-    lo, hi = max(1, n0 - 4), min(len(diff) - 1, n0 + 4)
-    peak = lo + int(np.argmax(diff[lo - 1:hi])) # diff[i] is change from frame i to i+1
-    off = peak - n0
-    print(f"picture sync {k:7s}: event frame #{peak} vs beat frame #{n0} ({off:+d} frames)")
+    v = track(label, key)
+    window = {n: v[n] for n in range(n0 - 6, n0 + 7) if n in v}
+    if not window:
+        print(f"picture sync {k:7s}: no data"); fail.append("picture sync " + k); continue
+    best = pick(window.values())
+    contact = min(n for n, x in window.items() if x >= best - 0.5)  # first frame that reaches it
+    off = contact - n0
+    print(f"picture sync {k:7s}: contact frame #{contact} vs beat frame #{n0} ({off:+d} frames)")
     if abs(off) > 1:
         fail.append("picture sync " + k)
 
