@@ -333,7 +333,7 @@ XY.buildReel = function (canvas) {
   // render the t=0 state now: seeking 0 -> 0 later would not apply the initial .set()s
   tl.progress(1, true).progress(0, true);
   stage.renderCam();
-  return { stage, tl, DURATION, BEATS, parts: { lemonA, wheel, terracotta } };
+  return { stage, tl, DURATION, BEATS, parts: { lemonA, wheel, terracotta, hit: HIT } };
 };
 
 

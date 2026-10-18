@@ -53,6 +53,8 @@ for n, rs in rects.items():
     for r in rs:
         if r["label"].startswith("brand:"):
             continue
+        if r["x"] + r["w"] <= 0 or r["x"] >= 1080 or r["y"] + r["h"] <= 0 or r["y"] >= 1920:
+            continue  # entirely off screen: not in any UI zone
         if unsafe(r):
             hits.setdefault(r["label"].split(" ")[0], []).append(int(n))
 for label, ns in sorted(hits.items()):

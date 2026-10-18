@@ -22,7 +22,7 @@ const ffmpeg = process.env.FFMPEG || execFileSync("python3", ["-c", "import imag
 (async () => {
   const frames = path.join(out, "frames"), subs = path.join(out, "sub");
   const keep = args.includes("--keep"); // re-render only --from..--to into an existing render, then re-encode all
-  if (!keep) fs.rmSync(out, { recursive: true, force: true });
+  if (!keep && !args.includes("--rects-only")) fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(frames, { recursive: true });
   fs.mkdirSync(subs, { recursive: true });
 
@@ -38,7 +38,13 @@ const ffmpeg = process.env.FFMPEG || execFileSync("python3", ["-c", "import imag
   const rects = {};
   const t0 = Date.now();
   let blurred = 0;
+  const rectsOnly = args.includes("--rects-only"); // recompute rects.json for an existing render, no frames
   for (let n = first; n < last; n += STEP) {
+    if (rectsOnly) {
+      await page.evaluate((t) => FILM.seek(t), n / FPS);
+      rects[n] = await page.evaluate(() => FILM.textRects());
+      continue;
+    }
     const files = [];
     // still frame (nothing differs across the shutter) -> one sample is enough
     const moving = SUB > 1 && await page.evaluate(([a, b]) => FILM.signature(a) !== FILM.signature(b),
@@ -59,9 +65,10 @@ const ffmpeg = process.env.FFMPEG || execFileSync("python3", ["-c", "import imag
   await browser.close();
   if (errors.length) { console.error("page errors:", errors); process.exit(1); }
   const rectsFile = path.join(out, "rects.json");
-  const merged = keep && fs.existsSync(rectsFile) ? { ...JSON.parse(fs.readFileSync(rectsFile)).rects, ...rects } : rects;
+  const merged = keep && !args.includes("--rects-only") && fs.existsSync(rectsFile) ? { ...JSON.parse(fs.readFileSync(rectsFile)).rects, ...rects } : rects;
   fs.writeFileSync(rectsFile, JSON.stringify({ fps: FPS, duration, first: keep ? 0 : first, rects: merged }));
 
+  if (rectsOnly) return console.log("rects.json updated");
   // average the sub-samples (numpy), then encode
   execFileSync("python3", ["-I", path.join(__dirname, "accumulate.py"), subs, frames, String(SUB)], { stdio: "inherit" });
   fs.rmSync(subs, { recursive: true, force: true });
