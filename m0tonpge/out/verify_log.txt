@@ -1,0 +1,21 @@
+== corner_lemon_16x9.mp4
+stream|codec_name=h264|width=1920|height=1080|r_frame_rate=30/1|nb_frames=600
+stream|codec_name=aac|r_frame_rate=0/0|nb_frames=939
+format|duration=20.000000
+black frames: 0
+ I: -17.8 LUFS
+ Peak: -1.4 dBFS
+== corner_lemon_9x16.mp4
+stream|codec_name=h264|width=1080|height=1920|r_frame_rate=30/1|nb_frames=600
+stream|codec_name=aac|r_frame_rate=0/0|nb_frames=939
+format|duration=20.000000
+black frames: 0
+ I: -17.8 LUFS
+ Peak: -1.4 dBFS
+== corner_lemon_1x1.mp4
+stream|codec_name=h264|width=1080|height=1080|r_frame_rate=30/1|nb_frames=600
+stream|codec_name=aac|r_frame_rate=0/0|nb_frames=939
+format|duration=20.000000
+black frames: 0
+ I: -17.8 LUFS
+ Peak: -1.4 dBFS

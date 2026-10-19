@@ -1,0 +1,19 @@
+{
+  "name": "m0tonpge",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "render": "for f in 16x9 9x16 1x1; do node render.mjs video $f out/silent_$f.mp4 30; done && bash finish.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fontsource/fraunces": "^5.3.0",
+    "@fontsource/noto-sans-tc": "^5.3.1",
+    "@fontsource/noto-serif-tc": "^5.3.1",
+    "playwright": "1.56"
+  }
+}
