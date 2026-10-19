@@ -1,0 +1,351 @@
+<title>檸檬冰咖啡砌一杯</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&family=Noto+Serif+TC:wght@900&display=swap">
+<style>
+  /* Layout: one pinned stage. The cup is drawn in code and assembled by the scroll; one line of copy at a time beside it. */
+  :root {
+    --ground: #e6e3db;     /* street stone */
+    --ink: #1c231f;
+    --ink-soft: #545d57;
+    --lemon: #e3b92a;
+    --display: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+    --text: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--ground); color: var(--ink); }
+  body { font: 400 17px/1.6 var(--text); }
+  .track { position: relative; height: 900svh; }
+  .stage { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .copy { position: absolute; left: max(48px, env(safe-area-inset-left, 0px)); top: 50%; transform: translateY(-50%); width: min(34vw, 560px); }
+  .line { position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0; transition: none; }
+  .line h1, .line h2 { font: 900 clamp(36px, 4vw, 68px)/1.08 var(--display); letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+  .line p { margin: 18px 0 0; font-size: clamp(16px, 1.35vw, 20px); color: var(--ink-soft); max-width: 22em; }
+  .hint { position: absolute; left: 50%; bottom: max(28px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); font-size: 15px; color: var(--ink-soft); }
+  .hint span { display: inline-block; animation: nudge 1.6s ease-in-out infinite; }
+  @keyframes nudge { 50% { transform: translateY(6px); } }
+  .after { padding: 96px max(24px, env(safe-area-inset-right, 0px)) 72px max(24px, env(safe-area-inset-left, 0px)); }
+  .after p.big { font: 900 clamp(44px, 10vw, 160px)/0.95 var(--display); letter-spacing: -0.04em; margin: 0; }
+  .after p { margin: 20px 0 0; color: var(--ink-soft); max-width: 40em; }
+  .static { display: none; }
+
+  @media (max-width: 760px) {
+    .copy { left: max(20px, env(safe-area-inset-left, 0px)); right: max(20px, env(safe-area-inset-right, 0px)); width: auto; top: calc(9svh + env(safe-area-inset-top, 0px)); transform: none; }
+    .line { transform: none; }
+    .line h1, .line h2 { font-size: clamp(34px, 9.6vw, 48px); }
+    .line p { margin-top: 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hint span { animation: none; }
+  }
+</style>
+
+<main>
+  <section class="track" id="track" aria-label="一杯檸檬冰咖啡，滑動時一步步砌出來">
+    <div class="stage">
+      <canvas id="cv" aria-hidden="true"></canvas>
+      <div class="copy" id="copy">
+        <div class="line"><h1>一杯檸檬冰咖啡</h1><p>台北中山，街角木屋門口的一張圓鐵桌。往下滑，砌一杯。</p></div>
+        <div class="line"><h2>先放一個杯。</h2><p>圓肚玻璃杯，放在木杯墊上。</p></div>
+        <div class="line"><h2>滿滿碎冰。</h2><p>碎冰先入杯，一直裝到杯口。</p></div>
+        <div class="line"><h2>一片檸檬。</h2><p>輕輕放在冰上面。</p></div>
+        <div class="line"><h2>咖啡，輕輕倒入。</h2><p>慢慢倒，讓咖啡沿著冰縫流到杯底。</p></div>
+        <div class="line"><h2>從上面看。</h2><p>冰、檸檬、咖啡。沒有奶泡。</p></div>
+        <div class="line"><h2>就是這一杯。</h2><p>中山街角木屋，只賣這一杯。</p></div>
+      </div>
+      <div class="hint" id="hint"><span>往下滑 ↓</span></div>
+    </div>
+  </section>
+  <section class="after" aria-label="店">
+    <p class="big">中山街角木屋</p>
+    <p>檸檬冰咖啡：冰、一片檸檬、輕輕倒入的咖啡。兩張長木椅、一張圓鐵桌，就在門口。</p>
+  </section>
+</main>
+
+<script>
+(function () {
+  var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+  var track = document.getElementById('track');
+  var lines = [].slice.call(document.querySelectorAll('#copy .line'));
+  var hint = document.getElementById('hint');
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var C = {
+    table: '#869a8d', tableRim: '#5f7367', tableShade: 'rgba(40,55,47,.18)',
+    wood: '#8b5b37', woodSide: '#6a4126', woodLine: 'rgba(60,32,14,.25)',
+    coffee: '#3a1d0e', coffeeTop: '#5b3016',
+    rind: '#e3b92a', pith: '#f8eec4', flesh: '#f3d45a', fleshDeep: '#e9c23f',
+    glassFill: 'rgba(255,255,255,.16)', glassEdge: 'rgba(255,255,255,.85)', glassDark: 'rgba(28,35,31,.28)',
+    spoon: '#a9aeb0', spoonDark: '#6f7577'
+  };
+
+  // ---- helpers
+  var clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
+  var prog = function (v, a, b) { return clamp((v - a) / (b - a), 0, 1); };
+  var lerp = function (a, b, t) { return a + (b - a) * t; };
+  var eio = function (t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+  var eout = function (t) { return 1 - Math.pow(1 - t, 3); };
+  var bounce = function (t) { // settle with one small bounce
+    if (t < .72) { var u = t / .72; return u * u; }
+    var v = (t - .72) / .28; return 1 - .08 * Math.sin(v * Math.PI);
+  };
+  var seed = 7; var rnd = function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+
+  // ---- the glass: a rounded tumbler, radius r(y), height H (world units)
+  var H = 1.9;
+  var r = function (y) { return 0.78 + 0.32 * Math.sin(clamp(y / H, 0, 1) * Math.PI * 0.75); };
+  var ri = function (y) { return r(y) - 0.07; };
+
+  // ---- crushed ice: rest positions inside the glass, bottom first
+  var ICE = [];
+  for (var k = 0; k < 110; k++) {
+    var y = 0.12 + rnd() * 1.66, rho = (ri(y) - 0.13) * Math.sqrt(rnd()), ph = rnd() * Math.PI * 2;
+    var n = 5 + Math.floor(rnd() * 3), pts = [];
+    for (var j = 0; j < n; j++) pts.push([j / n * Math.PI * 2 + rnd() * .5, .55 + rnd() * .45]);
+    ICE.push({ y: y, x: rho * Math.cos(ph), z: rho * Math.sin(ph), s: .07 + rnd() * .09, pts: pts, rot: rnd() * 6.28, spin: (rnd() - .5) * 4 });
+  }
+  ICE.sort(function (a, b) { return a.y - b.y; });
+  ICE.forEach(function (c, i) { c.t0 = 0.27 + 0.15 * (i / ICE.length) + rnd() * 0.015; });
+
+  // ---- camera / projection
+  var W, Hh, S, cx, cy0, th, ps, sinT, cosT;
+  function proj(x, y, z) {
+    var xr = x * Math.cos(ps) - z * Math.sin(ps), zr = x * Math.sin(ps) + z * Math.cos(ps);
+    return [cx + xr * S, cy0 + (-y * cosT + zr * sinT) * S, zr * cosT + y * sinT];
+  }
+  function ellipseAt(y, rad) { // horizontal circle, centred on the axis
+    var c = proj(0, y, 0);
+    ctx.ellipse(c[0], c[1], rad * S, Math.max(rad * S * sinT, .5), 0, 0, Math.PI * 2);
+  }
+  function polyPlane(points, y) { // points in the horizontal plane [x,z]
+    ctx.beginPath();
+    points.forEach(function (p, i) { var q = proj(p[0], y, p[1]); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); });
+    ctx.closePath();
+  }
+  function circlePts(x0, z0, rad, n, a0) {
+    var out = []; for (var i = 0; i < n; i++) { var a = (a0 || 0) + i / n * Math.PI * 2; out.push([x0 + rad * Math.cos(a), z0 + rad * Math.sin(a)]); } return out;
+  }
+
+  // ---- scene pieces
+  function table(alpha) {
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = C.tableRim; ctx.beginPath(); ellipseAt(-0.16, 3.3); ctx.fill();
+    ctx.fillStyle = C.table; ctx.beginPath(); ellipseAt(-0.04, 3.3); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = Math.max(1, S * .02); ctx.beginPath(); ellipseAt(-0.04, 3.15); ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+  function coaster(t) {
+    if (t <= 0) return;
+    var a = 0.98, rot = 0.32, sq = [[-a, -a], [a, -a], [a, a], [-a, a]].map(function (p) {
+      return [p[0] * Math.cos(rot) - p[1] * Math.sin(rot), p[0] * Math.sin(rot) + p[1] * Math.cos(rot)];
+    });
+    var lift = (1 - eout(t)) * 0.9;
+    ctx.globalAlpha = eout(t);
+    ctx.fillStyle = C.woodSide; polyPlane(sq, -0.02 + lift); ctx.fill();
+    ctx.fillStyle = C.wood; polyPlane(sq, 0.06 + lift); ctx.fill();
+    ctx.strokeStyle = C.woodLine; ctx.lineWidth = Math.max(1, S * .012);
+    for (var i = -3; i <= 3; i++) {
+      var p1 = [i * .26, -a * .92], p2 = [i * .26 + .05, a * .92];
+      var q1 = proj(p1[0] * Math.cos(rot) - p1[1] * Math.sin(rot), .061 + lift, p1[0] * Math.sin(rot) + p1[1] * Math.cos(rot));
+      var q2 = proj(p2[0] * Math.cos(rot) - p2[1] * Math.sin(rot), .061 + lift, p2[0] * Math.sin(rot) + p2[1] * Math.cos(rot));
+      ctx.beginPath(); ctx.moveTo(q1[0], q1[1]); ctx.lineTo(q2[0], q2[1]); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+  function shadow(alpha) {
+    ctx.globalAlpha = alpha; ctx.fillStyle = C.tableShade;
+    var c = proj(0.35, 0.07, 0.25); ctx.beginPath();
+    ctx.ellipse(c[0], c[1], 1.25 * S, Math.max(1.25 * S * sinT, 1) * .9, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+  function glassBody(base, fill) { // union of slices, nonzero
+    ctx.beginPath();
+    for (var i = 0; i <= 48; i++) { var y = i / 48 * H; ellipseAt(base + y, r(y)); }
+    ctx.fillStyle = fill; ctx.fill();
+  }
+  function liquid(base, level) {
+    if (level <= 0.01) return;
+    ctx.beginPath();
+    for (var i = 0; i <= 40; i++) { var y = .08 + i / 40 * (level - .08); ellipseAt(base + y, ri(y)); }
+    ctx.fillStyle = C.coffee; ctx.fill();
+    ctx.beginPath(); ellipseAt(base + level, ri(level)); ctx.fillStyle = C.coffeeTop; ctx.fill();
+  }
+  function iceDraw(base, p, level) {
+    var shards = [];
+    ICE.forEach(function (c) {
+      var t = prog(p, c.t0, c.t0 + 0.05); if (t <= 0) return;
+      var y = c.y + (1 - bounce(t)) * 3.4;
+      var q = proj(c.x, base + y, c.z);
+      shards.push({ c: c, q: q, y: y, t: t });
+    });
+    shards.sort(function (a, b) { return a.q[2] - b.q[2]; });
+    shards.forEach(function (o) {
+      var c = o.c, rad = c.s * S, ang = c.rot + c.spin * (1 - o.t);
+      ctx.beginPath();
+      c.pts.forEach(function (pt, i) {
+        var a = pt[0] + ang, x = o.q[0] + Math.cos(a) * rad * pt[1], yy = o.q[1] + Math.sin(a) * rad * pt[1] * lerp(.75, 1, sinT);
+        i ? ctx.lineTo(x, yy) : ctx.moveTo(x, yy);
+      });
+      ctx.closePath();
+      var wet = o.y < level;
+      ctx.fillStyle = wet ? 'rgba(214,170,120,.42)' : 'rgba(255,255,255,.72)';
+      ctx.strokeStyle = wet ? 'rgba(255,236,210,.55)' : 'rgba(255,255,255,.95)';
+      ctx.lineWidth = Math.max(1, S * .01);
+      ctx.fill(); ctx.stroke();
+    });
+  }
+  function lemon(base, p) {
+    var t = prog(p, 0.45, 0.55); if (t <= 0) return;
+    var e = bounce(t), y = base + 1.8 + (1 - e) * 3.6, spin = (1 - e) * 2.2 + 0.2;
+    var x0 = 0.05, z0 = 0.06, R = 0.66;
+    var wob = (1 - e) * 0.5; // tilt while falling: squash the disc a little
+    ctx.save();
+    ctx.fillStyle = C.rind; polyPlane(circlePts(x0, z0, R, 48), y); ctx.fill();
+    ctx.fillStyle = C.pith; polyPlane(circlePts(x0, z0, R * .9, 48), y + .002); ctx.fill();
+    for (var s = 0; s < 9; s++) {
+      var a0 = spin + s / 9 * Math.PI * 2, a1 = a0 + Math.PI * 2 / 9 - 0.12, pts = [];
+      var c0 = [x0 + Math.cos(a0 + .06) * .07, z0 + Math.sin(a0 + .06) * .07];
+      pts.push(c0);
+      for (var m = 0; m <= 8; m++) { var a = lerp(a0 + .06, a1, m / 8); pts.push([x0 + Math.cos(a) * R * .8, z0 + Math.sin(a) * R * .8]); }
+      ctx.fillStyle = s % 2 ? C.flesh : C.fleshDeep; polyPlane(pts, y + .004); ctx.fill();
+    }
+    ctx.fillStyle = C.pith; polyPlane(circlePts(x0, z0, .06, 16), y + .006); ctx.fill();
+    ctx.restore();
+    void wob;
+  }
+  function stream(base, p, level) {
+    var on = prog(p, 0.56, 0.58) * (1 - prog(p, 0.76, 0.78)); if (on <= 0) return;
+    var head = lerp(6, level + .05, prog(p, 0.56, 0.585)), top = lerp(6, 6, 0), tail = p > 0.76 ? lerp(level + .05, 6, prog(p, 0.76, 0.78)) : 6;
+    var a = proj(.32, base + Math.min(tail, top), .1), b = proj(.32, base + Math.max(head, level + .05), .1);
+    ctx.strokeStyle = C.coffee; ctx.lineCap = 'round';
+    ctx.lineWidth = S * .075 * on;
+    ctx.beginPath(); ctx.moveTo(a[0], a[1]);
+    var steps = 18;
+    for (var i = 1; i <= steps; i++) {
+      var u = i / steps, xx = lerp(a[0], b[0], u) + Math.sin(u * 9 + p * 160) * S * .012, yy = lerp(a[1], b[1], u);
+      ctx.lineTo(xx, yy);
+    }
+    ctx.stroke();
+  }
+  function glassFront(base) {
+    ctx.strokeStyle = C.glassEdge; ctx.lineWidth = Math.max(1.2, S * .022);
+    ctx.beginPath(); ellipseAt(base + H, r(H)); ctx.stroke();
+    // side edges and bottom arc fade out as the camera rises to the top view
+    var sideA = clamp((cosT - 0.35) / 0.55, 0, 1);
+    ctx.save(); ctx.globalAlpha *= sideA;
+    [-1, 1].forEach(function (sd) {
+      ctx.beginPath();
+      for (var i = 0; i <= 30; i++) {
+        var y = i / 30 * H, c = proj(0, base + y, 0), x = c[0] + sd * r(y) * S;
+        i ? ctx.lineTo(x, c[1]) : ctx.moveTo(x, c[1]);
+      }
+      ctx.strokeStyle = C.glassDark; ctx.lineWidth = Math.max(1, S * .014); ctx.stroke();
+    });
+    // bottom front arc
+    var b = proj(0, base + .02, 0);
+    ctx.beginPath(); ctx.ellipse(b[0], b[1], r(0) * S, Math.max(r(0) * S * sinT, .5), 0, 0, Math.PI);
+    ctx.strokeStyle = C.glassEdge; ctx.lineWidth = Math.max(1.2, S * .03); ctx.stroke();
+    ctx.restore();
+    // highlight
+    ctx.beginPath();
+    for (var j = 0; j <= 20; j++) {
+      var yy = .25 + j / 20 * 1.35, cc = proj(0, base + yy, 0), xh = cc[0] - r(yy) * S * .72;
+      j ? ctx.lineTo(xh, cc[1]) : ctx.moveTo(xh, cc[1]);
+    }
+    ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = Math.max(2, S * .05); ctx.lineCap = 'round'; ctx.stroke();
+  }
+  function spoon(p) {
+    var t = eout(prog(p, 0.9, 0.97)); if (t <= 0) return;
+    var x0 = lerp(5.5, 1.2, t), z0 = 0.75, ang = 0.35;
+    var dir = [Math.cos(ang), Math.sin(ang)], nrm = [-dir[1], dir[0]];
+    var bowl = [], i;
+    for (i = 0; i < 28; i++) {
+      var a = i / 28 * Math.PI * 2, u = Math.cos(a) * .32, v = Math.sin(a) * .2;
+      bowl.push([x0 + dir[0] * u + nrm[0] * v, z0 + dir[1] * u + nrm[1] * v]);
+    }
+    ctx.globalAlpha = t;
+    ctx.fillStyle = C.spoonDark; polyPlane(bowl, .0); ctx.fill();
+    ctx.fillStyle = C.spoon; polyPlane(bowl.map(function (q) { return [lerp(x0, q[0], .82), lerp(z0, q[1], .82)]; }), .012); ctx.fill();
+    var h0 = proj(x0 + dir[0] * .3, .01, z0 + dir[1] * .3), h1 = proj(x0 + dir[0] * 1.55, .02, z0 + dir[1] * 1.55);
+    ctx.strokeStyle = C.spoon; ctx.lineWidth = Math.max(2, S * .06); ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(h0[0], h0[1]); ctx.lineTo(h1[0], h1[1]); ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  // ---- the shot list, driven by scroll progress p in [0,1]
+  var STEPS = [0, 0.12, 0.25, 0.44, 0.56, 0.79, 0.9];
+  function draw(p) {
+    var phone = W < 760;
+    var top = eio(prog(p, 0.78, 0.9));
+    th = lerp(lerp(13, 19, prog(p, 0, 0.78)), 74, top) * Math.PI / 180;
+    ps = lerp(-0.35, 0.45, p) ;
+    sinT = Math.sin(th); cosT = Math.cos(th);
+    var unit = phone ? Math.min(W * 0.21, Hh * 0.115) : Math.min(W * 0.13, Hh * 0.2);
+    S = unit * lerp(1, phone ? 1.25 : 1.35, top) * lerp(1.12, 1, eio(prog(p, 0, 0.14)));
+    cx = phone ? W * 0.5 : W * 0.66;
+    cy0 = phone ? lerp(Hh * 0.84, Hh * 0.68, top) : lerp(Hh * 0.74, Hh * 0.6, top);
+
+    ctx.clearRect(0, 0, W, Hh);
+    table(1);
+    coaster(prog(p, 0.04, 0.12));
+    spoon(p);
+
+    var g = prog(p, 0.13, 0.23); // glass drops onto the coaster
+    if (g > 0) {
+      var base = 0.07 + (1 - bounce(g)) * 3.2;
+      shadow(eout(g));
+      ctx.globalAlpha = eout(g);
+      glassBody(base, C.glassFill);
+      ctx.globalAlpha = 1;
+      var level = lerp(0, 1.62, eio(prog(p, 0.575, 0.765)));
+      liquid(base, level);
+      iceDraw(base, p, level);
+      stream(base, p, level);
+      lemon(base, p);
+      ctx.globalAlpha = eout(g);
+      glassFront(base);
+      ctx.globalAlpha = 1;
+    }
+
+    // copy: one line at a time
+    var on = 0; STEPS.forEach(function (s, i) { if (p >= s) on = i; });
+    lines.forEach(function (el, i) {
+      var start = STEPS[i], end = i + 1 < STEPS.length ? STEPS[i + 1] : 2;
+      var a = i === 0 ? 1 - prog(p, end - 0.03, end) : prog(p, start, start + 0.03) * (1 - prog(p, end - 0.03, end));
+      el.style.opacity = a;
+      var dy = (1 - a) * 18;
+      el.style.transform = (phone ? '' : 'translateY(-50%) ') + 'translateY(' + dy + 'px)';
+      el.setAttribute('aria-hidden', i === on ? 'false' : 'true');
+    });
+    hint.style.opacity = 1 - prog(p, 0, 0.03);
+  }
+
+  // ---- loop: ease toward the scroll target so the build feels weighted
+  var target = 0, cur = 0, raf = 0;
+  function measure() {
+    var rct = track.getBoundingClientRect();
+    target = clamp(-rct.top / (rct.height - innerHeight), 0, 1);
+  }
+  function loop() {
+    cur += (target - cur) * (reduce ? 1 : 0.14);
+    if (Math.abs(target - cur) < 0.0004) cur = target;
+    draw(cur);
+    raf = cur !== target ? requestAnimationFrame(loop) : 0;
+  }
+  function kick() { measure(); if (!raf) raf = requestAnimationFrame(loop); }
+  function size() {
+    var d = Math.min(devicePixelRatio || 1, 2);
+    W = cv.clientWidth; Hh = cv.clientHeight;
+    cv.width = Math.round(W * d); cv.height = Math.round(Hh * d);
+    ctx.setTransform(d, 0, 0, d, 0, 0);
+    draw(cur);
+  }
+  addEventListener('scroll', kick, { passive: true });
+  addEventListener('resize', function () { size(); kick(); });
+  size(); measure(); cur = target; draw(cur);
+  window.__draw = function (p) { cur = target = p; draw(p); };
+})();
+</script>
