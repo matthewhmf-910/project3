@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>Lemon Coffee Pour</title>
+<link rel="stylesheet" href="../node_modules/@fontsource/noto-serif-tc/600.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/noto-sans-tc/500.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/fraunces/400-italic.css">
+<style>
+  :root { --lemon: #e8c547; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #1a130e; overflow: hidden; }
+  #frame { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: #1a130e; }
+  .shot { position: absolute; left: 0; top: 0; transform-origin: 0 0; opacity: 0; }
+  #scrim { position: absolute; left: 0; right: 0; bottom: 0; height: 40%;
+           background: linear-gradient(to bottom, rgba(26,19,14,0), rgba(26,19,14,.55) 55%, rgba(26,19,14,.8)); }
+  #copy { position: absolute; left: 84px; right: 84px; top: 1500px; color: #f6efe3; }
+  .line { position: absolute; left: 0; right: 0; opacity: 0; }
+  .kicker { font: 500 24px/1.2 "Noto Sans TC", sans-serif; letter-spacing: .22em; text-transform: uppercase; color: #e9dcc6; }
+  .zh { font: 600 92px/1.25 "Noto Serif TC", serif; letter-spacing: .04em; }
+  .en { font: italic 400 36px/1.3 "Fraunces", serif; margin-top: .5em; opacity: .85; }
+  .dot { display: inline-block; width: .42em; height: .42em; border-radius: 50%; background: var(--lemon); vertical-align: .18em; margin-right: .5em; }
+</style>
+</head>
+<body>
+<div id="frame">
+  <img class="shot" id="p1" src="assets/corner_render.png">
+  <img class="shot" id="p2" src="assets/chairs_corner.png">
+  <img class="shot" id="v1">
+  <img class="shot" id="v2">
+  <img class="shot" id="p3" src="assets/drink_top.jpg">
+  <img class="shot" id="p4" src="assets/table_lemon.jpg">
+  <div id="scrim"></div>
+  <div id="copy">
+    <div class="line" id="c1"><div class="kicker">Zhongshan · Taipei</div><div class="zh">中山，一個街角。</div><div class="en">A corner in Zhongshan.</div></div>
+    <div class="line" id="c2"><div class="kicker">Step 1</div><div class="zh">冰，一片檸檬。</div><div class="en">Ice, one slice of lemon.</div></div>
+    <div class="line" id="c3"><div class="kicker">Step 2</div><div class="zh">輕輕倒入咖啡。</div><div class="en">Coffee, poured gently.</div></div>
+    <div class="line" id="c4"><div class="kicker"><span class="dot"></span>Lemon · Iced coffee</div><div class="zh">冰咖啡，一片檸檬。</div><div class="en">Iced coffee, one slice of lemon.</div></div>
+    <div class="line" id="c5"><div class="kicker">中山 · 街角木屋</div><div class="zh">只賣這一杯。</div><div class="en">Just this one cup.</div></div>
+  </div>
+</div>
+<script src="pour.js"></script>
+</body>
+</html>

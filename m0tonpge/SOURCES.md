@@ -16,3 +16,10 @@ Left out on purpose:
 - No prices, opening hours or recipe details, because none were supplied.
 - `kiosk_window.png` isn't used in the cut: the drink in its foreground is a plain iced black coffee, not the lemon coffee.
 - `reference/poster_style_ref.jpg` is an AI-generated poster sheet, used only as a palette reference (ivory / sage / terracotta).
+
+## Pour cut (`out/lemon_pour_9x16.mp4`)
+| ID | Visual | Type | Source |
+|----|--------|------|--------|
+| V1 | Ice + lemon in glass, then coffee poured | AI-generated reference clip, **not the real shop's glass or table** | `reference/clips/clipA_ice_lemon_pour.mp4`, 0–3.9 s only (it adds a foam/milk head from ~4.0 s, and the owner confirmed there is no foam) |
+| — | Clip B | Not used: pours into an empty glass (no ice first), adds foam, has a hologram grid and a "Dola AI" watermark | `reference/clips/clipB_pour_dola.mp4` |
+| E5 | Order: ice → lemon → gently poured coffee, no foam | Owner statement | chat |

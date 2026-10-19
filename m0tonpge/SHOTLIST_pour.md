@@ -21,7 +21,7 @@
 | 7 | 11.5–13.0 | 正上 top view | 慢 push-in | 咖啡色由冰縫滲上嚟，包住檸檬邊 | 由側面返去頂：同 #4 首尾呼應 | 冰輕響 |
 | 8 | 13.0–15.0 | 對準真相 `table_lemon.jpg` 嘅角度 | 慢 push-in + rack focus 到檸檬 | 成品：圓鐵桌、木杯墊、匙羹、檸檬 | 收尾＝真實產品相 | 一聲冰響，收 |
 
-> 註：真實杯嘢頂層係奶泡，檸檬浮喺泡上面（見 `table_lemon.jpg`、`drink_top.jpg`）。如果真正做法係倒咖啡之前或者之後再加奶泡，喺 #6 同 #7 之間加一格「奶泡輕輕鋪上，檸檬浮起」（1 秒，top view）。呢步要你話我知真實次序。
+> 確認：**冇奶泡**。製作次序＝冰 → 檸檬 → 輕輕倒咖啡。已剪好嘅版本見 `out/lemon_pour_9x16.mp4`（`src/pour.html`）。
 
 ## Image-to-video prompts（Kling / Higgsfield / Runway 用）
 - **#8** 用 `src/assets/table_lemon.jpg` 做 end frame；**#5 / #7** 用 `drink_top.jpg` 做參考。

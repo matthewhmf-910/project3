@@ -1,6 +1,7 @@
 // Usage:
 //   node render.mjs stills <fmt> <t1,t2,...> <outdir>   -> PNG per time
 //   node render.mjs video  <fmt> <out.mp4> [fps]         -> silent H.264
+// fmt: 16x9 | 9x16 | 1x1 (src/index.html) or pour (src/pour.html, 9:16)
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
@@ -8,17 +9,18 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
-const SIZES = { '16x9': [1920, 1080], '9x16': [1080, 1920], '1x1': [1080, 1080] };
+const SIZES = { '16x9': [1920, 1080], '9x16': [1080, 1920], '1x1': [1080, 1080], 'pour': [1080, 1920] };
+const PAGES = { pour: 'src/pour.html' };
 const [mode, fmt, arg, arg2] = process.argv.slice(2);
 const [W, H] = SIZES[fmt];
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1 });
-const url = pathToFileURL(path.join(ROOT, 'src/index.html')).href + `?f=${fmt}`;
+const url = pathToFileURL(path.join(ROOT, PAGES[fmt] || 'src/index.html')).href + `?f=${fmt}`;
 await page.goto(url, { waitUntil: 'load' });
 await page.evaluate(async () => {
   await document.fonts.ready;
-  await Promise.all([...document.images].map(i => i.decode()));
+  await Promise.all([...document.images].filter(i => i.getAttribute("src")).map(i => i.decode()));
 });
 
 async function shot(t) {
