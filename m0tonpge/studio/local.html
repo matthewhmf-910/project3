@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>檸檬冰咖啡 Studio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&family=Noto+Serif+TC:wght@900&display=swap">
+<style>
+  /* Layout: one pinned 3D stage. The cup starts as floating layers (antigravity) and the scroll lands them one by one. */
+  :root {
+    --ground: #dcd8cf;     /* studio sweep, warm stone */
+    --ink: #1b211d;
+    --ink-soft: #4f5852;
+    --lemon: #e3b51f;
+    --display: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+    --text: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--ground); color: var(--ink); }
+  body { font: 400 17px/1.6 var(--text); }
+  .track { position: relative; height: 1000svh; }
+  .stage { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+  canvas#gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .copy { position: absolute; left: max(56px, env(safe-area-inset-left, 0px)); top: 50%; width: min(32vw, 520px); }
+  .line { position: absolute; left: 0; right: 0; top: 0; opacity: 0; transform: translateY(-50%); will-change: opacity, transform; }
+  .line h1, .line h2 { font: 900 clamp(36px, 4vw, 68px)/1.08 var(--display); letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+  .line p { margin: 18px 0 0; font-size: clamp(16px, 1.3vw, 20px); color: var(--ink-soft); max-width: 22em; }
+  .tags { position: absolute; inset: 0; pointer-events: none; }
+  .tag { position: absolute; left: 0; top: 0; font: 500 15px/1.2 var(--text); color: var(--ink); white-space: nowrap; opacity: 0; will-change: transform, opacity; }
+  .tag::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--lemon); margin-right: 8px; vertical-align: 2px; }
+  .hint { position: absolute; left: 50%; bottom: max(26px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); font-size: 15px; color: var(--ink-soft); }
+  .hint span { display: inline-block; animation: nudge 1.6s ease-in-out infinite; }
+  @keyframes nudge { 50% { transform: translateY(6px); } }
+  .fallback { position: absolute; inset: 0; display: none; place-content: center; padding: 24px; text-align: center; }
+  .no-gl .fallback { display: grid; }
+  .after { padding: 104px max(24px, env(safe-area-inset-right, 0px)) 72px max(24px, env(safe-area-inset-left, 0px)); }
+  .after .big { font: 900 clamp(44px, 10vw, 160px)/0.95 var(--display); letter-spacing: -0.04em; margin: 0; }
+  .after p { margin: 20px 0 0; color: var(--ink-soft); max-width: 40em; }
+  @media (max-width: 760px) {
+    .copy { left: max(20px, env(safe-area-inset-left, 0px)); right: max(20px, env(safe-area-inset-right, 0px)); width: auto; top: calc(8svh + env(safe-area-inset-top, 0px)); }
+    .line { transform: none; }
+    .line h1, .line h2 { font-size: clamp(32px, 9vw, 46px); }
+    .line p { margin-top: 10px; font-size: 15px; }
+    .tag { font-size: 13px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .hint span { animation: none; } }
+</style>
+
+<main>
+  <section class="track" id="track" aria-label="一杯檸檬冰咖啡，滑動時一層層落位">
+    <div class="stage" id="stage">
+      <canvas id="gl" aria-hidden="true"></canvas>
+      <div class="tags" id="tags" aria-hidden="true"></div>
+      <div class="copy">
+        <div class="line"><h1>一杯檸檬冰咖啡</h1><p>每一層都浮在半空。往下滑，一層層落位。</p></div>
+        <div class="line"><h2>木杯墊。</h2><p>落在門口那張綠色圓鐵桌上。</p></div>
+        <div class="line"><h2>圓肚玻璃杯。</h2><p>穩穩放上杯墊。</p></div>
+        <div class="line"><h2>滿滿碎冰。</h2><p>碎冰先入杯，一直裝到杯口。</p></div>
+        <div class="line"><h2>一片檸檬。</h2><p>輕輕放在冰上面。</p></div>
+        <div class="line"><h2>咖啡，輕輕倒入。</h2><p>慢慢倒，讓咖啡沿著冰縫流到杯底。</p></div>
+        <div class="line"><h2>從上面看。</h2><p>冰、檸檬、咖啡。沒有奶泡。</p></div>
+        <div class="line"><h2>就是這一杯。</h2><p>中山街角木屋，只賣這一杯。</p></div>
+      </div>
+      <div class="hint" id="hint"><span>往下滑 ↓</span></div>
+      <div class="fallback"><p>這個瀏覽器顯示不了 3D。<br>一杯檸檬冰咖啡：冰、一片檸檬、輕輕倒入的咖啡，沒有奶泡。</p></div>
+    </div>
+  </section>
+  <section class="after" aria-label="店">
+    <p class="big">中山街角木屋</p>
+    <p>檸檬冰咖啡：碎冰、一片檸檬、輕輕倒入的咖啡。兩張長木椅、一張圓鐵桌，就在門口。</p>
+  </section>
+</main>
+
+<script src="../node_modules/three/build/three.min.js"></script>
+<script>
+(function () {
+  var stage = document.getElementById('stage');
+  if (!window.THREE) { stage.classList.add('no-gl'); return; }
+  var T = THREE;
+  var cv = document.getElementById('gl');
+  var renderer;
+  try { renderer = new T.WebGLRenderer({ canvas: cv, antialias: true, alpha: false }); }
+  catch (e) { stage.classList.add('no-gl'); return; }
+
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var BG = 0xdcd8cf;
+  renderer.setClearColor(BG, 1);
+  renderer.outputEncoding = T.sRGBEncoding;
+  renderer.toneMapping = T.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.82;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = T.PCFSoftShadowMap;
+  renderer.localClippingEnabled = true;
+
+  var scene = new T.Scene();
+  scene.background = new T.Color(BG);
+  scene.fog = new T.Fog(BG, 16, 34);
+  var camera = new T.PerspectiveCamera(30, 1, 0.1, 100);
+
+  // ---------- helpers
+  var clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
+  var prog = function (v, a, b) { return clamp((v - a) / (b - a), 0, 1); };
+  var lerp = function (a, b, t) { return a + (b - a) * t; };
+  var eio = function (t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+  var eout = function (t) { return 1 - Math.pow(1 - t, 3); };
+  var land = function (t) { // fall, then settle with one soft bounce
+    if (t < .7) { var u = t / .7; return u * u; }
+    var v = (t - .7) / .3; return 1 - .06 * Math.sin(v * Math.PI) * (1 - v);
+  };
+  var seed = 11; var rnd = function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+  function canvasTex(size, paint, repeat) {
+    var c = document.createElement('canvas'); c.width = c.height = size;
+    paint(c.getContext('2d'), size);
+    var t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.anisotropy = 8;
+    if (repeat) { t.wrapS = t.wrapT = T.RepeatWrapping; }
+    return t;
+  }
+
+  // ---------- studio environment (soft boxes for reflections)
+  (function () {
+    var env = new T.Scene();
+    var room = new T.Mesh(new T.BoxGeometry(20, 12, 20), new T.MeshBasicMaterial({ color: 0x3e3c39, side: T.BackSide }));
+    room.position.y = 4; env.add(room);
+    function panel(w, h, x, y, z, ry, rx, k) {
+      var m = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshBasicMaterial({ color: new T.Color(1, 0.98, 0.95).multiplyScalar(k), side: T.DoubleSide }));
+      m.position.set(x, y, z); m.rotation.y = ry || 0; m.rotation.x = rx || 0; env.add(m);
+    }
+    panel(8, 3, 0, 9.9, 0, 0, Math.PI / 2, 3);        // top softbox
+    panel(4, 7, -9.9, 4, 1, Math.PI / 2, 0, 4);       // key strip, left
+    panel(3, 6, 9.9, 4, -3, -Math.PI / 2, 0, 1.4);      // fill, right
+    panel(10, 2, 0, 2, -9.9, 0, 0, 1.6);              // back rim
+    var pm = new T.PMREMGenerator(renderer);
+    scene.environment = pm.fromScene(env, 0.04).texture;
+  })();
+
+  // ---------- lights
+  var key = new T.DirectionalLight(0xfff1e0, 1.7);
+  key.position.set(-5, 9, 4); key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048); key.shadow.radius = 6; key.shadow.bias = -0.0004;
+  var sc = key.shadow.camera; sc.left = -4; sc.right = 4; sc.top = 4; sc.bottom = -4; sc.near = 1; sc.far = 30;
+  scene.add(key);
+  var rim = new T.DirectionalLight(0xe8f0ff, 0.9); rim.position.set(4, 5, -6); scene.add(rim);
+  scene.add(new T.HemisphereLight(0xfffaf0, 0x8a8a80, 0.35));
+
+  // ---------- textures
+  var woodTex = canvasTex(512, function (g, s) {
+    g.fillStyle = '#6e4122'; g.fillRect(0, 0, s, s);
+    for (var i = 0; i < 140; i++) {
+      var x = rnd() * s, w = 1 + rnd() * 5, a = .05 + rnd() * .16;
+      g.fillStyle = rnd() < .5 ? 'rgba(52,24,8,' + a + ')' : 'rgba(196,140,90,' + a * .8 + ')';
+      g.beginPath(); g.moveTo(x, 0);
+      for (var y = 0; y <= s; y += 16) g.lineTo(x + Math.sin(y * .02 + i) * 4, y);
+      g.lineTo(x + w, s); g.lineTo(x + w, 0); g.fill();
+    }
+  });
+  var paintTex = canvasTex(512, function (g, s) {
+    g.fillStyle = '#5f766a'; g.fillRect(0, 0, s, s);
+    for (var i = 0; i < 2600; i++) {
+      var a = rnd() * .07; g.fillStyle = rnd() < .5 ? 'rgba(40,55,47,' + a + ')' : 'rgba(230,240,230,' + a + ')';
+      g.beginPath(); g.arc(rnd() * s, rnd() * s, rnd() * 6, 0, 6.3); g.fill();
+    }
+  }, true);
+  paintTex.repeat.set(3, 3);
+  var lemonTex = canvasTex(1024, function (g, s) {
+    var c = s / 2, R = s * .49;
+    g.fillStyle = '#d9a514'; g.beginPath(); g.arc(c, c, R, 0, 6.3); g.fill();
+    g.fillStyle = '#ebc12e'; g.beginPath(); g.arc(c, c, R * .955, 0, 6.3); g.fill();
+    g.fillStyle = '#f7efcd'; g.beginPath(); g.arc(c, c, R * .9, 0, 6.3); g.fill();
+    var n = 10;
+    for (var k = 0; k < n; k++) {
+      var a0 = k / n * Math.PI * 2 + .035, a1 = (k + 1) / n * Math.PI * 2 - .035;
+      var gr = g.createRadialGradient(c, c, R * .05, c, c, R * .82);
+      gr.addColorStop(0, '#fbe68a'); gr.addColorStop(.6, '#f4d24f'); gr.addColorStop(1, '#ecc236');
+      g.fillStyle = gr; g.beginPath(); g.moveTo(c + Math.cos((a0 + a1) / 2) * R * .07, c + Math.sin((a0 + a1) / 2) * R * .07);
+      g.arc(c, c, R * .82, a0, a1); g.closePath(); g.fill();
+      for (var v = 0; v < 70; v++) { // juice vesicles
+        var aa = lerp(a0 + .05, a1 - .05, rnd()), rr = R * (.15 + rnd() * .62);
+        g.strokeStyle = 'rgba(255,250,215,' + (.25 + rnd() * .35) + ')'; g.lineWidth = 1 + rnd() * 2.5;
+        g.beginPath(); g.moveTo(c + Math.cos(aa) * rr, c + Math.sin(aa) * rr);
+        g.lineTo(c + Math.cos(aa) * (rr + 12 + rnd() * 18), c + Math.sin(aa) * (rr + 12 + rnd() * 18)); g.stroke();
+      }
+    }
+    g.fillStyle = '#f9f2d6'; g.beginPath(); g.arc(c, c, R * .07, 0, 6.3); g.fill();
+  });
+
+  // ---------- geometry: the glass
+  var H = 1.9;
+  var r = function (y) { return 0.78 + 0.32 * Math.sin(clamp(y / H, 0, 1) * Math.PI * 0.75); };
+  var ri = function (y) { return r(y) - 0.05; };
+  var prof = [new T.Vector2(0.0001, 0), new T.Vector2(r(0) - 0.08, 0), new T.Vector2(r(0) - 0.01, 0.03)];
+  for (var i = 1; i <= 40; i++) { var yy = i / 40 * H; prof.push(new T.Vector2(r(yy), yy)); }
+  prof.push(new T.Vector2(r(H) - 0.025, H + 0.012));
+  for (i = 40; i >= 3; i--) { yy = i / 40 * H; if (yy < 0.13) break; prof.push(new T.Vector2(ri(yy), yy)); }
+  prof.push(new T.Vector2(ri(0.13) - 0.04, 0.12)); prof.push(new T.Vector2(0.0001, 0.12));
+  var glassMat = new T.MeshPhysicalMaterial({
+    color: 0xffffff, metalness: 0, roughness: 0.02, transparent: true, opacity: 0.09,
+    reflectivity: 0.7, clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 2.6, side: T.FrontSide, depthWrite: false
+  });
+
+  // ---------- liquid (clipped at the pour level)
+  var liqProf = [new T.Vector2(0.0001, 0.125)];
+  for (i = 0; i <= 30; i++) { yy = 0.125 + i / 30 * (1.78 - 0.125); liqProf.push(new T.Vector2(ri(yy) - 0.006, yy)); }
+  liqProf.push(new T.Vector2(0.0001, 1.78));
+  var clip = new T.Plane(new T.Vector3(0, -1, 0), 0);
+  var liqMat = new T.MeshPhysicalMaterial({ color: 0x1a0903, roughness: 0.06, clearcoat: 0.6, clearcoatRoughness: 0.02, envMapIntensity: 0.45, reflectivity: 0.3, clippingPlanes: [clip] });
+  var liqTopMat = new T.MeshPhysicalMaterial({ color: 0x241005, roughness: 0.04, clearcoat: 0.6, envMapIntensity: 0.6, reflectivity: 0.3 });
+
+  // ---------- layers: each has an assembled pose and a floating (antigravity) pose
+  var world = new T.Group(); scene.add(world);
+
+  // table: round iron top on a stem that fades into the studio
+  var table = new T.Group(); world.add(table);
+  var tableMat = new T.MeshStandardMaterial({ color: 0xffffff, map: paintTex, metalness: 0.5, roughness: 0.48, envMapIntensity: 0.9 });
+  var top = new T.Mesh(new T.CylinderGeometry(3.4, 3.4, 0.05, 128), tableMat); top.position.y = -0.025; top.receiveShadow = true; table.add(top);
+  var lip = new T.Mesh(new T.TorusGeometry(3.4, 0.045, 16, 160), tableMat); lip.rotation.x = Math.PI / 2; lip.position.y = 0.0; table.add(lip);
+  var stem = new T.Mesh(new T.CylinderGeometry(0.1, 0.1, 12, 24), new T.MeshStandardMaterial({ color: 0x55665b, metalness: .6, roughness: .5 }));
+  stem.position.y = -6; table.add(stem);
+
+  function rrect(w, h, rad) {
+    var s = new T.Shape(), x = -w / 2, y = -h / 2;
+    s.moveTo(x + rad, y); s.lineTo(x + w - rad, y); s.quadraticCurveTo(x + w, y, x + w, y + rad);
+    s.lineTo(x + w, y + h - rad); s.quadraticCurveTo(x + w, y + h, x + w - rad, y + h);
+    s.lineTo(x + rad, y + h); s.quadraticCurveTo(x, y + h, x, y + h - rad);
+    s.lineTo(x, y + rad); s.quadraticCurveTo(x, y, x + rad, y); return s;
+  }
+  var coasterGeo = new T.ExtrudeGeometry(rrect(1.95, 1.95, 0.14), { depth: 0.05, bevelEnabled: true, bevelThickness: 0.015, bevelSize: 0.015, bevelSegments: 3 });
+  coasterGeo.rotateX(-Math.PI / 2);
+  var uv = coasterGeo.attributes.uv; for (i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * .45 + .5, uv.getY(i) * .45 + .5);
+  var coaster = new T.Mesh(coasterGeo, new T.MeshStandardMaterial({ map: woodTex, roughness: 0.62, metalness: 0, transparent: true }));
+  coaster.castShadow = true; coaster.receiveShadow = true;
+
+  var glassG = new T.Group();
+  var glassGeo = new T.LatheGeometry(prof, 128);
+  var glass = new T.Mesh(glassGeo, glassMat); glass.renderOrder = 5; glassG.add(glass);
+  // fresnel edge: glass reads by its bright rims and walls seen edge-on
+  var edgeMat = new T.ShaderMaterial({
+    transparent: true, depthWrite: false, side: T.DoubleSide,
+    uniforms: { uOpacity: { value: 1 } },
+    vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }',
+    fragmentShader: 'uniform float uOpacity; varying vec3 vN; varying vec3 vV; void main(){ float f = 1.0 - abs(dot(normalize(vN), normalize(vV))); float a = pow(f, 2.6) * 0.85 + 0.025; gl_FragColor = vec4(vec3(1.0, 0.995, 0.985), a * uOpacity); }'
+  });
+  var edge = new T.Mesh(glassGeo, edgeMat); edge.renderOrder = 6; glassG.add(edge);
+  var liquid = new T.Mesh(new T.LatheGeometry(liqProf, 96), liqMat); glassG.add(liquid);
+  var liqTop = new T.Mesh(new T.CircleGeometry(1, 96), liqTopMat); liqTop.rotation.x = -Math.PI / 2; glassG.add(liqTop);
+
+  // crushed ice: instanced shards
+  var N = 170;
+  var iceMat = new T.MeshPhysicalMaterial({ color: 0xe8f0f5, roughness: 0.04, transparent: true, opacity: 0.4, depthWrite: false, flatShading: true, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 2.4 });
+  var ice = new T.InstancedMesh(new T.IcosahedronGeometry(1, 0), iceMat, N);
+  ice.instanceMatrix.setUsage(T.DynamicDrawUsage); ice.renderOrder = 3;
+  var SH = [];
+  for (i = 0; i < N; i++) {
+    var y = 0.18 + rnd() * 1.52, rho = (ri(y) - 0.12) * Math.sqrt(rnd()), ph = rnd() * 6.283;
+    var cp = rnd() * 6.283, cr = Math.sqrt(rnd()) * 1.15, ch = (rnd() - .5) * 0.7;
+    SH.push({
+      rest: new T.Vector3(rho * Math.cos(ph), y, rho * Math.sin(ph)),
+      cloud: new T.Vector3(cr * Math.cos(cp), 3.9 + ch, cr * Math.sin(cp) * .8),
+      s: new T.Vector3(.07 + rnd() * .08, .06 + rnd() * .07, .07 + rnd() * .08),
+      q0: new T.Euler(rnd() * 6, rnd() * 6, rnd() * 6), spin: (rnd() - .5) * 2, bob: rnd() * 6.28
+    });
+  }
+  SH.sort(function (a, b) { return a.rest.y - b.rest.y; });
+  SH.forEach(function (o, k) { o.t0 = 0.335 + 0.13 * (k / N) + rnd() * 0.01; });
+  var white = new T.Color(1, 1, 1), wet = new T.Color(0.45, 0.27, 0.15);
+  for (i = 0; i < N; i++) ice.setColorAt(i, white);
+  glassG.add(ice);
+
+  // lemon slice
+  var lemon = new T.Mesh(new T.CylinderGeometry(0.64, 0.64, 0.07, 96), [
+    new T.MeshPhysicalMaterial({ color: 0xe2b01b, roughness: 0.45, clearcoat: .6 }),
+    new T.MeshPhysicalMaterial({ map: lemonTex, roughness: 0.28, clearcoat: 0.8, clearcoatRoughness: .2 }),
+    new T.MeshPhysicalMaterial({ map: lemonTex, roughness: 0.4 })
+  ]);
+  lemon.castShadow = true; lemon.renderOrder = 4;
+  glassG.add(lemon);
+
+  // the coffee layer that floats above (antigravity), then dissolves into the pour
+  var coffeeLayer = new T.Mesh(new T.LatheGeometry(liqProf, 96), new T.MeshPhysicalMaterial({ color: 0x120602, roughness: 0.05, clearcoat: 0.6, transparent: true, envMapIntensity: 0.5, reflectivity: 0.3 }));
+  world.add(coffeeLayer);
+
+  // pour stream
+  var streamGeo = new T.CylinderGeometry(0.032, 0.04, 1, 16, 12, true); streamGeo.translate(0, -0.5, 0);
+  var stream = new T.Mesh(streamGeo, new T.MeshPhysicalMaterial({ color: 0x1c0a03, roughness: 0.05, clearcoat: 0.6, envMapIntensity: 0.5, reflectivity: 0.3 }));
+  world.add(stream);
+
+  // spoon
+  var spoon = new T.Group();
+  var metal = new T.MeshStandardMaterial({ color: 0xd7dadb, metalness: 1, roughness: 0.22, envMapIntensity: 1.3 });
+  var bowl = new T.Mesh(new T.SphereGeometry(0.3, 48, 24, 0, Math.PI * 2, Math.PI * .55, Math.PI * .45), metal);
+  bowl.scale.set(1, .32, .66); bowl.position.y = 0.1; bowl.castShadow = true; spoon.add(bowl);
+  var handle = new T.Mesh(new T.CylinderGeometry(0.028, 0.05, 1.5, 24), metal);
+  handle.rotation.z = Math.PI / 2; handle.scale.z = .45; handle.position.set(1.0, 0.05, 0); handle.castShadow = true; spoon.add(handle);
+  world.add(spoon);
+
+  world.add(coaster); world.add(glassG);
+  [glass, liquid].forEach(function (m) { m.castShadow = false; });
+
+  // ---------- floating tags
+  var tagBox = document.getElementById('tags');
+  function mkTag(t) { var d = document.createElement('div'); d.className = 'tag'; d.textContent = t; tagBox.appendChild(d); return d; }
+  var tags = { coaster: mkTag('木杯墊'), glass: mkTag('玻璃杯'), ice: mkTag('碎冰'), lemon: mkTag('檸檬'), coffee: mkTag('咖啡'), table: mkTag('圓鐵桌') };
+  var tv = new T.Vector3();
+  function placeTag(el, pos, alpha) {
+    tv.copy(pos).project(camera);
+    var x = (tv.x * .5 + .5) * vw, y = (-tv.y * .5 + .5) * vh;
+    el.style.transform = 'translate(' + Math.round(x) + 'px,' + Math.round(y) + 'px)';
+    el.style.opacity = alpha;
+  }
+
+  // ---------- copy timing
+  var lines = [].slice.call(document.querySelectorAll('.copy .line'));
+  var STEPS = [0, 0.12, 0.22, 0.33, 0.5, 0.6, 0.79, 0.9];
+  var hint = document.getElementById('hint');
+
+  // ---------- camera keys: radius, polar (deg from up), azimuth (deg), target y
+  var CAM = [
+    [0.00, 23.0, 70, 38, 5.4], [0.12, 15.0, 67, 30, 3.4], [0.22, 12.5, 67, 22, 2.8], [0.33, 10.5, 67, 15, 2.4],
+    [0.50, 9.6, 68, 6, 2.2], [0.60, 7.2, 69, 0, 1.1], [0.78, 6.6, 70, -10, 1.0], [0.86, 6.8, 8, -25, 0.95],
+    [0.93, 7.4, 60, -38, 1.05], [1.00, 7.0, 62, -50, 1.0]
+  ];
+  function camAt(p) {
+    for (var k = 1; k < CAM.length; k++) if (p <= CAM[k][0]) break;
+    k = Math.min(k, CAM.length - 1);
+    var a = CAM[k - 1], b = CAM[k], t = eio(prog(p, a[0], b[0]));
+    return [lerp(a[1], b[1], t), lerp(a[2], b[2], t), lerp(a[3], b[3], t), lerp(a[4], b[4], t)];
+  }
+
+  // ---------- frame
+  var vw = 1, vh = 1, phone = false;
+  var m4 = new T.Matrix4(), q = new T.Quaternion(), e = new T.Euler(), v3 = new T.Vector3(), s3 = new T.Vector3();
+  function float(f, time, ph, amp) { return reduce ? 0 : Math.sin(time * 1.1 + ph) * amp * f; }
+
+  function render(p, time) {
+    // camera
+    var c = camAt(p), aspectBoost = vw < vh ? 1 + (vh / vw - 1) * 0.68 : 1;
+    var R = c[0] * aspectBoost;
+    scene.fog.near = R + 3; scene.fog.far = R + 16;
+    var pol = c[1] * Math.PI / 180, az = c[2] * Math.PI / 180;
+    camera.position.set(R * Math.sin(pol) * Math.sin(az), c[3] + R * Math.cos(pol), R * Math.sin(pol) * Math.cos(az));
+    camera.lookAt(0, c[3], 0);
+
+    // floating amounts: 1 = antigravity, 0 = landed
+    var fC = 1 - land(prog(p, 0.12, 0.2)), fG = 1 - land(prog(p, 0.22, 0.31)), fL = 1 - land(prog(p, 0.5, 0.58));
+
+    // coaster
+    coaster.position.set(0, 0.055 + fC * 1.0 + float(fC, time, 0, .08), 0);
+    coaster.rotation.set(fC * 0.22, 0.32 + fC * 0.6, fC * -0.1);
+
+    // glass
+    glassG.position.set(0, 0.07 + fG * 2.2 + float(fG, time, 1.3, .1), 0);
+    glassG.rotation.set(fG * -0.18, fG * 0.5, fG * 0.12);
+
+    // ice: cloud -> glass (cloud lives in glass space, so it rides with the glass while floating)
+    var level = lerp(0, 1.68, eio(prog(p, 0.625, 0.77)));
+    for (var k = 0; k < N; k++) {
+      var o = SH[k], t = prog(p, o.t0, o.t0 + 0.05), u = land(t);
+      v3.copy(o.cloud).lerp(o.rest, u);
+      if (t <= 0) { v3.y += float(1, time, o.bob, .07); }
+      e.set(o.q0.x + o.spin * (1 - u) * (1 + time * .3 * (t <= 0 ? 1 : 0)), o.q0.y, o.q0.z);
+      q.setFromEuler(e); s3.copy(o.s);
+      m4.compose(v3, q, s3); ice.setMatrixAt(k, m4);
+      ice.setColorAt(k, t >= 1 && o.rest.y < level ? wet : white);
+    }
+    ice.instanceMatrix.needsUpdate = true; if (ice.instanceColor) ice.instanceColor.needsUpdate = true;
+
+    // lemon: floats high above, lands on the ice
+    lemon.position.set(0.04, 1.755 + fL * 3.2 + float(fL, time, 2.2, .1), 0.05);
+    lemon.rotation.set(0.07 + fL * 0.6, fL * 1.4 + 0.3, 0.04 + fL * -0.3);
+
+    // coffee: the floating layer dissolves (antigravity fade-out) as the real pour starts
+    var fade = prog(p, 0.6, 0.655);
+    coffeeLayer.visible = fade < 1;
+    // on a phone the floating coffee would sit behind the headline mid-build, so it steps out and returns
+    var phoneShow = phone ? Math.max(1 - prog(p, 0.06, 0.1), prog(p, 0.44, 0.5)) : 1;
+    coffeeLayer.material.opacity = (1 - fade) * phoneShow;
+    var cs = (phone ? 0.72 : 0.85) + fade * 0.25;
+    coffeeLayer.scale.set(cs, cs, cs);
+    coffeeLayer.position.set(0, glassG.position.y + 6.4 + fade * 1.2 + float(1, time, 3.1, .12), 0);
+    coffeeLayer.rotation.set(-0.25, 0.4 + time * (reduce ? 0 : .15), 0.15);
+
+    // pour stream + level
+    clip.constant = glassG.position.y + Math.max(level, 0.001) + 0.0;
+    liquid.visible = level > 0.02;
+    liqTop.visible = level > 0.02;
+    liqTop.position.y = level; var rr = ri(level) - 0.006; liqTop.scale.set(rr, rr, 1);
+    var sOn = prog(p, 0.615, 0.63) * (1 - prog(p, 0.77, 0.79));
+    stream.visible = sOn > 0;
+    var topY = 7.0, bot = glassG.position.y + level + 0.02;
+    var head = lerp(topY, bot, prog(p, 0.615, 0.632)), tail = p > 0.77 ? lerp(topY, bot, prog(p, 0.77, 0.79)) : topY;
+    stream.position.set(0.3 + float(1, time * 3, 0, .006), tail, 0.08);
+    stream.scale.set(sOn || 0.001, Math.max(0.001, tail - Math.max(head, bot)), sOn || 0.001);
+
+    // spoon slides in
+    var sp = eout(prog(p, 0.8, 0.9));
+    spoon.visible = sp > 0;
+    spoon.position.set(lerp(6, 1.45, sp), 0.01, lerp(2.2, 0.75, sp));
+    spoon.rotation.set(0, -0.5, 0);
+
+    // tags: show while a layer floats, fade as it lands
+    var first = 1 - prog(p, 0.02, 0.08); // all tags are on the hero; they fade as the scroll begins, then return per layer
+    var near = function (a, b) { return prog(p, a, a + .02) * (1 - prog(p, b - .02, b)); };
+    placeTag(tags.table, v3.set(3.0, 0.1, 1.0), first);
+    placeTag(tags.coaster, v3.set(1.15, coaster.position.y, 0), Math.max(first, near(0.1, 0.18)) * Math.min(1, fC * 3));
+    placeTag(tags.glass, v3.set(1.25, glassG.position.y + 1.0, 0), Math.max(first, near(0.2, 0.29)) * Math.min(1, fG * 3));
+    placeTag(tags.ice, v3.set(1.45, glassG.position.y + 3.9, 0), Math.max(first, near(0.31, 0.4)) * (1 - prog(p, 0.38, 0.44)));
+    placeTag(tags.lemon, v3.set(0.9, glassG.position.y + lemon.position.y, 0), Math.max(first, near(0.48, 0.56)) * Math.min(1, fL * 3));
+    placeTag(tags.coffee, v3.set(1.2, coffeeLayer.position.y + 0.8, 0), Math.max(first, near(0.58, 0.64)) * (1 - fade) * phoneShow);
+
+    // copy
+    var on = 0; STEPS.forEach(function (s, i2) { if (p >= s) on = i2; });
+    lines.forEach(function (el, i2) {
+      var st = STEPS[i2], en = i2 + 1 < STEPS.length ? STEPS[i2 + 1] : 2;
+      var a = i2 === 0 ? 1 - prog(p, en - 0.03, en) : prog(p, st, st + 0.03) * (1 - prog(p, en - 0.03, en));
+      el.style.opacity = a;
+      el.style.transform = (phone ? '' : 'translateY(-50%) ') + 'translateY(' + ((1 - a) * 18).toFixed(1) + 'px)';
+    });
+    hint.style.opacity = 1 - prog(p, 0, 0.03);
+
+    renderer.render(scene, camera);
+  }
+
+  // ---------- sizing, composition offset (cup right of the copy on desktop, below it on a phone)
+  function size() {
+    vw = stage.clientWidth; vh = stage.clientHeight; phone = vw < 760;
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, phone ? 1.75 : 2));
+    renderer.setSize(vw, vh, false);
+    camera.aspect = vw / vh;
+    if (phone) camera.setViewOffset(vw, vh, 0, -vh * 0.13, vw, vh);
+    else camera.setViewOffset(vw, vh, -vw * 0.17, 0, vw, vh);
+    camera.updateProjectionMatrix();
+  }
+
+  // ---------- loop: ease toward the scroll target
+  var track = document.getElementById('track');
+  var target = 0, cur = 0, t0 = performance.now(), forced = null;
+  function measure() { var rc = track.getBoundingClientRect(); target = clamp(-rc.top / (rc.height - innerHeight), 0, 1); }
+  function loop(now) {
+    if (forced === null) { cur += (target - cur) * (reduce ? 1 : 0.1); if (Math.abs(target - cur) < 0.0002) cur = target; }
+    render(cur, (now - t0) / 1000);
+    requestAnimationFrame(loop);
+  }
+  addEventListener('scroll', measure, { passive: true });
+  addEventListener('resize', size);
+  size(); measure(); cur = target;
+  requestAnimationFrame(loop);
+  window.__draw = function (p, time) { forced = p; cur = target = p; render(p, time || 0); };
+})();
+</script>
+
+</body>
+</html>
