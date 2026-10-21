@@ -1,0 +1,11 @@
+{
+  "path": "/home/user/project3/bread_mascot_model/reference.png",
+  "type": "png",
+  "bytes": 2447964,
+  "width": 1200,
+  "height": 1600,
+  "aspectRatio": 0.75,
+  "technicalSuitability": "pass",
+  "warnings": [],
+  "note": "This is only technical image probing. Semantic object suitability still requires visual inspection."
+}

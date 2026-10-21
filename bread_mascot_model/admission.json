@@ -1,0 +1,14 @@
+{
+  "admitted": true,
+  "reasons": [],
+  "provenance": {
+    "viewpoint": "reference",
+    "sourcePath": "/home/user/project3/bread_mascot_model/reference.png",
+    "width": 1200,
+    "height": 1600,
+    "foregroundCoverage": 0.6324,
+    "largestComponentFraction": 0.9944,
+    "pHash": 13754203873890312488,
+    "duplicateOfHash": null
+  }
+}

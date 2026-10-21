@@ -1,0 +1,495 @@
+{
+  "name": "Bread Mascot Character",
+  "domain": "character",
+  "objectClass": "stylized-humanoid-mascot",
+  "qualityContract": {
+    "stylization": "cartoon-mascot",
+    "fidelity": "likeness-optimized-single-view",
+    "animationReady": true,
+    "hiddenGeometry": "inferred-from-symmetry",
+    "scope": [
+      "bread-toast-body",
+      "brown-jacket-with-lapels",
+      "facial-features-fixed-expression",
+      "hat-crown",
+      "interactive-orbit-camera",
+      "scroll-based-animation",
+      "component-separation-jacket-sneakers"
+    ]
+  },
+  "proportions": {
+    "headUnits": 6.0,
+    "scale": 2.0,
+    "headUnit": 0.16,
+    "torso": 3.2,
+    "legs": 2.4,
+    "shoulderWidth": 1.6,
+    "hipWidth": 1.4
+  },
+  "components": {
+    "body": {
+      "name": "Toast Body",
+      "type": "bread-slice-rounded",
+      "geometry": {
+        "shape": "rounded-rectangle-extruded",
+        "width": 1.0,
+        "height": 1.4,
+        "depth": 0.6,
+        "cornerRadius": 0.15,
+        "segments": 32
+      },
+      "material": {
+        "type": "MeshStandardMaterial",
+        "color": "#F5E6D3",
+        "roughness": 0.85,
+        "metallic": 0.0,
+        "flatShading": false,
+        "map": "procedural-canvas-texture",
+        "mapDetails": "subtle-fabric-weave-pattern"
+      },
+      "pivot": "center",
+      "position": [0, 0, 0]
+    },
+    "jacket": {
+      "name": "Brown Jacket",
+      "type": "wearable-component",
+      "geometry": {
+        "shape": "front-panel-with-lapels",
+        "width": 1.05,
+        "height": 0.85,
+        "lapalWidth": 0.2,
+        "segments": 24
+      },
+      "material": {
+        "type": "MeshStandardMaterial",
+        "color": "#8B6E47",
+        "roughness": 0.78,
+        "metallic": 0.0,
+        "bumpMap": "subtle-woven-texture"
+      },
+      "pivot": "center-front",
+      "position": [0, -0.15, 0.31],
+      "layeringOrder": 1,
+      "controllable": true,
+      "animationTargets": ["rotation", "visibility"]
+    },
+    "head": {
+      "name": "Head Container",
+      "type": "compound-geometry",
+      "children": ["face-base", "eyes", "nose", "mouth"]
+    },
+    "face-base": {
+      "name": "Face Plane",
+      "type": "plane-positioned",
+      "geometry": {
+        "width": 0.95,
+        "height": 1.0,
+        "widthSegments": 1,
+        "heightSegments": 1
+      },
+      "material": {
+        "type": "MeshStandardMaterial",
+        "color": "#F5E6D3",
+        "roughness": 0.82,
+        "metallic": 0.0
+      },
+      "position": [0, 0, 0.32]
+    },
+    "eyes": {
+      "name": "Eyes Container",
+      "type": "compound-geometry",
+      "children": ["left-eye", "right-eye"]
+    },
+    "left-eye": {
+      "name": "Left Eye",
+      "type": "eye-assembly",
+      "geometry": {
+        "eyeWhite": {
+          "type": "sphere",
+          "radius": 0.12,
+          "widthSegments": 32,
+          "heightSegments": 16
+        },
+        "iris": {
+          "type": "sphere",
+          "radius": 0.08,
+          "widthSegments": 24,
+          "heightSegments": 12
+        },
+        "catchlight": {
+          "type": "plane",
+          "width": 0.03,
+          "height": 0.03
+        }
+      },
+      "material": {
+        "eyeWhite": {
+          "type": "MeshStandardMaterial",
+          "color": "#FFFFFF",
+          "roughness": 0.4,
+          "metallic": 0.1,
+          "emissive": "#000000"
+        },
+        "iris": {
+          "type": "MeshStandardMaterial",
+          "color": "#0066CC",
+          "roughness": 0.2,
+          "metallic": 0.15
+        },
+        "catchlight": {
+          "type": "MeshBasicMaterial",
+          "color": "#FFFFFF",
+          "emissive": "#FFFFFF",
+          "emissiveIntensity": 0.8
+        }
+      },
+      "position": [-0.25, 0.1, 0.32],
+      "scale": 1.0,
+      "outline": {
+        "color": "#333333",
+        "width": 3,
+        "enabled": true
+      }
+    },
+    "right-eye": {
+      "name": "Right Eye",
+      "type": "eye-assembly",
+      "geometry": {
+        "eyeWhite": {
+          "type": "sphere",
+          "radius": 0.12,
+          "widthSegments": 32,
+          "heightSegments": 16
+        },
+        "iris": {
+          "type": "sphere",
+          "radius": 0.08,
+          "widthSegments": 24,
+          "heightSegments": 12
+        },
+        "catchlight": {
+          "type": "plane",
+          "width": 0.03,
+          "height": 0.03
+        }
+      },
+      "material": {
+        "eyeWhite": {
+          "type": "MeshStandardMaterial",
+          "color": "#FFFFFF",
+          "roughness": 0.4,
+          "metallic": 0.1
+        },
+        "iris": {
+          "type": "MeshStandardMaterial",
+          "color": "#0066CC",
+          "roughness": 0.2,
+          "metallic": 0.15
+        },
+        "catchlight": {
+          "type": "MeshBasicMaterial",
+          "color": "#FFFFFF",
+          "emissive": "#FFFFFF",
+          "emissiveIntensity": 0.8
+        }
+      },
+      "position": [0.25, 0.1, 0.32],
+      "scale": 1.0,
+      "outline": {
+        "color": "#333333",
+        "width": 3
+      }
+    },
+    "nose": {
+      "name": "Nose",
+      "type": "nose-3d-form",
+      "geometry": {
+        "shape": "bulbous-sphere",
+        "radiusX": 0.08,
+        "radiusY": 0.09,
+        "radiusZ": 0.08,
+        "widthSegments": 20,
+        "heightSegments": 16
+      },
+      "material": {
+        "type": "MeshStandardMaterial",
+        "color": "#DD3333",
+        "roughness": 0.6,
+        "metallic": 0.0,
+        "emissive": "#8B0000",
+        "emissiveIntensity": 0.1
+      },
+      "position": [0, -0.08, 0.35]
+    },
+    "mouth": {
+      "name": "Mouth",
+      "type": "smile-line-with-lips",
+      "geometry": {
+        "curveType": "arc",
+        "width": 0.35,
+        "height": 0.08,
+        "depth": 0.02,
+        "segments": 24
+      },
+      "material": {
+        "type": "MeshStandardMaterial",
+        "color": "#DD3333",
+        "roughness": 0.7,
+        "metallic": 0.0
+      },
+      "position": [0, -0.28, 0.35]
+    },
+    "hat": {
+      "name": "Brown Hat Crown",
+      "type": "round-hat-crown",
+      "geometry": {
+        "shape": "cylinder-rounded-top",
+        "radiusBottom": 0.5,
+        "radiusTop": 0.45,
+        "height": 0.4,
+        "radialSegments": 32,
+        "heightSegments": 8
+      },
+      "material": {
+        "type": "MeshStandardMaterial",
+        "color": "#8B6E47",
+        "roughness": 0.75,
+        "metallic": 0.0
+      },
+      "position": [0, 0.65, 0],
+      "pivot": "bottom-center",
+      "layeringOrder": 0
+    },
+    "hat-band": {
+      "name": "Hat Band Decoration",
+      "type": "circular-band",
+      "geometry": {
+        "torus": {
+          "radius": 0.5,
+          "tube": 0.02,
+          "radialSegments": 32,
+          "tubularSegments": 16
+        }
+      },
+      "material": {
+        "type": "MeshStandardMaterial",
+        "color": "#FFCC00",
+        "roughness": 0.5,
+        "metallic": 0.2
+      },
+      "position": [0, 0.5, 0]
+    },
+    "top-decoration": {
+      "name": "Top Crown Ornament",
+      "type": "compound-3d-ornament",
+      "children": ["yellow-cylinder", "red-spheres"]
+    },
+    "yellow-cylinder": {
+      "name": "Yellow Cylinder",
+      "type": "cylinder-upright",
+      "geometry": {
+        "radiusTop": 0.08,
+        "radiusBottom": 0.08,
+        "height": 0.25,
+        "radialSegments": 24,
+        "heightSegments": 4
+      },
+      "material": {
+        "type": "MeshStandardMaterial",
+        "color": "#FFDD00",
+        "roughness": 0.6,
+        "metallic": 0.15
+      },
+      "position": [0, 0.95, 0]
+    },
+    "red-spheres": {
+      "name": "Red Sphere Ornaments",
+      "type": "compound-spheres",
+      "instances": [
+        {
+          "position": [-0.08, 0.9, 0],
+          "radius": 0.05
+        },
+        {
+          "position": [0.08, 0.9, 0],
+          "radius": 0.05
+        }
+      ],
+      "material": {
+        "type": "MeshStandardMaterial",
+        "color": "#DD3333",
+        "roughness": 0.55,
+        "metallic": 0.1
+      }
+    },
+    "sneakers": {
+      "name": "Feet / Sneakers",
+      "type": "shoe-pair-compound",
+      "geometry": {
+        "shape": "rounded-box-feet",
+        "length": 0.35,
+        "width": 0.2,
+        "height": 0.15
+      },
+      "material": {
+        "type": "MeshStandardMaterial",
+        "color": "#CCCCCC",
+        "roughness": 0.8,
+        "metallic": 0.0
+      },
+      "pivot": "bottom-center",
+      "position": [0, -0.95, 0],
+      "controllable": true,
+      "animationTargets": ["rotation", "visibility"]
+    },
+    "pedestal-base": {
+      "name": "Display Pedestal",
+      "type": "cylindrical-base",
+      "geometry": {
+        "radiusTop": 0.4,
+        "radiusBottom": 0.4,
+        "height": 0.2,
+        "radialSegments": 32
+      },
+      "material": {
+        "type": "MeshStandardMaterial",
+        "color": "#888888",
+        "roughness": 0.9,
+        "metallic": 0.05
+      },
+      "position": [0, -1.1, 0]
+    }
+  },
+  "materials": {
+    "globalSettings": {
+      "toneMappingExposure": 1.2,
+      "environmentIntensity": 1.0
+    },
+    "outlineSettings": {
+      "enabled": true,
+      "color": "#333333",
+      "thickness": 2.5
+    }
+  },
+  "lighting": {
+    "ambientLight": {
+      "color": "#FFFFFF",
+      "intensity": 0.6
+    },
+    "keyLight": {
+      "type": "DirectionalLight",
+      "color": "#FFFFFF",
+      "intensity": 1.2,
+      "position": [2.0, 1.5, 2.0],
+      "target": [0, 0, 0],
+      "castShadow": true,
+      "shadowMapSize": 2048,
+      "shadowBias": -0.001
+    },
+    "fillLight": {
+      "type": "DirectionalLight",
+      "color": "#CCDDFF",
+      "intensity": 0.5,
+      "position": [-1.0, 0.8, 1.0],
+      "target": [0, 0, 0],
+      "castShadow": false
+    },
+    "backLight": {
+      "type": "DirectionalLight",
+      "color": "#FFDDCC",
+      "intensity": 0.4,
+      "position": [0, 0.5, -1.5],
+      "target": [0, 0, 0]
+    }
+  },
+  "camera": {
+    "type": "PerspectiveCamera",
+    "fov": 45,
+    "aspect": 1.0,
+    "near": 0.1,
+    "far": 1000,
+    "position": [0, 0, 3.5],
+    "target": [0, 0, 0]
+  },
+  "interaction": {
+    "orbitControls": {
+      "enabled": true,
+      "autoRotate": false,
+      "autoRotateSpeed": 2.0,
+      "enableDamping": true,
+      "dampingFactor": 0.05,
+      "maxDistance": 6.0,
+      "minDistance": 1.5,
+      "maxPolarAngle": 3.14159,
+      "minPolarAngle": 0
+    },
+    "dollyCamera": {
+      "enabled": true,
+      "zoomSpeed": 0.1
+    },
+    "scrollAnimation": {
+      "enabled": true,
+      "animationTargets": ["jacket.rotation.y", "sneakers.rotation.x"],
+      "scrollSensitivity": 0.01
+    }
+  },
+  "animation": {
+    "initial": {
+      "jacket": {
+        "position": [0, -0.15, 0.31],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1],
+        "visible": true
+      },
+      "sneakers": {
+        "position": [0, -0.95, 0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1],
+        "visible": true
+      }
+    }
+  },
+  "hiddenGeometry": {
+    "backOfCharacter": "inferred-by-mirroring-and-smoothing",
+    "handsAndArms": "occluded-by-jacket-assumed-at-rest",
+    "legsPartial": "partially-visible-in-silhouette",
+    "inferenceNotes": "Single frontal view; back created via mirroring with hand-sculpted variations"
+  },
+  "passStructure": [
+    {
+      "passName": "blockout",
+      "description": "Macro shape silhouette match",
+      "components": ["body", "head", "hat", "jacket"]
+    },
+    {
+      "passName": "structure",
+      "description": "Limb positioning, component relationships",
+      "components": ["eyes", "nose", "mouth", "hat-band"]
+    },
+    {
+      "passName": "form",
+      "description": "Refined geometry, detail sculpting",
+      "components": ["all-features", "proportional-refinement"]
+    },
+    {
+      "passName": "material",
+      "description": "Colors, textures, roughness maps",
+      "components": ["base-materials", "detail-textures"]
+    },
+    {
+      "passName": "lighting",
+      "description": "Three-point lighting setup",
+      "components": ["key-fill-back-lights"]
+    },
+    {
+      "passName": "interaction",
+      "description": "Camera controls, animations",
+      "components": ["orbit-controls", "scroll-animation"]
+    },
+    {
+      "passName": "optimization",
+      "description": "Geometry optimization, LOD setup",
+      "components": ["geometry-reduction", "lod-levels"]
+    }
+  ]
+}
