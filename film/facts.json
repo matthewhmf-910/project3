@@ -1,0 +1,41 @@
+{
+  "note": "Every word that appears on screen, with its exact source. Nothing else may be added.",
+  "claims": [
+    {
+      "text": "COOLEST",
+      "where": "type block, whole film",
+      "source": "assets/_source/poster_hero.png",
+      "source_text": "COOLEST (poster headline)"
+    },
+    {
+      "text": "COFFEE",
+      "where": "type block, whole film",
+      "source": "assets/_source/poster_hero.png",
+      "source_text": "COFFEE (poster headline)"
+    },
+    {
+      "text": "SLOW BREW / GOOD MOOD",
+      "where": "end card, from 8.18 s",
+      "source": "assets/_source/poster_hero.png",
+      "source_text": "SLOW BREW GOOD MOOD (poster, top left)"
+    },
+    {
+      "text": "夏野豆行 · DAILY RITUAL",
+      "where": "end-card stamp, from 8.4 s",
+      "source": "HANDOFF.md",
+      "source_text": "`06_STAMP.png` | Identity Badge | \"夏野豆行 · DAILY RITUAL\" circular brand stamp"
+    },
+    {
+      "text": "XIAOYE COFFEE",
+      "where": "end card brand line, from 8.18 s",
+      "source": "HANDOFF.md",
+      "source_text": "# Handoff Spec: 夏野豆行 (Xiaoye Coffee)"
+    }
+  ],
+  "not_on_screen_by_design": [
+    "prices",
+    "ratings",
+    "testimonials",
+    "URL (none supplied)"
+  ]
+}

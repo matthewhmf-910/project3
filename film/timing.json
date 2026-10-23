@@ -1,0 +1,75 @@
+{
+  "note": "Source of truth for picture and sound. 72 BPM grid anchored so the L strike is a beat. film/audio.py writes js/timing.js from this file; js/reel-scene.js reads it.",
+  "fps": 30,
+  "duration": 10,
+  "bpm": 72,
+  "first_beat": 0.6833,
+  "drop": 4.85,
+  "voice": null,
+  "hits": {
+    "roll": {
+      "t": 0.2,
+      "on": "pickup",
+      "sfx": "roll"
+    },
+    "catch": {
+      "t": 1.5167,
+      "on": "beat 2",
+      "sfx": "tock"
+    },
+    "rings": {
+      "t": 2.35,
+      "on": "beat 3",
+      "sfx": "whoosh"
+    },
+    "ring_pass": {
+      "t": 3.183,
+      "on": "beat 4",
+      "sfx": "whoosh_soft"
+    },
+    "lift": {
+      "t": 4.2,
+      "on": "pickup",
+      "sfx": "lift"
+    },
+    "strike": {
+      "t": 4.85,
+      "on": "beat 6 (drop)",
+      "sfx": "slice"
+    },
+    "fall": {
+      "t": 5.15,
+      "on": "free",
+      "sfx": "fall"
+    },
+    "reform": {
+      "t": 5.8,
+      "on": "free",
+      "sfx": "clicks",
+      "letters": {
+        "L": 5.8,
+        "C": 5.98,
+        "O1": 5.98,
+        "O2": 6.06,
+        "E": 6.05,
+        "S": 6.1,
+        "T": 6.15
+      }
+    },
+    "splash": {
+      "t": 6.5167,
+      "on": "beat 8",
+      "sfx": "splash"
+    },
+    "stamp": {
+      "t": 8.6,
+      "on": "beat 10.5 (after the type lands)",
+      "sfx": "thud"
+    },
+    "type_land": {
+      "t": 8.1833,
+      "on": "beat 10",
+      "sfx": "settle"
+    }
+  }
+}

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en" data-asset-base="../">
+<head>
+  <meta charset="utf-8">
+  <title>Coolest Coffee: reel (render target)</title>
+  <!-- Render target for film/render.js: one 1080x1920 frame, driven only by FILM.seek(t). -->
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    html, body { margin: 0; background: #000; overflow: hidden; }
+    .film { width: 1080px; height: 1920px; overflow: hidden; background: var(--paper); }
+    /* offline render: let every frame re-rasterise at its true scale (crisp when the camera zooms) */
+    .film .layer, .film .group { will-change: auto; }
+  </style>
+</head>
+<body>
+  <div class="viewport film"><div class="rig"><div class="canvas" id="filmCanvas"></div></div></div>
+
+  <script src="../vendor/gsap.min.js"></script>
+  <script src="../vendor/ScrollTrigger.min.js"></script>
+  <script src="../assets/manifest.js"></script>
+  <script src="../js/stage.js"></script>
+  <script src="../js/timing.js"></script>
+  <script src="../js/reel-scene.js"></script>
+  <script>
+    (function () {
+      const { stage, tl, DURATION, BEATS, parts } = XY.buildReel(document.getElementById("filmCanvas"));
+      stage.fit(1080, 1920);
+      gsap.ticker.sleep(); // no wall clock: every frame comes from seek(t)
+
+      const visible = (el) => {
+        for (let n = el; n && n !== document.body; n = n.parentElement) {
+          const cs = getComputedStyle(n);
+          if (cs.display === "none" || cs.visibility === "hidden" || +cs.opacity < 0.05) return false;
+        }
+        return true;
+      };
+      window.FILM = {
+        fps: 30, duration: DURATION, beats: BEATS.map((b) => ({ name: b.name, t: b.t })),
+        ready: () => Promise.all([document.fonts.ready, ...[...document.images].map((i) => i.decode().catch(() => {}))]),
+        set(t, camT) {
+          tl.pause();
+          if (camT != null && camT !== t) {
+            // camera from the frame's centre time, objects from the sample time:
+            // motion blur then comes only from things that move, never from the camera
+            tl.seek(camT, false);
+            const cam = { ...stage.cam }, off = { ...stage.offset };
+            tl.seek(t, false);
+            Object.assign(stage.cam, cam);
+            Object.assign(stage.offset, off);
+          } else {
+            tl.seek(t, false);
+          }
+          stage.renderCam();
+        },
+        // resolves once Chrome has painted the new state (two rAFs): without this, large
+        // layers were sometimes captured before rasterising and silently missing from a frame
+        seek(t, camT) {
+          this.set(t, camT);
+          return new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+        },
+        // largest on-screen displacement (px) of any visible object across the shutter,
+        // with the camera held at the frame's centre: decides how many samples a frame needs
+        motion(a, b, camT) {
+          const boxes = () => [...document.querySelectorAll(".layer, .letter")].map((n) => {
+            if (getComputedStyle(n).visibility === "hidden") return null;
+            const r = n.getBoundingClientRect();
+            return [r.left, r.top, r.right, r.bottom];
+          });
+          this.set(a, camT);
+          const A = boxes();
+          this.set(b, camT);
+          const B = boxes();
+          let max = 0;
+          A.forEach((p, i) => {
+            const q = B[i];
+            if (!p || !q) return;
+            for (let k = 0; k < 4; k++) max = Math.max(max, Math.abs(p[k] - q[k]));
+          });
+          return max;
+        },
+        // on-screen text and marks, in video px, for the safe-zone check
+        textRects() {
+          const out = [];
+          const add = (label, el) => {
+            if (!visible(el)) return;
+            const r = el.getBoundingClientRect();
+            out.push({ label, x: r.left, y: r.top, w: r.width, h: r.height });
+          };
+          document.querySelectorAll(".copy p").forEach((p) => add("copy:" + p.className, p));
+          const names = ["C", "O1-front", "O1-back", "O2-front", "O2-back", "L", "E", "S", "T"];
+          document.querySelectorAll(".letter").forEach((l, i) => add("letter:" + names[i], l));
+          const stamp = document.querySelector('img[src$="06_STAMP.png"]');
+          if (stamp) add("stamp", stamp.parentElement);
+          // the lemon is the subject until the cut; after it the stub is a prop leaving frame
+          add(tl.time() < parts.hit ? "action:lemon" : "prop:lemon-stub", parts.lemonA);
+          add("action:wheel", parts.wheel);
+          add("brand:terracotta", parts.terracotta);
+          return out;
+        },
+      };
+    })();
+  </script>
+</body>
+</html>

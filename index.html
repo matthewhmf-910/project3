@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>夏野豆行 · Coolest Coffee</title>
+  <meta name="description" content="Pale brown cold brew, a dried lemon slice and a daily ritual. An exploded, layer-by-layer look at Coolest Coffee by 夏野豆行 (Xiaoye Coffee).">
+  <meta name="theme-color" content="#F4EFE6">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2214%22 fill=%22none%22 stroke=%22%23A3481E%22 stroke-width=%222%22/%3E%3Cpath d=%22M16 8v16M9 12l14 8M23 12L9 20%22 stroke=%22%23A3481E%22 stroke-width=%222.4%22 stroke-linecap=%22round%22/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap">
+  <link rel="preload" as="image" href="assets/01_CUP_LEMON.png">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip" href="#reel">Skip to the reel</a>
+
+  <header class="nav">
+    <a class="nav__brand" href="#top" aria-label="夏野豆行 Xiaoye Coffee, back to top">
+      <span class="nav__cjk" lang="zh-Hant">夏野豆行</span>
+      <span class="nav__latin">Xiaoye Coffee</span>
+    </a>
+    <nav class="nav__links" aria-label="Sections">
+      <a href="#layers">Layers</a>
+      <a href="#reel">The reel</a>
+      <a href="#window">The window</a>
+      <a href="#details">Details</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <!-- 1 · Exploded poster: hover tilts, scroll separates the layers on Z -->
+    <section class="hero" id="layers" aria-labelledby="hero-title">
+      <h1 id="hero-title" class="sr-only">Coolest Coffee by 夏野豆行: pale brown cold brew with a dried lemon slice</h1>
+      <div class="hero__pin">
+        <div class="viewport hero__viewport" data-tilt-zone>
+          <div class="rig">
+            <div class="canvas" id="heroCanvas" role="img"
+                 aria-label="Poster reading COOLEST COFFEE. A glass of pale brown cold brew under a thick foam, topped with a dried lemon slice, stands on a wooden coaster beside a spoon, over ivory paper with sage and terracotta shapes."></div>
+          </div>
+        </div>
+
+        <div class="hud" aria-label="Layer view">
+          <ol class="hud__phases" id="heroPhases">
+            <li class="is-active">Poster lock</li>
+            <li>Separate</li>
+            <li>Orbit</li>
+            <li>Reassemble</li>
+          </ol>
+          <p class="hud__depth"><span>Z spread</span> <output id="heroDepth">0</output><span>px</span></p>
+          <button class="btn" id="heroToggle" type="button" aria-pressed="false">Separate layers</button>
+        </div>
+        <p class="hud__hint" id="heroHint">Move the pointer to tilt the poster. Scroll to pull its ten layers apart.</p>
+      </div>
+      <noscript><img class="noscript-poster" src="assets/_source/poster_hero.png" alt="COOLEST COFFEE poster"></noscript>
+    </section>
+
+    <!-- 2 · The 10 s reel: ROLL → CATCH → FEED → CUT → FALL → HERO -->
+    <section class="reel" id="reel" aria-labelledby="reel-title">
+      <header class="reel__intro">
+        <p class="kicker">Reel engine · 10 seconds · no hands</p>
+        <h2 id="reel-title">The lemon finds its way.</h2>
+        <p class="reel__route">Ramp <span aria-hidden="true">→</span> C <span aria-hidden="true">→</span> OO <span aria-hidden="true">→</span> L <span aria-hidden="true">→</span> Glass</p>
+      </header>
+
+      <div class="reel__body">
+        <figure class="reel__player">
+          <div class="viewport reel__viewport" data-tilt-zone>
+            <div class="rig">
+              <div class="canvas" id="reelCanvas" role="img"
+                   aria-label="Animation: a lemon rolls down a sage ramp, the letter C catches it and pushes it through the two O letters, the L slices off one wheel, and the wheel drops into the glass."></div>
+            </div>
+          </div>
+          <figcaption class="reel__controls">
+            <button class="btn btn--icon" id="reelPlay" type="button" aria-label="Play reel">
+              <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+              <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+              <svg class="i-replay" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a7 7 0 1 1-6.6 4.7l1.9.6A5 5 0 1 0 12 7v3L7.5 6 12 2z"/></svg>
+            </button>
+            <div class="scrub">
+              <div class="scrub__track" aria-hidden="true"><span class="scrub__fill" id="reelFill"></span><span class="scrub__ticks" id="reelTicks"></span></div>
+              <input type="range" id="reelScrub" min="0" max="1000" value="0" step="1" aria-label="Reel position" aria-valuetext="0.0 seconds">
+            </div>
+            <output class="reel__time" id="reelTime">0.0s</output>
+          </figcaption>
+        </figure>
+
+        <ol class="beats" id="reelBeats" aria-label="Storyboard beats"></ol>
+      </div>
+    </section>
+
+    <!-- 3 · The shopfront: ghost plate builds into the real window -->
+    <section class="window" id="window" aria-labelledby="window-title">
+      <div class="viewport window__viewport" data-tilt-zone>
+        <div class="rig">
+          <div class="window__plate">
+            <img class="window__ghost" src="assets/1000355615.png" alt="" loading="lazy" decoding="async">
+            <img class="window__real" src="assets/1000355615.png" loading="lazy" decoding="async"
+                 alt="The 夏野豆行 corner shopfront: weathered timber walls under an awning, a propped-open window counter, a potted sea grape plant and two orange folding chairs on a wooden step.">
+          </div>
+          <img class="window__stamp" src="assets/06_STAMP.png" alt="" loading="lazy">
+          <p class="window__tag" aria-hidden="true">Daily ritual<br>since the first pour</p>
+        </div>
+      </div>
+      <div class="window__copy">
+        <p class="kicker">The window</p>
+        <h2 id="window-title">A timber corner, two folding chairs, one slow pour.</h2>
+        <p>Every glass starts at the hatch: cold brew steeped long and pale, a cap of foam, one dried lemon wheel on top. Take a seat on the step, or take it with you.</p>
+        <p class="window__tags"><span>Slow brew</span><span>Good mood</span><span>Daily ritual</span></p>
+      </div>
+    </section>
+
+    <!-- 4 · The details: a list with a cursor-following preview (fine pointers), inline thumbnails (touch) -->
+    <section class="details" id="details" aria-labelledby="details-title">
+      <header class="details__intro">
+        <p class="kicker">The details</p>
+        <h2 id="details-title">Everything that goes into one glass.</h2>
+      </header>
+      <ul class="features">
+        <li class="feature" data-tone="sage">
+          <span class="feature__num" aria-hidden="true">01</span>
+          <h3 class="feature__title">The glass</h3>
+          <p class="feature__text">Cold brew steeped long and pale, under a cap of foam.</p>
+          <img class="feature__img" src="assets/01_CUP_LEMON.png" alt="" loading="lazy" decoding="async">
+        </li>
+        <li class="feature" data-tone="ivory">
+          <span class="feature__num" aria-hidden="true">02</span>
+          <h3 class="feature__title">The lemon</h3>
+          <p class="feature__text">Whole and fresh, before it is cut to one wheel.</p>
+          <img class="feature__img" src="assets/12_LEMON.png" alt="" loading="lazy" decoding="async">
+        </li>
+        <li class="feature" data-tone="terracotta">
+          <span class="feature__num" aria-hidden="true">03</span>
+          <h3 class="feature__title">The coaster</h3>
+          <p class="feature__text">Handcrafted wood under the glass.</p>
+          <img class="feature__img" src="assets/03_WOOD_COASTER.png" alt="" loading="lazy" decoding="async">
+        </li>
+        <li class="feature" data-tone="sage">
+          <span class="feature__num" aria-hidden="true">04</span>
+          <h3 class="feature__title">The spoon</h3>
+          <p class="feature__text">A metal coffee spoon, laid beside it.</p>
+          <img class="feature__img" src="assets/02_SPOON.png" alt="" loading="lazy" decoding="async">
+        </li>
+        <li class="feature" data-tone="photo">
+          <span class="feature__num" aria-hidden="true">05</span>
+          <h3 class="feature__title">The window</h3>
+          <p class="feature__text">A timber corner, a propped-open counter, two folding chairs.</p>
+          <img class="feature__img" src="assets/1000355615.png" alt="" loading="lazy" decoding="async">
+        </li>
+        <li class="feature" data-tone="ivory">
+          <span class="feature__num" aria-hidden="true">06</span>
+          <h3 class="feature__title">The stamp</h3>
+          <p class="feature__text"><span lang="zh-Hant">夏野豆行</span> · Daily ritual.</p>
+          <img class="feature__img" src="assets/06_STAMP.png" alt="" loading="lazy" decoding="async">
+        </li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <img class="foot__stamp" src="assets/06_STAMP.png" alt="" loading="lazy">
+    <p class="foot__quote">The best preparation for tomorrow is doing your best&nbsp;today.</p>
+    <p class="foot__brand"><span lang="zh-Hant">夏野豆行</span> · Xiaoye Coffee · Pale brown cold brew</p>
+  </footer>
+
+  <script src="vendor/gsap.min.js"></script>
+  <script src="vendor/ScrollTrigger.min.js"></script>
+  <script src="assets/manifest.js"></script>
+  <script src="js/stage.js"></script>
+  <script src="js/hero.js"></script>
+  <script src="js/timing.js"></script>
+  <script src="js/reel-scene.js"></script>
+  <script src="js/reel.js"></script>
+  <script src="js/window.js"></script>
+  <script src="js/details.js"></script>
+</body>
+</html>
