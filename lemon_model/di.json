@@ -1,0 +1,176 @@
+{
+  "sourceImage": "/home/user/project3/lemon_model/reference.png",
+  "zonesDir": "/home/user/project3/lemon_model/detail-inventory",
+  "detailInventory": {
+    "scanMethod": "grid-3x3",
+    "targetMinDetails": 6,
+    "details": [
+      {
+        "id": "zone-r0c0",
+        "kind": "background",
+        "description": "Flat warm-gray studio backdrop, no subject content, textured paper grain barely visible.",
+        "region": {"x": 0.0, "y": 0.0, "width": 0.3333, "height": 0.3333, "units": "normalized"},
+        "scale": "macro",
+        "affects": "environment",
+        "mapsTo": {"type": "material.localOverrides", "ref": "backdrop-surface"},
+        "evidenceRef": "/home/user/project3/lemon_model/detail-inventory/zone-r0c0.png",
+        "confidence": 0.95
+      },
+      {
+        "id": "zone-r0c1-rind-rim",
+        "kind": "surface-texture",
+        "description": "Top rind rim: dense fine dimpling (oil gland pores) along the outer yellow ring, slightly brighter/saturated yellow at the very edge than the body of the rind.",
+        "region": {"x": 0.3333, "y": 0.0, "width": 0.3333, "height": 0.15, "units": "normalized"},
+        "scale": "meso",
+        "affects": "rind-shell",
+        "mapsTo": {"type": "material.localOverrides", "ref": "rind-dimple-bump"},
+        "evidenceRef": "/home/user/project3/lemon_model/detail-inventory/zone-r0c1.png",
+        "confidence": 0.9
+      },
+      {
+        "id": "zone-r0c1-pith",
+        "kind": "layer-boundary",
+        "description": "White/pale spongy pith ring directly inside the rind, ~4-6% of radius thick, matte and porous, sharp color transition from rind yellow to pith white to pulp yellow.",
+        "region": {"x": 0.35, "y": 0.1, "width": 0.3, "height": 0.1, "units": "normalized"},
+        "scale": "meso",
+        "affects": "pith-ring",
+        "mapsTo": {"type": "component.localFeatures", "ref": "pith-ring"},
+        "evidenceRef": "/home/user/project3/lemon_model/detail-inventory/zone-r0c1.png",
+        "confidence": 0.92
+      },
+      {
+        "id": "zone-r0c1-pulp-top",
+        "kind": "repetition-pattern",
+        "description": "Top pulp segments: radial membrane lines separating wedges, visible juice vesicle clusters (small elongated glossy sacs) with bright specular pinpoints where catching key light.",
+        "region": {"x": 0.35, "y": 0.2, "width": 0.3, "height": 0.13, "units": "normalized"},
+        "scale": "micro",
+        "affects": "pulp-segments",
+        "mapsTo": {"type": "component.localFeatures", "ref": "pulp-wedge-array"},
+        "evidenceRef": "/home/user/project3/lemon_model/detail-inventory/zone-r0c1.png",
+        "confidence": 0.88
+      },
+      {
+        "id": "zone-r0c2",
+        "kind": "background",
+        "description": "Background with small corner sliver of rind edge, confirms consistent backdrop across frame.",
+        "region": {"x": 0.6667, "y": 0.0, "width": 0.3333, "height": 0.3333, "units": "normalized"},
+        "scale": "macro",
+        "affects": "environment",
+        "mapsTo": {"type": "material.localOverrides", "ref": "backdrop-surface"},
+        "evidenceRef": "/home/user/project3/lemon_model/detail-inventory/zone-r0c2.png",
+        "confidence": 0.9
+      },
+      {
+        "id": "zone-r1c0-rind-profile",
+        "kind": "silhouette-curve",
+        "description": "Left outer rind in profile: smooth continuous convex curve, dimpled texture visible along the full curve, slight rim-light/specular sheen at the grazing edge.",
+        "region": {"x": 0.0, "y": 0.3333, "width": 0.15, "height": 0.3333, "units": "normalized"},
+        "scale": "meso",
+        "affects": "rind-shell",
+        "mapsTo": {"type": "component.localFeatures", "ref": "rind-shell-silhouette"},
+        "evidenceRef": "/home/user/project3/lemon_model/detail-inventory/zone-r1c0.png",
+        "confidence": 0.93
+      },
+      {
+        "id": "zone-r1c0-pulp-left",
+        "kind": "material-response",
+        "description": "Left pulp segments showing strong wet/glossy specular highlights (large soft bloom, not sharp pinpoint) consistent with moist translucent surface under soft studio light; membrane lines curve following segment boundary.",
+        "region": {"x": 0.15, "y": 0.35, "width": 0.2, "height": 0.28, "units": "normalized"},
+        "scale": "meso",
+        "affects": "pulp-segments",
+        "mapsTo": {"type": "material.localOverrides", "ref": "pulp-wet-specular"},
+        "evidenceRef": "/home/user/project3/lemon_model/detail-inventory/zone-r1c0.png",
+        "confidence": 0.87
+      },
+      {
+        "id": "zone-r1c1-core",
+        "kind": "convergence-point",
+        "description": "Central core hub where all radial membrane walls converge: small pale/white pithy star-shaped node, slightly raised/fibrous texture, off-center toward upper-middle of the cut face.",
+        "region": {"x": 0.4, "y": 0.4, "width": 0.2, "height": 0.15, "units": "normalized"},
+        "scale": "meso",
+        "affects": "pulp-core",
+        "mapsTo": {"type": "component.localFeatures", "ref": "core-hub"},
+        "evidenceRef": "/home/user/project3/lemon_model/detail-inventory/zone-r1c1.png",
+        "confidence": 0.9
+      },
+      {
+        "id": "zone-r1c1-radial-membranes",
+        "kind": "repetition-pattern",
+        "description": "8-10 radial membrane walls fanning out from the core to the pith ring, each defining one pulp wedge; walls are thin, pale, slightly raised above the glossy pulp surface.",
+        "region": {"x": 0.3333, "y": 0.3333, "width": 0.3333, "height": 0.3333, "units": "normalized"},
+        "scale": "micro",
+        "affects": "pulp-segments",
+        "mapsTo": {"type": "component.localFeatures", "ref": "pulp-wedge-array"},
+        "evidenceRef": "/home/user/project3/lemon_model/detail-inventory/zone-r1c1.png",
+        "confidence": 0.93
+      },
+      {
+        "id": "zone-r1c1-vesicles",
+        "kind": "surface-texture",
+        "description": "Juice vesicle micro-texture within each wedge: elongated teardrop sacs radiating outward, catching individual tiny specular highlights, denser toward the outer rim.",
+        "region": {"x": 0.35, "y": 0.4, "width": 0.3, "height": 0.25, "units": "normalized"},
+        "scale": "micro",
+        "affects": "pulp-segments",
+        "mapsTo": {"type": "material.localOverrides", "ref": "vesicle-speckle-normal"},
+        "evidenceRef": "/home/user/project3/lemon_model/detail-inventory/zone-r1c1.png",
+        "confidence": 0.85
+      },
+      {
+        "id": "zone-r1c2-pulp-right",
+        "kind": "material-response",
+        "description": "Right pulp segments, mirrored counterpart of left side: same wet specular bloom pattern, slightly dimmer (falloff from key light direction), confirming light comes from upper-left.",
+        "region": {"x": 0.65, "y": 0.35, "width": 0.2, "height": 0.28, "units": "normalized"},
+        "scale": "meso",
+        "affects": "pulp-segments",
+        "mapsTo": {"type": "material.localOverrides", "ref": "pulp-wet-specular"},
+        "evidenceRef": "/home/user/project3/lemon_model/detail-inventory/zone-r1c2.png",
+        "confidence": 0.86
+      },
+      {
+        "id": "zone-r2c0",
+        "kind": "background",
+        "description": "Background surface texture only (fine granular/paper grain), tiny lemon sliver top-right corner.",
+        "region": {"x": 0.0, "y": 0.6667, "width": 0.3333, "height": 0.3333, "units": "normalized"},
+        "scale": "macro",
+        "affects": "environment",
+        "mapsTo": {"type": "material.localOverrides", "ref": "backdrop-surface"},
+        "evidenceRef": "/home/user/project3/lemon_model/detail-inventory/zone-r2c0.png",
+        "confidence": 0.9
+      },
+      {
+        "id": "zone-r2c1-bottom-rind",
+        "kind": "silhouette-curve",
+        "description": "Bottom outer rind curve where the lemon rests on the backdrop: dimpled rind texture clearly resolved, soft contact shadow directly beneath, confirms lemon sits flat (cut face vertical, rounded side down).",
+        "region": {"x": 0.3333, "y": 0.75, "width": 0.3333, "height": 0.2, "units": "normalized"},
+        "scale": "meso",
+        "affects": "rind-shell",
+        "mapsTo": {"type": "component.localFeatures", "ref": "rind-shell-silhouette"},
+        "evidenceRef": "/home/user/project3/lemon_model/detail-inventory/zone-r2c1.png",
+        "confidence": 0.91
+      },
+      {
+        "id": "zone-r2c1-contact-shadow",
+        "kind": "lighting-cue",
+        "description": "Soft, fairly tight contact shadow under the lemon's lowest point, medium-soft falloff -- indicates a broad soft key light and close-ish contact with the surface (not floating).",
+        "region": {"x": 0.35, "y": 0.85, "width": 0.3, "height": 0.1, "units": "normalized"},
+        "scale": "meso",
+        "affects": "lighting-setup",
+        "mapsTo": {"type": "material.localOverrides", "ref": "contact-shadow"},
+        "evidenceRef": "/home/user/project3/lemon_model/detail-inventory/zone-r2c1.png",
+        "confidence": 0.8
+      },
+      {
+        "id": "zone-r2c2",
+        "kind": "background",
+        "description": "Pure background, confirms uniform backdrop color/texture across full lower-right quadrant.",
+        "region": {"x": 0.6667, "y": 0.6667, "width": 0.3333, "height": 0.3333, "units": "normalized"},
+        "scale": "macro",
+        "affects": "environment",
+        "mapsTo": {"type": "material.localOverrides", "ref": "backdrop-surface"},
+        "evidenceRef": "/home/user/project3/lemon_model/detail-inventory/zone-r2c2.png",
+        "confidence": 0.95
+      }
+    ]
+  },
+  "authoringInstruction": "Filled from direct visual inspection of all 9 grid crops. 16 distinct details enumerated across rind, pith, pulp-core, pulp-wedge repetition system, vesicle micro-texture, and lighting/background cues. Exceeds targetMinDetails=6."
+}

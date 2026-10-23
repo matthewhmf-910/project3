@@ -1,0 +1,14 @@
+{
+  "admitted": true,
+  "reasons": [],
+  "provenance": {
+    "viewpoint": "front",
+    "sourcePath": "/home/user/project3/lemon_model/reference.png",
+    "width": 1536,
+    "height": 1024,
+    "foregroundCoverage": 0.7714,
+    "largestComponentFraction": 0.9988,
+    "pHash": 16929227727794512042,
+    "duplicateOfHash": null
+  }
+}

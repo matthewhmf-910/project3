@@ -1,0 +1,11 @@
+{
+  "path": "/home/user/project3/lemon_model/reference.png",
+  "type": "png",
+  "bytes": 2120069,
+  "width": 1536,
+  "height": 1024,
+  "aspectRatio": 1.5,
+  "technicalSuitability": "pass",
+  "warnings": [],
+  "note": "This is only technical image probing. Semantic object suitability still requires visual inspection."
+}
