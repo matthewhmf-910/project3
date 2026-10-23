@@ -25,6 +25,7 @@
       <a href="#layers">Layers</a>
       <a href="#reel">The reel</a>
       <a href="#window">The window</a>
+      <a href="#details">Details</a>
     </nav>
   </header>
 
@@ -109,6 +110,52 @@
         <p class="window__tags"><span>Slow brew</span><span>Good mood</span><span>Daily ritual</span></p>
       </div>
     </section>
+
+    <!-- 4 · The details: a list with a cursor-following preview (fine pointers), inline thumbnails (touch) -->
+    <section class="details" id="details" aria-labelledby="details-title">
+      <header class="details__intro">
+        <p class="kicker">The details</p>
+        <h2 id="details-title">Everything that goes into one glass.</h2>
+      </header>
+      <ul class="features">
+        <li class="feature" data-tone="sage">
+          <span class="feature__num" aria-hidden="true">01</span>
+          <h3 class="feature__title">The glass</h3>
+          <p class="feature__text">Cold brew steeped long and pale, under a cap of foam.</p>
+          <img class="feature__img" src="assets/01_CUP_LEMON.png" alt="" loading="lazy" decoding="async">
+        </li>
+        <li class="feature" data-tone="ivory">
+          <span class="feature__num" aria-hidden="true">02</span>
+          <h3 class="feature__title">The lemon</h3>
+          <p class="feature__text">Whole and fresh, before it is cut to one wheel.</p>
+          <img class="feature__img" src="assets/12_LEMON.png" alt="" loading="lazy" decoding="async">
+        </li>
+        <li class="feature" data-tone="terracotta">
+          <span class="feature__num" aria-hidden="true">03</span>
+          <h3 class="feature__title">The coaster</h3>
+          <p class="feature__text">Handcrafted wood under the glass.</p>
+          <img class="feature__img" src="assets/03_WOOD_COASTER.png" alt="" loading="lazy" decoding="async">
+        </li>
+        <li class="feature" data-tone="sage">
+          <span class="feature__num" aria-hidden="true">04</span>
+          <h3 class="feature__title">The spoon</h3>
+          <p class="feature__text">A metal coffee spoon, laid beside it.</p>
+          <img class="feature__img" src="assets/02_SPOON.png" alt="" loading="lazy" decoding="async">
+        </li>
+        <li class="feature" data-tone="photo">
+          <span class="feature__num" aria-hidden="true">05</span>
+          <h3 class="feature__title">The window</h3>
+          <p class="feature__text">A timber corner, a propped-open counter, two folding chairs.</p>
+          <img class="feature__img" src="assets/1000355615.png" alt="" loading="lazy" decoding="async">
+        </li>
+        <li class="feature" data-tone="ivory">
+          <span class="feature__num" aria-hidden="true">06</span>
+          <h3 class="feature__title">The stamp</h3>
+          <p class="feature__text"><span lang="zh-Hant">夏野豆行</span> · Daily ritual.</p>
+          <img class="feature__img" src="assets/06_STAMP.png" alt="" loading="lazy" decoding="async">
+        </li>
+      </ul>
+    </section>
   </main>
 
   <footer class="foot">
@@ -126,5 +173,6 @@
   <script src="js/reel-scene.js"></script>
   <script src="js/reel.js"></script>
   <script src="js/window.js"></script>
+  <script src="js/details.js"></script>
 </body>
 </html>
