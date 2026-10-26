@@ -13,17 +13,24 @@
   .scaler { transform-origin: 50% 50%; }
   body.capture .sticky { height: auto; display: block; }
   body.capture .scaler { transform: none !important; }
+  body.play .sticky { height: 100vh; display: grid; }
+  .modes { position: fixed; right: 16px; bottom: 16px; display: flex; gap: 6px; font: 500 12px/1 system-ui, sans-serif; }
+  .modes a { padding: 8px 12px; border-radius: 999px; background: #fff; color: #181916; text-decoration: none; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+  .modes a[aria-current] { background: #181916; color: #fff; }
+  body.capture .modes { display: none; }
 </style>
 </head>
 <body>
 <div class="track" id="track">
   <div class="sticky"><div class="scaler" id="scaler"><div id="stage"></div></div></div>
 </div>
+<nav class="modes"><a href="?" id="m-scroll">Scroll</a><a href="?play" id="m-play">Play</a></nav>
 <script src="flipbook.js"></script>
 <script>
   const q = new URLSearchParams(location.search);
   const tex = (q.get('tex') || 'assets/ref/').replace(/\/?$/, '/');
-  const pages = {
+  // build_standalone.py inlines textures as window.FB_TEXTURES (same shape as below).
+  const pages = window.FB_TEXTURES || {
     logo: tex + 'logo.png',
     spreads: Array.from({ length: 10 }, (_, s) => ({
       upper: s === 0 ? null : `${tex}S${s}_upper.png`,
@@ -38,15 +45,22 @@
     document.body.classList.add('capture');
     Flipbook.render(R, parseFloat(q.get('frame')));
   } else if (q.has('play')) {
-    document.body.classList.add('capture');
-    const t0 = performance.now();
+    // Autoplay at source speed, looping with a 1s pause on the last frame.
+    document.body.classList.add('play');
+    document.getElementById('m-play').setAttribute('aria-current', 'page');
+    const scaler = document.getElementById('scaler');
+    const fit = () => { scaler.style.transform = `scale(${Math.min(innerHeight / Flipbook.G.h, innerWidth / Flipbook.G.w)})`; };
+    addEventListener('resize', fit); fit();
+    let t0 = performance.now();
     const tick = (now) => {
-      const f = Math.min(((now - t0) / 1000) * Flipbook.FPS, END);
-      Flipbook.render(R, f);
-      if (f < END) requestAnimationFrame(tick);
+      const t = (now - t0) / 1000;
+      Flipbook.render(R, Math.min(t * Flipbook.FPS, END));
+      if (t > END / Flipbook.FPS + 1) t0 = now;
+      requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
   } else {
+    document.getElementById('m-scroll').setAttribute('aria-current', 'page');
     // Scroll-driven: scroll distance maps linearly to source time, so a constant scroll speed
     // reproduces the measured pacing exactly. px per frame is tunable with ?ppf=.
     const ppf = parseFloat(q.get('ppf') || '24');

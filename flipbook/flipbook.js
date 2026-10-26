@@ -10,7 +10,6 @@
     hingeY: 299,
     logo: { cx: 180, cy: 573 },
   };
-  // [s, e] = first/last motion frame of each flip; the sheet lands at e + 1.
   // start/dur in (fractional) frames, fitted per flip to the measured edge positions
   // (analysis/fit_result.json); F1 is the slower cover peel.
   const FLIPS = [
