@@ -1,0 +1,76 @@
+{
+  "source": {
+    "file": "Reform_3d_illustration.mp4",
+    "segment": "opening flip-book, frames 0-130 (0.000-4.333s), hard cut at frame 131 (4.367s)",
+    "resolution": [360, 640],
+    "fps": 30,
+    "frame_time": "t = frame / 30"
+  },
+  "geometry_px": {
+    "background_lum": 246,
+    "background_hex": "#F6F6F6",
+    "top_hairline": { "y": [111, 112], "lum": [235, 232] },
+    "page_x": [14, 345],
+    "upper_page_y": [113, 298],
+    "lower_page_y": [300, 487],
+    "hinge_y": 299,
+    "page_size": [332, 187],
+    "page_aspect": 1.78,
+    "hinge_shade": {
+      "upper_page": { "from_y": 274, "lum_from": 250, "to_y": 298, "lum_to": 215 },
+      "lower_page": { "from_y": 300, "lum_from": 215, "to_y": 388, "lum_to": 255 }
+    },
+    "drop_shadow": { "spread_px": 14, "lum_at_edge": 212, "lum_at_14px": 237 },
+    "logo": { "center": [180, 573], "size": [87, 18] }
+  },
+  "flip_model": {
+    "axis": "horizontal hinge at hinge_y; lower page rotates rotateX 0 -> 180 deg up onto the upper slot",
+    "back_face": "next spread's upper page",
+    "revealed_under": "next spread's lower page",
+    "center_angle_curve_deg": [0, 29, 51, 76, 102, 126, 155, 172, 180],
+    "curve_note": "measured on F2 (8 motion frames + landing); resample over each flip's frame count",
+    "twist": {
+      "lead_edge": "right (bottom-right corner peels first)",
+      "full_width_spread_deg": 34,
+      "constant_until_center_deg": 76,
+      "zero_at_center_deg": 140,
+      "formula": "theta(x) = theta_c + T(theta_c) * (x - 0.5), x in [0,1] left->right, T = 34 * clamp((140 - theta_c) / 64, 0, 1)"
+    }
+  },
+  "timeline_frames": [
+    { "id": "F1", "kind": "cover peel", "start": 0, "end": 9, "frames": 10,
+      "note": "corner peel frames 0-5, upper-slot cast shadow lum 246,242,237,227,216,205,197 (frames 0-6), lands frames 7-9" },
+    { "id": "hold", "start": 10, "end": 24, "frames": 15 },
+    { "id": "F2", "start": 25, "end": 32, "frames": 8 },
+    { "id": "hold", "start": 33, "end": 43, "frames": 11 },
+    { "id": "F3", "start": 44, "end": 50, "frames": 7 },
+    { "id": "hold", "start": 51, "end": 59, "frames": 9 },
+    { "id": "F4", "start": 60, "end": 66, "frames": 7 },
+    { "id": "hold", "start": 67, "end": 72, "frames": 6 },
+    { "id": "F5", "start": 73, "end": 78, "frames": 6 },
+    { "id": "hold", "start": 79, "end": 83, "frames": 5 },
+    { "id": "F6", "start": 84, "end": 89, "frames": 6 },
+    { "id": "hold", "start": 90, "end": 92, "frames": 3 },
+    { "id": "F7", "start": 93, "end": 98, "frames": 6 },
+    { "id": "hold", "start": 99, "end": 100, "frames": 2 },
+    { "id": "F8", "start": 101, "end": 105, "frames": 5 },
+    { "id": "hold", "start": 106, "end": 107, "frames": 2 },
+    { "id": "F9", "start": 108, "end": 111, "frames": 4 },
+    { "id": "final hold", "start": 112, "end": 128, "frames": 17 },
+    { "id": "ghost wordmark", "start": 129, "end": 130, "frames": 2,
+      "note": "frame-wide dim; grey wordmark ~40% opacity centered at (178,345), ~133px wide" },
+    { "id": "hard cut", "start": 131 }
+  ],
+  "spreads": [
+    { "id": "S0", "upper": "(empty, background)", "lower": "SITE ANALYSIS (cover)" },
+    { "id": "S1", "upper": "SITE LOCATION", "lower": "CLIMATE · 1 / 2" },
+    { "id": "S2", "upper": "CLIMATE · 2 / 2", "lower": "SITE VIEWS (3D)" },
+    { "id": "S3", "upper": "SITE STATUS", "lower": "SITE SECTION" },
+    { "id": "S4", "upper": "REGIONAL TRANSPORT ACCESS", "lower": "STREET CONTEXT" },
+    { "id": "S5", "upper": "VEHICLE IN/OUT FLOWS (ESTIMATE)", "lower": "SITE OVERVIEW" },
+    { "id": "S6", "upper": "SURROUNDING LOTS & BUILDING FOOTPRINTS", "lower": "SURROUNDING BUILDING USE & FACILITIES" },
+    { "id": "S7", "upper": "SURROUNDING BUILDING HEIGHT & FLOORS", "lower": "SURROUNDING BCR & FAR" },
+    { "id": "S8", "upper": "SURROUNDING COMPLETION YEAR & GREEN SPACE", "lower": "SHADOW · SKY VIEW FACTOR" },
+    { "id": "S9", "upper": "VIEW", "lower": "BUSINESS MIX" }
+  ]
+}
