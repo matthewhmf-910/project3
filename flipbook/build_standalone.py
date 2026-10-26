@@ -1,21 +1,30 @@
 """Bundle index.html + flipbook.js + page textures into one self-contained HTML file.
 
 usage: python3 build_standalone.py <texture_dir> <out.html>
-texture_dir holds logo.png, S0_lower.png, S{1..9}_upper.png, S{1..9}_lower.png
+texture_dir holds S0_lower.png, S{1..9}_upper.png, S{1..9}_lower.png and an optional logo.png.
+A logo.png marks reference crops, which already contain the hinge shading.
 """
-import base64, json, pathlib, sys
+import base64, io, json, pathlib, sys
+
+from PIL import Image
 
 here = pathlib.Path(__file__).parent
 tex, out = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
 
 
 def uri(name):
+    """Inline a texture as a JPEG data URI (pages are opaque, JPEG keeps the bundle small)."""
     p = tex / name
-    return 'data:image/png;base64,' + base64.b64encode(p.read_bytes()).decode() if p.exists() else None
+    if not p.exists():
+        return None
+    buf = io.BytesIO()
+    Image.open(p).convert('RGB').save(buf, 'JPEG', quality=88)
+    return 'data:image/jpeg;base64,' + base64.b64encode(buf.getvalue()).decode()
 
 
 textures = {
     'logo': uri('logo.png'),
+    'hingeShade': not (tex / 'logo.png').exists(),
     'spreads': [{'upper': None if s == 0 else uri(f'S{s}_upper.png'), 'lower': uri(f'S{s}_lower.png')} for s in range(10)],
 }
 html = (here / 'index.html').read_text()

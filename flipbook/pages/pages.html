@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Flipbook Pages</title>
+<!-- Page textures for the flipbook. Each .page is 996x564 (3x the 332x188 source page) and is
+     screenshotted by render_pages.js into ../assets/pages/S{n}_{upper|lower}.png.
+     Layouts follow the reference report (A: info+map, B: 2x2 charts, C: two panels,
+     D: large+2x3 grid, F: map+sidebar); the numbers come from landcover.json / palettes.json. -->
+<style>
+  :root {
+    --ink: #181916; --label: #858480; --caption: #A29B8F; --pageno: #B3AEA5; --rule: #ECEBE8;
+    --site: #E89A8F; --site-line: #C9473A;
+    --ochre: #D9A441; --ochre-2: #F0D9A8; --steel: #4A7FB5; --steel-2: #A9C4DE;
+    --sage: #8FB394; --terra: #C9473A; --rust: #A8452F; --char: #3E3D38; --grey: #858480;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: #ddd; font-family: Inter, sans-serif; color: var(--ink); padding: 20px; display: grid; gap: 20px; }
+  .page { position: relative; width: 996px; height: 564px; background: #fff; overflow: hidden; padding: 25px 25px 22px; }
+  .title { font: 700 21px/1 Inter, sans-serif; text-transform: uppercase; letter-spacing: .01em; margin-bottom: 16px; }
+  .pageno { position: absolute; right: 18px; bottom: 10px; font-size: 8px; color: var(--pageno); }
+  .row { display: flex; gap: 20px; }
+  .col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .panel { position: relative; overflow: hidden; background: #F2F2F0 center/cover no-repeat; }
+  .tag { position: absolute; left: 8px; top: 8px; background: #fff; border-radius: 3px; padding: 4px 7px; font: 500 8.5px/1 Inter; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .north { position: absolute; right: 8px; top: 8px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.12); font: 700 7px/20px Inter; text-align: center; }
+  .north::before { content: '▲'; display: block; font-size: 6px; line-height: 9px; padding-top: 2px; }
+  .north { line-height: 1; }
+  .scale { position: absolute; left: 10px; bottom: 9px; display: flex; flex-direction: column; gap: 2px; font: 400 6.5px/1 Inter; color: var(--ink); }
+  .scale i { display: block; width: 72px; height: 4px; background: linear-gradient(90deg, #111 0 33%, #fff 33% 66%, #111 66%); outline: .5px solid #111; }
+  .legend { position: absolute; right: 8px; bottom: 8px; background: rgba(255,255,255,.92); padding: 6px 8px; display: grid; gap: 3px; font: 400 6.5px/1 Inter; }
+  .legend b { display: inline-block; width: 7px; height: 7px; margin-right: 4px; vertical-align: -1px; }
+  .badge { position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 1px solid var(--ink); font: 600 8px/14px Inter; text-align: center; }
+  .kv { display: grid; grid-template-columns: 92px 1fr; gap: 5px 8px; font-size: 8.5px; }
+  .kv dt { color: var(--label); } .kv dd { font-weight: 600; }
+  .stats { display: flex; gap: 16px; font-size: 8px; color: var(--label); }
+  .stats b { color: var(--ink); font-weight: 700; margin-left: 4px; }
+  .cap { font-size: 7.5px; line-height: 1.45; color: var(--caption); }
+  .h3 { font: 600 9px/1 Inter; margin-bottom: 6px; }
+  .bar { display: flex; height: 16px; } .bar span { display: block; height: 100%; }
+  .tree { display: grid; height: 100%; gap: 1px; background: #fff; }
+  .tree div { position: relative; font: 600 8px/1 Inter; color: rgba(0,0,0,.65); padding: 5px; }
+  .tree small { display: block; font-weight: 400; font-size: 6.5px; margin-top: 2px; }
+</style>
+</head>
+<body>
+<div id="out"></div>
+<script>
+  const A = '../assets/user/';
+  const IMG = { colour: A + 'colour.jpg', figure: A + 'figure.jpg', blueprint: A + 'blueprint.jpg', night: A + 'night.jpg', beige: A + 'beige.jpg', model3d: A + 'model3d.jpg' };
+  const STYLE_NAMES = { colour: 'Full colour', figure: 'Figure ground', blueprint: 'Blueprint', night: 'Night', beige: 'Warm beige', model3d: '3D massing' };
+
+  const ASPECT = { model3d: 803 / 482 }; // width / height; the map plates are square
+  // Map panel: zoom z in percent (100 = cover the panel) centred on (cx, cy) as fractions of the image.
+  const panel = (img, w, h, o = {}) => {
+    const z = (o.z || 100) / 100, cx = o.cx ?? .5, cy = o.cy ?? .5;
+    const bw = Math.max(w, h * (ASPECT[img] || 1)) * z;
+    const pos = `${(cx * 100).toFixed(1)}% ${(cy * 100).toFixed(1)}%`;
+    return `<div class="panel" style="width:${w}px;height:${h}px;background-image:url(${IMG[img]});background-size:${o.contain ? 'contain' : bw.toFixed(1) + 'px auto'};background-position:${pos};${o.bg ? 'background-color:' + o.bg : ''}">
+      ${o.tag ? `<span class="tag">${o.tag}</span>` : ''}${o.north === false ? '' : '<span class="north">N</span>'}
+      ${o.scale === false ? '' : `<span class="scale"><i></i>0 · ${o.km || '250'} · ${o.km2 || '500 m'}</span>`}
+      ${o.legend ? `<span class="legend">${o.legend.map(([c, t]) => `<span><b style="background:${c}"></b>${t}</span>`).join('')}</span>` : ''}
+      ${o.extra || ''}</div>`;
+  };
+  const kv = (rows) => `<dl class="kv">${rows.map(([k, v]) => `<dt>${k} :</dt><dd>${v}</dd>`).join('')}</dl>`;
+  const stats = (rows) => `<div class="stats">${rows.map(([k, v]) => `<span>${k}<b>${v}</b></span>`).join('')}</div>`;
+  const page = (title, body, n) => `<div class="page">${title ? `<div class="title">${title}</div>` : ''}${body}<span class="pageno">${n} / 18</span></div>`;
+
+  async function main() {
+    const LC = await (await fetch('landcover.json')).json();
+    const PAL = await (await fetch('palettes.json')).json();
+    const LC_COL = { 'Open space & streets': '#F0EFEA', 'Buildings (commercial)': '#D9C2A0', 'Buildings (other)': '#C9C3C2', 'Water': '#A8D1F0', 'Parks': '#CBE2BA', 'Trees': '#84BA6C', 'Roads (arterial)': '#E8902A' };
+    const lcName = (k) => k.replace('(commercial)', '· tan').replace('(other)', '· grey');
+    const lcRows = Object.entries(LC).sort((a, b) => b[1] - a[1]);
+    const legendLC = lcRows.slice(0, 5).map(([k]) => [LC_COL[k], lcName(k)]);
+    const built = (LC['Buildings (commercial)'] + LC['Buildings (other)']).toFixed(1);
+    const green = (LC['Parks'] + LC['Trees']).toFixed(1);
+
+    const treemap = (h) => {
+      const r = lcRows.filter(([, v]) => v >= 3);
+      return `<div class="tree" style="height:${h}px;grid-template-columns:${r.map(([, v]) => v + 'fr').join(' ')}">${r.map(([k, v]) => `<div style="background:${LC_COL[k]}">${v}%<small>${lcName(k)}</small></div>`).join('')}</div>`;
+    };
+    const twoUp = (a, b, below) => `<div class="row">${[a, b].map((p, i) => `<div class="col" style="width:463px">${panel(p.img, 463, below ? 330 : 470, p)}${below ? below[i] : ''}</div>`).join('')}</div>`;
+    const swatchRow = (name) => `<div style="display:grid;grid-template-columns:86px 1fr 64px;align-items:center;gap:10px;font-size:8.5px"><span style="color:var(--label)">${STYLE_NAMES[name]}</span><div class="bar">${PAL[name].map((c, i) => `<span style="flex:${[46, 26, 16, 12][i]};background:${c}"></span>`).join('')}</div><b style="font-size:8px">${PAL[name][0]}</b></div>`;
+
+    const P = {
+      S0_lower: `<div class="page"><div style="display:flex;justify-content:space-between;font:700 10px Inter"><span>SiteMap</span><span style="font-weight:400;color:var(--pageno)">26/10/2026</span></div>
+        <div style="margin-top:150px;font:700 40px/1 Inter;letter-spacing:-.01em">SITE ANALYSIS</div>
+        <div style="height:1px;background:var(--rule);margin:14px 0 10px"></div>
+        <dl class="kv" style="grid-template-columns:140px 1fr;font-size:9px"><dt>Position</dt><dd style="font-weight:400">Tsim Sha Tsui, Yau Tsim Mong District, Kowloon, Hong Kong</dd><dt>Coordinates</dt><dd style="font-weight:400">22.2964°N 114.1725°E</dd><dt>Site area</dt><dd style="font-weight:400">3.14 km² (r = 1000 m)</dd></dl></div>`,
+
+      S1_upper: page('Site location', `<div class="row"><div class="col" style="width:300px">
+          ${panel('figure', 300, 190, { tag: 'Context · 1000 m', z: 100, scale: false })}
+          ${kv([['Area', 'Tsim Sha Tsui'], ['District', 'Yau Tsim Mong'], ['Region', 'Kowloon, Hong Kong'], ['Centre', '22.2964°N, 114.1725°E'], ['Radius', '1000 m'], ['Analysis area', '3.14 km²'], ['Built footprint', built + '%'], ['Green cover', green + '%'], ['Water', LC['Water'] + '%']])}
+        </div>
+        ${panel('colour', 626, 490, { z: 100, extra: [0.25, 0.5, 0.75].map(r => `<span style="position:absolute;left:50%;top:50%;width:${490 * r}px;height:${490 * r}px;margin:-${245 * r}px;border:1px solid rgba(24,25,22,.35);border-radius:50%"></span>`).join('') + ['250 m', '500 m', '750 m'].map((t, i) => `<span class="tag" style="left:${313 + 61 * (i + 1) * 0.94}px;top:${245 - 61 * (i + 1) * 0.6}px">${t}</span>`).join(''), legend: legendLC, km: '250', km2: '500 m' })}</div>`, 1),
+
+      S1_lower: page('Figure ground · 1 / 2', twoUp({ img: 'figure', tag: 'Figure ground', z: 100 }, { img: 'blueprint', tag: 'Blueprint', z: 100 },
+        [`${stats([['Built footprint', built + '%'], ['Open space', LC['Open space & streets'] + '%']])}<p class="cap">Solid buildings against open ground: ${built}% of the 1000 m circle is built footprint.</p>`,
+         `${stats([['Palette', PAL.blueprint.slice(0, 2).join(' / ')]])}<p class="cap">Outline drawing of the same footprint on a navy ground, no fills.</p>`]), 2),
+
+      S2_upper: page('Night & warm · 2 / 2', twoUp({ img: 'night', tag: 'Night', z: 100 }, { img: 'beige', tag: 'Warm beige', z: 100 },
+        [`${stats([['Palette', PAL.night.slice(0, 3).join(' / ')]])}<p class="cap">Low-key plate: slate buildings, dark water and deep-green trees.</p>`,
+         `${stats([['Palette', PAL.beige.slice(0, 3).join(' / ')]])}<p class="cap">Sand-toned plate with cast shadow streaks across the street grid.</p>`]), 3),
+
+      S2_lower: page('Site views (3D)', twoUp({ img: 'model3d', tag: 'View from the SW', z: 100, scale: false }, { img: 'model3d', tag: 'Close view · Harbour front', z: 190, cx: .55, cy: .62, scale: false }), 4),
+
+      S3_upper: page('Map type distribution', `<div class="row">${panel('colour', 420, 470, { z: 100, tag: 'Full colour', extra: [[.08, .12], [.86, .1], [.92, .5], [.85, .86], [.12, .88], [.04, .5]].map(([x, y], i) => `<span class="badge" style="left:${x * 400}px;top:${y * 450}px">${i + 1}</span>`).join('') })}
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex:1">${Object.keys(STYLE_NAMES).map((k, i) => `<div style="position:relative">${panel(k, 156, 231, { z: k === 'model3d' ? 230 : 100, north: false, scale: false, tag: STYLE_NAMES[k] })}<span class="badge" style="right:6px;bottom:6px">${i + 1}</span></div>`).join('')}</div></div>`, 5),
+
+      S3_lower: page('Land cover mix', `<div class="row"><div class="col" style="width:463px">${panel('colour', 463, 300, { tag: 'Classified colour map', z: 100, legend: legendLC })}
+          ${stats([['Built', built + '%'], ['Green', green + '%'], ['Water', LC['Water'] + '%']])}<p class="cap">Share of each map colour class inside the 1000 m circle, measured pixel by pixel.</p></div>
+        <div class="col" style="width:463px">${treemap(300)}${stats([['Classes', lcRows.length], ['Largest', lcName(lcRows[0][0])]])}<p class="cap">Open space and streets cover ${LC['Open space & streets']}%; parks and trees together ${green}%.</p></div></div>`, 6),
+
+      S4_upper: page('Street context', `<div class="row">${panel('colour', 690, 490, { z: 260, cx: .5, cy: .55, tag: 'Street context · 400 m', km: '50', km2: '100 m' })}
+        <div class="col" style="width:216px;gap:14px">${[['Density', `Built footprint is ${built}% of the circle, concentrated north of the waterfront road.`], ['Green space', `Parks and street trees cover ${green}% of the circle.`], ['Waterfront', `Victoria Harbour water takes ${LC['Water']}% of the circle on the south and west edges.`]].map(([h, t]) => `<div><div class="h3">▌${h}</div><p class="cap">${t}</p></div>`).join('')}</div></div>`, 7),
+
+      S4_lower: page('Figure ground detail', twoUp({ img: 'figure', tag: 'Figure ground · core', z: 240, cx: .55, cy: .45, km: '50', km2: '100 m' }, { img: 'colour', tag: 'Full colour · core', z: 240, cx: .55, cy: .45, km: '50', km2: '100 m' }), 8),
+
+      S5_upper: page('Blueprint detail', twoUp({ img: 'blueprint', tag: 'Blueprint · north', z: 230, cx: .55, cy: .3 }, { img: 'blueprint', tag: 'Blueprint · waterfront', z: 230, cx: .55, cy: .75 }), 9),
+      S5_lower: page('Night detail', twoUp({ img: 'night', tag: 'Night · north', z: 230, cx: .55, cy: .3 }, { img: 'night', tag: 'Night · waterfront', z: 230, cx: .55, cy: .75 }), 10),
+      S6_upper: page('Warm beige detail', twoUp({ img: 'beige', tag: 'Warm beige · north', z: 230, cx: .55, cy: .3 }, { img: 'beige', tag: 'Warm beige · waterfront', z: 230, cx: .55, cy: .75 }), 11),
+      S6_lower: page('3D massing', `${panel('model3d', 946, 490, { z: 100, tag: 'Massing model · 1000 m', scale: false })}`, 12),
+
+      S7_upper: page('Style palettes', `<div class="col" style="gap:16px;margin-top:6px">${Object.keys(STYLE_NAMES).map(swatchRow).join('')}
+        <p class="cap">Four dominant colours of each plate, sampled from the exported maps.</p></div>`, 13),
+      S7_lower: page('Full colour · quadrants', `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">${[['NW', .25, .25], ['NE', .75, .25], ['SW', .25, .75], ['SE', .75, .75]].map(([t, x, y]) => panel('colour', 231, 470, { z: 300, cx: x, cy: y, tag: t, north: false, km: '50', km2: '100 m' })).join('')}</div>`, 14),
+      S8_upper: page('Figure ground · quadrants', `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">${[['NW', .25, .25], ['NE', .75, .25], ['SW', .25, .75], ['SE', .75, .75]].map(([t, x, y]) => panel('figure', 231, 470, { z: 300, cx: x, cy: y, tag: t, north: false, km: '50', km2: '100 m' })).join('')}</div>`, 15),
+      S8_lower: page('3D · close-up', twoUp({ img: 'model3d', tag: 'Towers · core', z: 260, cx: .62, cy: .5, scale: false }, { img: 'model3d', tag: 'Harbour front', z: 260, cx: .3, cy: .62, scale: false }), 16),
+
+      S9_upper: page('Summary', `<div class="row"><div class="col" style="width:463px">${kv([['Area', 'Tsim Sha Tsui, Hong Kong'], ['Radius', '1000 m'], ['Plates', '6 map styles']].concat(lcRows.map(([k, v]) => [lcName(k), v + '%'])))}</div>
+        <div class="col" style="width:463px">${lcRows.map(([k, v]) => `<div style="display:grid;grid-template-columns:120px 1fr 34px;gap:8px;align-items:center;font-size:8px"><span style="color:var(--label)">${lcName(k)}</span><span style="height:10px;width:${v * 3}%;background:${LC_COL[k]};outline:.5px solid rgba(0,0,0,.08)"></span><b>${v}%</b></div>`).join('')}</div></div>`, 17),
+      S9_lower: page('Map type distribution · all plates', `<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px">${Object.keys(STYLE_NAMES).map((k, i) => `<div class="col" style="gap:6px">${panel(k, 148, 400, { z: k === 'model3d' ? 260 : 100, north: false, scale: false })}<span style="font:600 8px Inter">${i + 1}. ${STYLE_NAMES[k]}</span></div>`).join('')}</div>`, 18),
+    };
+    document.getElementById('out').innerHTML = Object.entries(P).map(([id, h]) => h.replace('<div class="page"', `<div class="page" id="${id}"`)).join('');
+    await Promise.all(Object.values(IMG).map(u => new Promise(r => { const i = new Image(); i.onload = i.onerror = r; i.src = u; })));
+    await document.fonts.ready;
+    document.body.dataset.ready = '1';
+  }
+  main();
+</script>
+</body>
+</html>

@@ -7,74 +7,93 @@
 <style>
   :root { --bg: #F6F6F6; }
   html, body { margin: 0; background: var(--bg); }
-  body.capture { overflow: hidden; }
   .track { position: relative; }
   .sticky { position: sticky; top: 0; height: 100vh; display: grid; place-items: center; overflow: hidden; }
-  .scaler { transform-origin: 50% 50%; }
+  canvas { display: block; }
   body.capture .sticky { height: auto; display: block; }
-  body.capture .scaler { transform: none !important; }
-  body.play .sticky { height: 100vh; display: grid; }
   .modes { position: fixed; right: 16px; bottom: 16px; display: flex; gap: 6px; font: 500 12px/1 system-ui, sans-serif; }
   .modes a { padding: 8px 12px; border-radius: 999px; background: #fff; color: #181916; text-decoration: none; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
   .modes a[aria-current] { background: #181916; color: #fff; }
-  body.capture .modes { display: none; }
+  .hint { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); font: 500 12px/1 system-ui, sans-serif; color: #858480; transition: opacity .3s; }
+  body.capture .modes, body.capture .hint, body.play .hint { display: none; }
 </style>
 </head>
 <body>
-<div class="track" id="track">
-  <div class="sticky"><div class="scaler" id="scaler"><div id="stage"></div></div></div>
-</div>
+<div class="track" id="track"><div class="sticky"><canvas id="stage"></canvas></div></div>
 <nav class="modes"><a href="?" id="m-scroll">Scroll</a><a href="?play" id="m-play">Play</a></nav>
+<div class="hint" id="hint">Scroll ↓</div>
 <script src="flipbook.js"></script>
 <script>
+(async () => {
   const q = new URLSearchParams(location.search);
-  const tex = (q.get('tex') || 'assets/ref/').replace(/\/?$/, '/');
   // build_standalone.py inlines textures as window.FB_TEXTURES (same shape as below).
+  // ?tex=assets/ref/ loads the reference crops (they already contain hinge shading and a logo).
+  const tex = (q.get('tex') || 'assets/pages/').replace(/\/?$/, '/');
+  const ref = tex.includes('/ref/');
   const pages = window.FB_TEXTURES || {
-    logo: tex + 'logo.png',
+    logo: ref ? tex + 'logo.png' : null,
     spreads: Array.from({ length: 10 }, (_, s) => ({
       upper: s === 0 ? null : `${tex}S${s}_upper.png`,
       lower: `${tex}S${s}_lower.png`,
     })),
   };
-  const R = window.__R = Flipbook.build(document.getElementById('stage'), pages);
-  const END = Flipbook.END_FRAME;
+  Flipbook.P.hingeShade = pages.hingeShade ?? !ref;
+  const canvas = document.getElementById('stage');
+  const R = window.__R = await Flipbook.build(canvas, pages);
+  const END = Flipbook.END_FRAME, G = Flipbook.G;
+  const fitScale = () => Math.min(innerHeight / G.h, innerWidth / G.w);
 
   if (q.has('frame')) {
-    // Deterministic single-frame render for capture / validation.
+    // Deterministic single-frame render at 1:1 for capture / validation.
     document.body.classList.add('capture');
+    Flipbook.resize(R, parseFloat(q.get('scale') || '1'));
     Flipbook.render(R, parseFloat(q.get('frame')));
-  } else if (q.has('play')) {
+    document.body.dataset.ready = '1';
+    return;
+  }
+
+  let frame = 0, drawn = -1;
+  const draw = () => { if (frame !== drawn) { Flipbook.render(R, frame); drawn = frame; } };
+  const onResize = () => { Flipbook.resize(R, fitScale()); drawn = -1; draw(); };
+  addEventListener('resize', onResize);
+
+  if (q.has('play')) {
     // Autoplay at source speed, looping with a 1s pause on the last frame.
     document.body.classList.add('play');
     document.getElementById('m-play').setAttribute('aria-current', 'page');
-    const scaler = document.getElementById('scaler');
-    const fit = () => { scaler.style.transform = `scale(${Math.min(innerHeight / Flipbook.G.h, innerWidth / Flipbook.G.w)})`; };
-    addEventListener('resize', fit); fit();
+    onResize();
     let t0 = performance.now();
     const tick = (now) => {
       const t = (now - t0) / 1000;
-      Flipbook.render(R, Math.min(t * Flipbook.FPS, END));
+      frame = Math.min(t * Flipbook.FPS, END);
       if (t > END / Flipbook.FPS + 1) t0 = now;
+      draw();
       requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
-  } else {
-    document.getElementById('m-scroll').setAttribute('aria-current', 'page');
-    // Scroll-driven: scroll distance maps linearly to source time, so a constant scroll speed
-    // reproduces the measured pacing exactly. px per frame is tunable with ?ppf=.
-    const ppf = parseFloat(q.get('ppf') || '24');
-    const track = document.getElementById('track'), scaler = document.getElementById('scaler');
-    const fit = () => {
-      const s = Math.min(innerHeight / Flipbook.G.h, innerWidth / Flipbook.G.w);
-      scaler.style.transform = `scale(${s})`;
-      track.style.height = `${END * ppf + innerHeight}px`;
-    };
-    const onScroll = () => Flipbook.render(R, Math.min(Math.max(scrollY / ppf, 0), END));
-    addEventListener('resize', () => { fit(); onScroll(); });
-    addEventListener('scroll', onScroll, { passive: true });
-    fit(); onScroll();
+    return;
   }
+
+  // Scroll-driven: scroll distance maps linearly to source time, so a constant scroll speed
+  // reproduces the measured pacing exactly. px per frame is tunable with ?ppf=.
+  document.getElementById('m-scroll').setAttribute('aria-current', 'page');
+  const ppf = parseFloat(q.get('ppf') || '24');
+  const track = document.getElementById('track'), hint = document.getElementById('hint');
+  track.style.height = `${END * ppf}px`;
+  track.style.minHeight = `calc(100vh + ${END * ppf}px)`;
+  onResize();
+  let queued = false;
+  addEventListener('scroll', () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      frame = Math.min(Math.max(scrollY / ppf, 0), END);
+      hint.style.opacity = scrollY > 10 ? 0 : 1;
+      draw();
+    });
+  }, { passive: true });
+})();
 </script>
 </body>
 </html>

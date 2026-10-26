@@ -1,5 +1,6 @@
 // Flip-book engine driven by frame-accurate measurements (analysis/flip_spec.json).
-// Stage is authored in source pixels (360x640 @30fps); everything is a pure function of frame f.
+// Stage is authored in source pixels (360x640 @30fps) and drawn on a <canvas>; render(R, f)
+// is a pure function of the (fractional) source frame f.
 (() => {
   const FPS = 30;
   const G = {
@@ -19,11 +20,12 @@
   ];
   const GHOST = { s: 129, cut: 131 };
   const END_FRAME = 130;
-  const STRIPS = 120;
+  const STRIPS = 96;
 
   // Paper-curl model: a fold line travels from the page bottom up to the hinge while the flap
   // beyond it rotates about the fold; once the fold reaches the hinge the whole sheet finishes
   // the turn. The right edge leads by `lead` (fraction of the flip). Fitted against the source.
+  // Projection is orthographic (the fit preferred no perspective), so each strip is a 2D slice.
   const P = Object.assign({
     curl: 0.5,      // fraction of the flip spent moving the fold line to the hinge
     curlAngle: 90,  // flap angle (deg) when the fold reaches the hinge
@@ -32,6 +34,7 @@
     gamma: 2,       // fold-line easing exponent (fold accelerates toward the hinge)
     angPow: 0.25,   // flap angle rises fast at first: ang = curlAngle * c^angPow
     coverLead: 0.25,
+    hingeShade: true, // draw the measured hinge shading (off for textures that already contain it)
   }, window.FB_PARAMS || {});
 
   const clamp = (v, a, b) => Math.min(Math.max(v, a), b);
@@ -57,77 +60,120 @@
     return { fold: 0, ang: P.curlAngle + (180 - P.curlAngle) * c };
   }
 
-  function build(root, pages) {
-    root.innerHTML = '';
-    root.style.cssText += `;position:relative;width:${G.w}px;height:${G.h}px;background:${G.bg};overflow:hidden`;
-    const el = (css, parent = root) => { const d = document.createElement('div'); d.style.cssText = css; parent.appendChild(d); return d; };
-    el(`position:absolute;left:${G.pageX}px;width:${G.pageW}px;top:111px;height:2px;background:#E9E9E9`);
-    const slot = (y, h) => el(`position:absolute;left:${G.pageX}px;top:${y}px;width:${G.pageW}px;height:${h}px;background-size:100% 100%`);
-    const upper = slot(G.upperY, G.upperH), lower = slot(G.lowerY, G.lowerH);
-    lower.style.boxShadow = '0 2px 12px rgba(0,0,0,.09)';
-    const upperShade = el(`position:absolute;left:${G.pageX}px;top:${G.upperY}px;width:${G.pageW}px;height:${G.upperH}px;background:#000;opacity:0`);
-    const sheet = el(`position:absolute;left:${G.pageX}px;top:${G.hingeY + 1}px;width:${G.pageW}px;height:${G.lowerH}px;perspective:1400px;perspective-origin:50% 0;transform-style:preserve-3d;display:none`);
-    const sw = G.pageW / STRIPS, strips = [];
-    const face = (parent, i, back) => {
-      const d = el(`position:absolute;inset:0;backface-visibility:hidden;background-repeat:no-repeat;${back ? 'transform:rotateX(180deg)' : ''}`, parent);
-      const tint = el('position:absolute;inset:0;background:#000;opacity:0', d);
-      return { d, tint };
-    };
-    for (let i = 0; i < STRIPS; i++) {
-      const col = el(`position:absolute;left:${i * sw}px;top:0;width:${sw + 0.6}px;height:${G.lowerH}px;transform-style:preserve-3d`, sheet);
-      const flat = el('position:absolute;left:0;top:0;width:100%;background-repeat:no-repeat', col);
-      const flap = el('position:absolute;left:0;width:100%;transform-origin:50% 0;transform-style:preserve-3d', col);
-      strips.push({ i, flat, flap, front: face(flap, i, false), back: face(flap, i, true) });
+  const load = (src) => new Promise((res) => {
+    if (!src) return res(null);
+    const im = new Image();
+    im.onload = () => res(im); im.onerror = () => res(null); im.src = src;
+  });
+
+  async function build(canvas, pages) {
+    const spreads = await Promise.all(pages.spreads.map(async (s) => ({ upper: await load(s.upper), lower: await load(s.lower) })));
+    return { canvas, ctx: canvas.getContext('2d'), spreads, logo: await load(pages.logo), scale: 1 };
+  }
+
+  // Size the canvas backing store for a CSS scale factor (stage px -> CSS px).
+  function resize(R, cssScale) {
+    const dpr = window.devicePixelRatio || 1;
+    R.scale = cssScale * dpr;
+    R.canvas.width = Math.round(G.w * R.scale);
+    R.canvas.height = Math.round(G.h * R.scale);
+    R.canvas.style.width = `${G.w * cssScale}px`;
+    R.canvas.style.height = `${G.h * cssScale}px`;
+  }
+
+  function drawPage(ctx, img, x, y, w, h, shadow) {
+    ctx.save();
+    if (shadow) { ctx.shadowColor = 'rgba(0,0,0,.10)'; ctx.shadowBlur = 12; ctx.shadowOffsetY = 2; }
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(x, y, w, h);
+    ctx.restore();
+    if (img) ctx.drawImage(img, x, y, w, h);
+  }
+
+  function drawLogo(R) {
+    const { ctx } = R, { cx, cy } = G.logo;
+    if (R.logo) { ctx.drawImage(R.logo, cx - 60, cy - 18, 120, 37); return; }
+    // Generic mark: a circle split into four pastel quadrants + wordmark.
+    const r = 8, mx = cx - 36;
+    ['#F2D98A', '#F2B8B0', '#A8C3A0', '#B9CFE3'].forEach((c, i) => {
+      ctx.beginPath(); ctx.moveTo(mx, cy); ctx.arc(mx, cy, r, (i - 1) * Math.PI / 2, i * Math.PI / 2); ctx.closePath();
+      ctx.fillStyle = c; ctx.fill();
+    });
+    ctx.fillStyle = '#181916';
+    ctx.font = '700 15px Inter, "Helvetica Neue", Arial, sans-serif';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('SiteMap', mx + 14, cy + 1);
+  }
+
+  function hingeShade(ctx, hasUpper) {
+    if (!P.hingeShade) return;
+    // Measured: upper page darkens over its last 24px (lum 250 -> 215); the lower page starts at
+    // lum 215 and recovers to white over 88px, falling off fast near the hinge.
+    let g;
+    if (hasUpper) {
+      g = ctx.createLinearGradient(0, G.hingeY - 24, 0, G.hingeY);
+      g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.12)');
+      ctx.fillStyle = g; ctx.fillRect(G.pageX, G.hingeY - 24, G.pageW, 24);
     }
-    el(`position:absolute;left:${G.logo.cx - 60}px;top:${G.logo.cy - 18}px;width:120px;height:37px;background:url(${pages.logo}) center/contain no-repeat`);
-    const ghost = el('position:absolute;inset:0;background:rgba(0,0,0,0);pointer-events:none');
-    return { upper, lower, upperShade, sheet, strips, ghost, pages, sw };
+    g = ctx.createLinearGradient(0, G.lowerY, 0, G.lowerY + 88);
+    g.addColorStop(0, 'rgba(0,0,0,.12)'); g.addColorStop(0.25, 'rgba(0,0,0,.04)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.fillRect(G.pageX, G.lowerY, G.pageW, 88);
   }
 
   function render(R, f) {
-    const { pages, sw } = R;
-    const img = (k, which) => (pages.spreads[k] && pages.spreads[k][which]) ? `url(${pages.spreads[k][which]})` : 'none';
+    const { ctx, spreads } = R;
+    const tex = (k, which) => (spreads[k] ? spreads[k][which] : null);
+    ctx.setTransform(R.scale, 0, 0, R.scale, 0, 0);
+    ctx.fillStyle = G.bg; ctx.fillRect(0, 0, G.w, G.h);
+    ctx.fillStyle = '#E9E9E9'; ctx.fillRect(G.pageX, 111, G.pageW, 2);
+
     const { k, flip } = stateAt(f);
-    R.upperShade.style.opacity = 0;
-    if (!flip) {
-      R.upper.style.backgroundImage = img(k, 'upper');
-      R.lower.style.backgroundImage = img(k, 'lower');
-      R.sheet.style.display = 'none';
-    } else {
+    const settledUpper = flip ? flip.i : k, settledLower = flip ? flip.i + 1 : k;
+    const up = tex(settledUpper, 'upper');
+    if (up) drawPage(ctx, up, G.pageX, G.upperY, G.pageW, G.upperH, false);
+    drawPage(ctx, tex(settledLower, 'lower'), G.pageX, G.lowerY, G.pageW, G.lowerH, true);
+    hingeShade(ctx, !!up);
+
+    if (flip) {
       const { i, F, u } = flip;
-      R.upper.style.backgroundImage = img(i, 'upper');
-      R.lower.style.backgroundImage = img(i + 1, 'lower');
-      R.sheet.style.display = 'block';
-      const lead = F.cover ? P.coverLead : P.lead;
-      const front = img(i, 'lower'), back = img(i + 1, 'upper');
-      let maxAng = 0;
-      R.strips.forEach((st) => {
-        const x = (st.i + 0.5) / R.strips.length;
-        // Right edge (x=1) is ahead by `lead`; rescale so the left edge still lands at u=1.
-        const { fold, ang } = pose(clamp((u * (1 + lead) - lead * (1 - x)), 0, 1));
-        maxAng = Math.max(maxAng, ang);
-        const fh = G.lowerH - fold;
-        st.flat.style.height = `${fold}px`;
-        st.flat.style.backgroundImage = front;
-        st.flat.style.backgroundSize = `${G.pageW}px ${G.lowerH}px`;
-        st.flat.style.backgroundPosition = `${-st.i * sw}px 0`;
-        st.flap.style.top = `${fold}px`;
-        st.flap.style.height = `${fh}px`;
-        st.flap.style.transform = `rotateX(${ang}deg)`;
-        Object.assign(st.front.d.style, { backgroundImage: front, backgroundSize: `${G.pageW}px ${G.lowerH}px`, backgroundPosition: `${-st.i * sw}px ${-fold}px` });
-        Object.assign(st.back.d.style, { backgroundImage: back, backgroundSize: `${G.pageW}px ${G.upperH}px`, backgroundPosition: `${-st.i * sw}px ${G.lowerH - G.upperH}px` });
-        const s = Math.sin(ang * Math.PI / 180);
-        st.front.tint.style.opacity = (0.10 * s).toFixed(3);
-        st.back.tint.style.opacity = (0.05 * s).toFixed(3);
-      });
       if (F.cover) {
         // Cover only: the empty upper slot darkens as the sheet approaches (measured lum 246 -> 197).
-        R.upperShade.style.opacity = (0.2 * clamp(u / 0.7, 0, 1)).toFixed(3);
+        ctx.fillStyle = `rgba(0,0,0,${(0.2 * clamp(u / 0.7, 0, 1)).toFixed(3)})`;
+        ctx.fillRect(G.pageX, G.upperY, G.pageW, G.upperH);
+      }
+      const front = tex(i, 'lower'), back = tex(i + 1, 'upper');
+      const lead = F.cover ? P.coverLead : P.lead;
+      const sw = G.pageW / STRIPS, top = G.hingeY + 1, H = G.lowerH;
+      const fk = front ? front.naturalHeight / G.lowerH : 1, fx = front ? front.naturalWidth / G.pageW : 1;
+      const bk = back ? back.naturalHeight / G.upperH : 1, bx = back ? back.naturalWidth / G.pageW : 1;
+      for (let j = 0; j < STRIPS; j++) {
+        const x = (j + 0.5) / STRIPS;
+        const { fold, ang } = pose(u * (1 + lead) - lead * (1 - x));
+        const dx = G.pageX + j * sw, L = H - fold, c = Math.cos(ang * Math.PI / 180), s = Math.sin(ang * Math.PI / 180);
+        const w = sw + 0.5;
+        // Flat part between hinge and fold (front face, unrotated).
+        if (fold > 0 && front) ctx.drawImage(front, j * sw * fx, 0, sw * fx, fold * fk, dx, top, w, fold);
+        else if (fold > 0) { ctx.fillStyle = '#fff'; ctx.fillRect(dx, top, w, fold); }
+        if (L <= 0.01) continue;
+        if (c >= 0) {
+          // Flap still facing the viewer: front face foreshortened below the fold.
+          const h = L * c;
+          if (front) ctx.drawImage(front, j * sw * fx, fold * fk, sw * fx, L * fk, dx, top + fold, w, h);
+          ctx.fillStyle = `rgba(0,0,0,${(0.10 * s).toFixed(3)})`; ctx.fillRect(dx, top + fold, w, h);
+        } else {
+          // Flap past vertical: back face (next upper page) above the fold. Paper at lower-local y
+          // lands on upper-local row (upperH - y), so rows run top-to-bottom without mirroring.
+          const h = -L * c, r0 = Math.max(0, G.upperH - fold - L), r1 = G.upperH - fold;
+          if (back) ctx.drawImage(back, j * sw * bx, r0 * bk, sw * bx, (r1 - r0) * bk, dx, top + fold - h, w, h);
+          else { ctx.fillStyle = '#fff'; ctx.fillRect(dx, top + fold - h, w, h); }
+          ctx.fillStyle = `rgba(0,0,0,${(0.05 * s).toFixed(3)})`; ctx.fillRect(dx, top + fold - h, w, h);
+        }
       }
     }
+    drawLogo(R);
     const g = f >= GHOST.s ? clamp((f - GHOST.s + 1) / (GHOST.cut - GHOST.s), 0, 1) : 0;
-    R.ghost.style.background = `rgba(0,0,0,${(0.12 * g).toFixed(3)})`;
+    if (g > 0) { ctx.fillStyle = `rgba(0,0,0,${(0.12 * g).toFixed(3)})`; ctx.fillRect(0, 0, G.w, G.h); }
   }
 
-  window.Flipbook = { FPS, G, FLIPS, END_FRAME, P, build, render, stateAt };
+  window.Flipbook = { FPS, G, FLIPS, END_FRAME, P, build, resize, render, stateAt };
 })();
