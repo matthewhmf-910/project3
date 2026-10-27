@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: "Inter Tight"; src: url(fonts/InterTight-VF.ttf); font-weight: 100 900; }
+  @font-face { font-family: "Noto Sans TC"; src: url(fonts/NotoSansTC-VF.ttf); font-weight: 100 900; }
+  @font-face { font-family: "Mrs Saint Delafield"; src: url(fonts/MrsSaintDelafield-Regular.ttf); }
+  @font-face { font-family: "IBM Plex Mono"; src: url(fonts/IBMPlexMono-Medium.ttf); font-weight: 500; }
+
+  :root {
+    --white: #FFFFFF;
+    --cream: #F2E6D0;
+    --gold: #C9A45C;
+    --line: rgba(255,255,255,.6);
+    --safe-x: 72px;
+  }
+  * { margin: 0; box-sizing: border-box; }
+  body { width: 2160px; height: 1920px; display: flex; background: #111; }
+  .frame { position: relative; width: 1080px; height: 1920px; overflow: hidden; color: var(--white); }
+  .frame > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%); }
+
+  /* safe-zone guides (specimen only) */
+  .unsafe { position: absolute; left: 0; right: 0; background: rgba(255,60,60,.18); border: 1px dashed rgba(255,90,90,.8); }
+  .unsafe span { font: 500 16px "IBM Plex Mono"; color: #ffb3b3; position: absolute; right: 16px; top: 10px; }
+
+  .t-anno { font: 500 18px/1 "IBM Plex Mono"; letter-spacing: .08em; text-transform: uppercase; color: var(--cream); opacity: .85; }
+  .t-anno::before { content: ""; display: inline-block; width: 48px; height: 1px; background: var(--gold); vertical-align: middle; margin-right: 14px; }
+  .t-head-zh { font: 900 88px/1.15 "Noto Sans TC"; letter-spacing: .02em; text-shadow: 0 2px 24px rgba(0,0,0,.35); }
+  .t-head-en { font: 800 40px/1.1 "Inter Tight"; letter-spacing: -.01em; margin-top: 14px; }
+  .t-sub { font: 600 22px/1 "Inter Tight"; letter-spacing: .2em; text-transform: uppercase; opacity: .85; }
+  .t-cursive { font: 400 120px/1 "Mrs Saint Delafield"; opacity: .92; transform: rotate(-4deg); transform-origin: left center; }
+  .t-label-zh { font: 700 34px/1.2 "Noto Sans TC"; }
+  .t-label-en { font: 600 18px/1 "Inter Tight"; letter-spacing: .16em; text-transform: uppercase; margin-top: 8px; opacity: .85; }
+  .t-end-zh { font: 900 120px/1 "Noto Sans TC"; letter-spacing: .08em; }
+
+  .window { position: absolute; border: 1px solid var(--line); overflow: hidden; }
+  .window img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .reg { position: absolute; width: 22px; height: 22px; border-color: var(--gold); border-style: solid; }
+
+  .tag { position: absolute; font: 500 15px "IBM Plex Mono"; color: #111; background: #ffd84d; padding: 3px 7px; letter-spacing: .02em; }
+</style>
+</head>
+<body>
+
+<!-- Frame A: mid-segment layout (headline + cursive + annotation + subtitle) -->
+<div class="frame">
+  <img src="assets/03_HERO_tea_pour_fish_rice.jpg" alt="">
+  <div class="scrim"></div>
+  <div class="unsafe" style="top:0;height:220px"><span>UNSAFE 0–220</span></div>
+  <div class="unsafe" style="bottom:0;height:380px"><span>UNSAFE 1540–1920</span></div>
+
+  <div class="t-anno" style="position:absolute;left:72px;top:252px">No.02 — Tea at the Table</div>
+  <div class="tag" style="left:72px;top:282px">T4 ANNOTATION · Plex Mono 500 18px</div>
+
+  <div class="t-cursive" style="position:absolute;left:560px;top:930px">pour</div>
+  <div class="tag" style="left:600px;top:1060px">T2 CURSIVE · Mrs Saint Delafield 120px</div>
+
+  <div style="position:absolute;left:72px;bottom:400px;width:936px">
+    <div class="t-sub" style="margin-bottom:22px">Lei Nim · Tea House</div>
+    <div class="t-head-zh">篩、倒、浸<br>茶，不止一杯。</div>
+    <div class="t-head-en">Tea, beyond the cup.</div>
+  </div>
+  <div class="tag" style="left:72px;top:1150px">T3 SUB · Inter Tight 600 22px +200</div>
+  <div class="tag" style="left:600px;top:1300px">T1 ZH · Noto Sans TC 900 88px</div>
+  <div class="tag" style="left:600px;top:1505px">T1 EN · Inter Tight 800 40px</div>
+</div>
+
+<!-- Frame B: editorial window + dish label + end-card type -->
+<div class="frame" style="background:#1d1612">
+  <img src="assets/13_full_table_set.jpg" alt="" style="opacity:.55">
+  <div class="unsafe" style="top:0;height:220px"><span>UNSAFE 0–220</span></div>
+  <div class="unsafe" style="bottom:0;height:380px"><span>UNSAFE 1540–1920</span></div>
+
+  <div class="window" style="left:72px;top:260px;width:560px;height:700px"><img src="assets/04_soy_chicken_bao_salad.jpg" alt=""></div>
+  <div class="reg" style="left:62px;top:250px;border-width:1px 0 0 1px"></div>
+  <div class="reg" style="left:620px;top:948px;border-width:0 1px 1px 0"></div>
+  <div style="position:absolute;left:668px;top:820px">
+    <div class="t-label-zh">[雞菜名]</div>
+    <div class="t-label-en">[Dish name]</div>
+  </div>
+  <div class="tag" style="left:668px;top:900px">T5 LABEL · ZH 700 34 / EN 600 18 +160</div>
+
+  <div style="position:absolute;left:72px;top:1180px;width:936px">
+    <div class="t-end-zh">離念・茶蒔</div>
+    <div class="t-sub" style="margin-top:28px">[District], Hong Kong</div>
+    <div class="t-sub" style="margin-top:14px;font-size:18px">G/F Takeaway · 1/F Restaurant &amp; Tea Cocktail</div>
+  </div>
+  <div class="tag" style="left:72px;top:1145px">T6 END CARD · Noto Sans TC 900 120px +80</div>
+</div>
+
+</body>
+</html>
