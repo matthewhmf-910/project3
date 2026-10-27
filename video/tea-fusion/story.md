@@ -56,6 +56,7 @@ The reference times are scaled ×0.575 and moved onto our beat grid where they f
 - Header: lacquer-red leaf glyph + **Tea × Cocktail** (Inter Bold)
 - Card label: **In store**, with a black pill reading `茶 → 酒`
 - Caption: Tea by day, **"cocktails"** by night (Inter Regular, keyword in lacquer coral)
+- Address line: lacquer-red pin + 中環皇后大道中 286 號 (Noto Sans TC Medium, 78% off-white)
 
 ## Palette
 
