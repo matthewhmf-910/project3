@@ -1,2 +1,4 @@
 node_modules/
-out/*.png
+out/r_*.png
+out/tk_*.png
+out/v4_*.png
