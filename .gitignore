@@ -1,5 +1,6 @@
 node_modules/
-out/
+out/*
+!out/.gitkeep
 .remotion/
 __pycache__/
 .venv/
