@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Img, interpolate, OffthreadVideo, Sequence, staticFile, useCurrentFrame } from "remotion";
 import { FilmFinish, FullBleed } from "./FilmStrip";
 import { FontFaces } from "./kit";
 
@@ -10,6 +10,7 @@ import { FontFaces } from "./kit";
 // Reference measured at 720×1280 / 24fps; geometry below is ×1.5, timing converted to 30fps.
 
 const CUT = 44; // 1.46s
+const CLIP = "assets/clips/clip01_tea_pour_strainer_1080.mp4";
 
 // Strip geometry (static — the strip itself never moves in the reference)
 const FX = 42;
@@ -75,7 +76,10 @@ const Strip: React.FC = () => {
       <Notch cy={1930} />
       <StripFrame y={FRAMES_Y[0]} src="10_spiral_staircase.jpg" pos="50% 35%" pan={[70, -150]} blur={5} />
       <StripFrame y={FRAMES_Y[1]} src="01_entrance_neon_island.jpg" pos="20% 55%" pan={[-60, 110]} blur={4} />
-      <StripFrame y={FRAMES_Y[2]} src="06_dining_room_shelves.jpg" pos="50% 60%" pan={[110, -120]} blur={6} />
+      <div style={{ position: "absolute", left: FX, top: FRAMES_Y[2], width: FW, height: FH, borderRadius: R, overflow: "hidden" }}>
+        <OffthreadVideo src={staticFile(CLIP)} muted startFrom={20} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 62%", transform: "scale(1.05)" }} />
+        <div style={{ position: "absolute", inset: 0, borderRadius: R, boxShadow: "inset 0 0 36px rgba(0,0,0,.55)" }} />
+      </div>
 
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", paddingLeft: 2, opacity: textOn }}>
         <div
@@ -105,12 +109,11 @@ const Strip: React.FC = () => {
 // Full-bleed run after the cut — ~35 frames (1.16s) per shot, matching the reference rhythm.
 const SHOTS: { src: string; from: number; to: number; pos?: string; zoom?: [number, number] }[] = [
   { src: "01_entrance_neon_island.jpg", from: CUT, to: 80, pos: "22% 50%", zoom: [1.1, 1.14] },
-  { src: "02_matcha_sift.jpg", from: 80, to: 115, pos: "50% 62%", zoom: [1.08, 1.13] },
-  { src: "03_HERO_tea_pour_fish_rice.jpg", from: 115, to: 158, pos: "42% 55%", zoom: [1.04, 1.1] },
-  { src: "04_soy_chicken_bao_salad.jpg", from: 158, to: 190, pos: "50% 65%", zoom: [1.1, 1.14] },
-  { src: "13_full_table_set.jpg", from: 190, to: 222, pos: "50% 62%", zoom: [1.08, 1.12] },
-  { src: "07_cocktail_flower_counter.jpg", from: 222, to: 258, pos: "55% 55%", zoom: [1.08, 1.13] },
-  { src: "11_layered_tea_latte_coaster.jpg", from: 258, to: 300, pos: "45% 62%", zoom: [1.06, 1.12] },
+  { src: "03_HERO_tea_pour_fish_rice.jpg", from: 125, to: 165, pos: "42% 55%", zoom: [1.04, 1.1] },
+  { src: "04_soy_chicken_bao_salad.jpg", from: 165, to: 195, pos: "50% 65%", zoom: [1.1, 1.14] },
+  { src: "13_full_table_set.jpg", from: 195, to: 225, pos: "50% 62%", zoom: [1.08, 1.12] },
+  { src: "07_cocktail_flower_counter.jpg", from: 225, to: 260, pos: "55% 55%", zoom: [1.08, 1.13] },
+  { src: "11_layered_tea_latte_coaster.jpg", from: 260, to: 300, pos: "45% 62%", zoom: [1.06, 1.12] },
 ];
 
 export const FilmRef10: React.FC = () => {
@@ -119,6 +122,12 @@ export const FilmRef10: React.FC = () => {
     <AbsoluteFill style={{ background: "#000" }}>
       <FontFaces />
       {f < CUT ? <Strip /> : SHOTS.map((s) => <FullBleed key={s.src} {...s} />)}
+      {/* real footage: tea poured through the strainer (80–125) */}
+      <Sequence from={80} durationInFrames={45}>
+        <AbsoluteFill>
+          <OffthreadVideo src={staticFile(CLIP)} muted startFrom={60} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        </AbsoluteFill>
+      </Sequence>
       <FilmFinish />
     </AbsoluteFill>
   );
