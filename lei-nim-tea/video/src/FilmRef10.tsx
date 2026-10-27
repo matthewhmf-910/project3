@@ -13,11 +13,11 @@ const CUT = 44; // 1.46s
 const CLIP = "assets/clips/clip01_tea_pour_strainer_1080.mp4";
 
 // Strip geometry (static — the strip itself never moves in the reference)
-const FX = 42;
-const FW = 1001;
-const FH = 627;
+const FX = 46; // measured 31 ×1.5
+const FW = 999; // measured 666 ×1.5
+const FH = 637; // measured 425 ×1.5
 const R = 30;
-const FRAMES_Y = [-6, 645, 1293];
+const FRAMES_Y = [-10, 639, 1288]; // 12px gaps (measured 8 ×1.5)
 
 const StripFrame: React.FC<{ y: number; src: string; pos: string; pan: [number, number]; blur: number }> = ({ y, src, pos, pan, blur }) => {
   const f = useCurrentFrame();
@@ -41,7 +41,7 @@ const StripFrame: React.FC<{ y: number; src: string; pos: string; pan: [number, 
           objectFit: "cover",
           objectPosition: pos,
           transform: `translateX(${dx}px) scale(1.12)`,
-          filter: `url(#${id}) saturate(.9)`,
+          filter: `url(#${id}) saturate(.55) brightness(.82)`, // measured sat .19, mean L 64
         }}
       />
       <div style={{ position: "absolute", inset: 0, borderRadius: R, boxShadow: "inset 0 0 36px rgba(0,0,0,.55)" }} />
@@ -81,18 +81,19 @@ const Strip: React.FC = () => {
         <div style={{ position: "absolute", inset: 0, borderRadius: R, boxShadow: "inset 0 0 36px rgba(0,0,0,.55)" }} />
       </div>
 
+      <AbsoluteFill style={{ background: "rgb(26,30,36)", mixBlendMode: "screen" }} />
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", paddingLeft: 2, opacity: textOn }}>
         <div
           style={{
             fontFamily: "Nunito Sans",
             fontWeight: 800,
-            fontSize: 138,
-            lineHeight: 0.92,
+            fontSize: 145, // cap height 68 ×1.5 ÷ 0.705
+            lineHeight: 0.95, // line pitch 92 ×1.5 ÷ 145
             letterSpacing: "-0.015em",
             color: "#fff",
             textAlign: "center",
             textShadow: "0 2px 16px rgba(0,0,0,.25)",
-            transform: "translateY(-6px)",
+            transform: "translate(-24px, -6px)", // block sits 16px left of frame centre
           }}
         >
           Make a

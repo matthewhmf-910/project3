@@ -2,3 +2,4 @@ node_modules/
 out/r_*.png
 out/tk_*.png
 out/v4_*.png
+out/boards/[A-D].png
