@@ -1,0 +1,23 @@
+{
+  "name": "project3-motion",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Motion graphics with Remotion",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render",
+    "test-render": "remotion render TestTitle out/test.mp4",
+    "upgrade": "remotion upgrade"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.539",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remotion": "4.0.539"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "typescript": "7.0.2"
+  }
+}
