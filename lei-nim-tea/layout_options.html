@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: "Inter Tight"; src: url(fonts/InterTight-VF.ttf); font-weight: 100 900; }
+  @font-face { font-family: "Noto Sans TC"; src: url(fonts/NotoSansTC-VF.ttf); font-weight: 100 900; }
+  @font-face { font-family: "Noto Serif TC"; src: url(fonts/NotoSerifTC-VF.ttf); font-weight: 200 900; }
+  @font-face { font-family: "Mrs Saint Delafield"; src: url(fonts/MrsSaintDelafield-Regular.ttf); }
+  @font-face { font-family: "IBM Plex Mono"; src: url(fonts/IBMPlexMono-Medium.ttf); font-weight: 500; }
+
+  * { margin: 0; box-sizing: border-box; }
+  body { width: 3360px; height: 2040px; display: flex; gap: 60px; background: #2a2a2a; padding: 60px 0 0 0; }
+  .frame { position: relative; width: 1080px; height: 1920px; overflow: hidden; flex: none; }
+  .ph { position: absolute; overflow: hidden; }
+  .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .abs { position: absolute; }
+  .mono { font: 500 18px/1 "IBM Plex Mono"; letter-spacing: .08em; text-transform: uppercase; }
+  .label { position: absolute; top: -48px; left: 0; font: 700 26px "Inter Tight"; color: #fff; letter-spacing: .1em; }
+
+  /* ---------- A: Magazine page (cream paper) ---------- */
+  .A { background: #F3ECE0; color: #2B211B; }
+  .A .grain { position: absolute; inset: 0; background-image: radial-gradient(rgba(0,0,0,.035) 1px, transparent 1px); background-size: 3px 3px; }
+
+  /* ---------- B: Split panel (brick red from the floor tiles) ---------- */
+  .B { background: #8C3A28; color: #F7EEE2; }
+
+  /* ---------- C: Dark Swiss grid + vertical Chinese ---------- */
+  .C { background: #17120F; color: #EFE6D8; }
+  .vert { writing-mode: vertical-rl; }
+</style>
+</head>
+<body>
+
+<!-- ================= A ================= -->
+<div style="position:relative">
+<div class="label">A · 雜誌內頁 MAGAZINE PAGE</div>
+<div class="frame A">
+  <div class="grain"></div>
+  <!-- header band (inside safe zone 220+) -->
+  <div class="abs mono" style="left:72px;top:240px;color:#8C3A28">No.02</div>
+  <div class="abs mono" style="right:72px;top:240px;color:#7a6a5c">Tea at the Table</div>
+  <div class="abs" style="left:72px;right:72px;top:276px;height:1px;background:#2B211B;opacity:.5"></div>
+
+  <div class="abs" style="left:72px;top:310px;font:600 76px/1.15 'Noto Serif TC';letter-spacing:.04em">茶，不止一杯。</div>
+
+  <!-- photo: text never overlaps -->
+  <div class="ph" style="left:72px;top:440px;width:936px;height:900px"><img src="assets/03_HERO_tea_pour_fish_rice.jpg"></div>
+
+  <!-- caption row under photo -->
+  <div class="abs" style="left:72px;top:1376px;font:italic 400 34px 'Inter Tight';letter-spacing:-.01em">Tea, beyond the cup.</div>
+  <div class="abs" style="right:64px;top:1340px;font:400 96px/1 'Mrs Saint Delafield';color:#8C3A28;transform:rotate(-4deg)">pour</div>
+  <div class="abs" style="left:72px;right:72px;top:1440px;height:1px;background:#2B211B;opacity:.25"></div>
+  <div class="abs mono" style="left:72px;top:1462px;color:#7a6a5c;font-size:16px">[魚飯菜名] — [Dish name]</div>
+  <div class="abs mono" style="right:72px;top:1462px;color:#7a6a5c;font-size:16px">P.02 / 03</div>
+</div>
+</div>
+
+<!-- ================= B ================= -->
+<div style="position:relative">
+<div class="label">B · 上相下字 SPLIT PANEL</div>
+<div class="frame B">
+  <!-- photo fills top (UI-unsafe top zone is fine for image) -->
+  <div class="ph" style="left:0;top:0;width:1080px;height:1100px"><img src="assets/03_HERO_tea_pour_fish_rice.jpg" style="object-position:50% 70%"></div>
+  <div class="abs" style="left:0;right:0;top:1100px;height:6px;background:#C9A45C"></div>
+
+  <div class="abs mono" style="left:72px;top:1160px;color:#E8C99A">No.02 — Tea at the Table</div>
+  <div class="abs" style="left:72px;top:1210px;font:900 84px/1.12 'Noto Sans TC';letter-spacing:.02em">篩、倒、浸<br>茶，不止一杯。</div>
+  <div class="abs" style="left:72px;top:1420px;font:800 36px 'Inter Tight';letter-spacing:-.01em;opacity:.9">Tea, beyond the cup.</div>
+  <div class="abs" style="right:80px;top:1160px;font:400 110px/1 'Mrs Saint Delafield';color:#F3D9A8;transform:rotate(-6deg)">pour</div>
+  <div class="abs mono" style="right:72px;top:1490px;font-size:15px;color:#E8C99A">[魚飯菜名]</div>
+</div>
+</div>
+
+<!-- ================= C ================= -->
+<div style="position:relative">
+<div class="label">C · 直排中文 VERTICAL GRID</div>
+<div class="frame C">
+  <!-- left text column 72–232, photo column 272–1008 -->
+  <div class="abs vert" style="left:96px;top:250px;font:600 80px/1.1 'Noto Serif TC';letter-spacing:.18em">茶不止一杯</div>
+  <div class="abs" style="left:100px;top:880px;width:1px;height:220px;background:#C9A45C"></div>
+  <div class="abs vert mono" style="left:182px;top:250px;color:#C9A45C;font-size:16px;letter-spacing:.3em">No.02 · Tea at the Table</div>
+
+  <div class="ph" style="left:272px;top:250px;width:736px;height:980px"><img src="assets/03_HERO_tea_pour_fish_rice.jpg"></div>
+  <div class="ph" style="left:272px;top:1260px;width:350px;height:260px"><img src="assets/02_matcha_sift.jpg" style="object-position:50% 70%"></div>
+
+  <div class="abs" style="left:654px;top:1270px;font:800 34px/1.15 'Inter Tight';letter-spacing:-.01em">Tea,<br>beyond the cup.</div>
+  <div class="abs" style="left:650px;top:1360px;font:400 92px/1 'Mrs Saint Delafield';color:#C9A45C;transform:rotate(-5deg)">pour</div>
+  <div class="abs mono" style="left:654px;top:1490px;font-size:15px;color:#9c8f7f">[魚飯菜名]</div>
+</div>
+</div>
+
+</body>
+</html>
