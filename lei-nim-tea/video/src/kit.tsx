@@ -274,3 +274,54 @@ export const GridPulse: React.FC<{ cell?: number; originX?: number; originY?: nu
     </AbsoluteFill>
   );
 };
+
+/** Full-bleed variant: white hairline grid + frosted glass blocks floating over the photo. */
+export const GlassGrid: React.FC<{ cell?: number; originX?: number; originY?: number }> = ({
+  cell = 135, originX = 0, originY = 0,
+}) => {
+  const f = useCurrentFrame();
+  const { fps, width, height } = useVideoConfig();
+  const cols = Math.ceil(width / cell) + 1;
+  const rows = Math.ceil(height / cell) + 1;
+  const h = (i: number, j: number) => {
+    const s = Math.sin(i * 91.7 + j * 271.3) * 43758.5453;
+    return s - Math.floor(s);
+  };
+  const blocks: React.ReactNode[] = [];
+  for (let i = 0; i < cols; i++) {
+    for (let j = 0; j < rows; j++) {
+      const r = h(i, j);
+      if (r > 0.1) continue;
+      const period = 4 + r * 20;
+      const a = 0.5 + 0.5 * Math.sin((f / fps) * ((Math.PI * 2) / period) + h(j, i) * Math.PI * 2);
+      blocks.push(
+        <div
+          key={`${i}-${j}`}
+          style={{
+            position: "absolute",
+            left: originX + i * cell + 1,
+            top: originY + j * cell + 1,
+            width: cell - 1,
+            height: cell - 1,
+            background: "rgba(255,255,255,.10)",
+            backdropFilter: "blur(10px)",
+            opacity: a,
+          }}
+        />,
+      );
+    }
+  }
+  return (
+    <AbsoluteFill>
+      {blocks}
+      <AbsoluteFill
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, rgba(255,255,255,.12) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.12) 1px, transparent 1px)",
+          backgroundSize: `${cell}px ${cell}px`,
+          backgroundPosition: `${originX}px ${originY}px`,
+        }}
+      />
+    </AbsoluteFill>
+  );
+};
