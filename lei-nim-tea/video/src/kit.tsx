@@ -22,6 +22,8 @@ export const ease = Easing.bezier(0.22, 0.8, 0.2, 1);
 
 export const FontFaces: React.FC = () => (
   <style>{`
+    @font-face { font-family: "Nunito Sans"; src: url(${staticFile("fonts/NunitoSans-VF.ttf")}); font-weight: 200 1000; }
+    @font-face { font-family: "Noto Sans TC"; src: url(${staticFile("fonts/NotoSansTC-VF.ttf")}); font-weight: 100 900; }
     @font-face { font-family: "Noto Serif TC"; src: url(${staticFile("fonts/NotoSerifTC-VF.ttf")}); font-weight: 200 900; }
     @font-face { font-family: "Cormorant"; src: url(${staticFile("fonts/CormorantGaramond-VF.ttf")}); font-weight: 300 700; }
     @font-face { font-family: "Cormorant"; src: url(${staticFile("fonts/CormorantGaramond-Italic-VF.ttf")}); font-weight: 300 700; font-style: italic; }
