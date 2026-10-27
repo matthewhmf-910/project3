@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill } from "remotion";
-import { C, VerticalCutReveal, en, FontFaces, meta, Paper, Photo, Rule, zh } from "./kit";
+import { C, en, FontFaces, GridPulse, meta, Paper, Photo, Rule, VerticalCutReveal, zh } from "./kit";
 
 const Abs: React.FC<{ x?: number; y: number; right?: number; children: React.ReactNode; style?: React.CSSProperties }> = ({
   x, y, right, children, style,
@@ -74,6 +74,7 @@ export const Film: React.FC = () => (
   <AbsoluteFill style={{ color: C.ink }}>
     <FontFaces />
     <Paper />
+    <GridPulse />
     <Seg1 />
     <Seg2 />
     <Seg3 />

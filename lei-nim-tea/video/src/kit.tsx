@@ -217,3 +217,60 @@ export const VerticalCutReveal: React.FC<{
     </div>
   );
 };
+
+/**
+ * Hairline grid background with softly pulsing translucent blocks.
+ * Cell = 1/8 of the hero window width, so the hero image spans exactly 8 cells.
+ */
+export const GridPulse: React.FC<{ cell?: number; originX?: number; originY?: number }> = ({
+  cell = 111, originX = 96, originY = 330,
+}) => {
+  const f = useCurrentFrame();
+  const { fps, width, height } = useVideoConfig();
+  const x0 = originX % cell;
+  const y0 = originY % cell;
+  const cols = Math.ceil((width - x0) / cell);
+  const rows = Math.ceil((height - y0) / cell);
+  // deterministic hash → which cells carry a block, and their phase
+  const h = (i: number, j: number) => {
+    const s = Math.sin(i * 127.1 + j * 311.7) * 43758.5453;
+    return s - Math.floor(s);
+  };
+  const blocks: React.ReactNode[] = [];
+  for (let i = 0; i < cols; i++) {
+    for (let j = 0; j < rows; j++) {
+      const r = h(i, j);
+      if (r > 0.22) continue;
+      const period = 4 + r * 10; // 4–6 s breathing
+      const phase = h(j, i) * Math.PI * 2;
+      const a = 0.5 + 0.5 * Math.sin((f / fps) * ((Math.PI * 2) / period) + phase);
+      blocks.push(
+        <div
+          key={`${i}-${j}`}
+          style={{
+            position: "absolute",
+            left: x0 + i * cell + 1,
+            top: y0 + j * cell + 1,
+            width: cell - 1,
+            height: cell - 1,
+            background: r < 0.07 ? "rgba(168,129,74,1)" : "rgba(255,255,255,1)",
+            opacity: (r < 0.07 ? 0.07 : 0.55) * a,
+          }}
+        />,
+      );
+    }
+  }
+  return (
+    <AbsoluteFill>
+      <AbsoluteFill
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, rgba(58,48,42,.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(58,48,42,.07) 1px, transparent 1px)",
+          backgroundSize: `${cell}px ${cell}px`,
+          backgroundPosition: `${x0}px ${y0}px`,
+        }}
+      />
+      {blocks}
+    </AbsoluteFill>
+  );
+};
