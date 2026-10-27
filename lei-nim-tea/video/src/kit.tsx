@@ -1,0 +1,219 @@
+import React from "react";
+import {
+  AbsoluteFill,
+  Easing,
+  Img,
+  interpolate,
+  spring,
+  staticFile,
+  useCurrentFrame,
+  useVideoConfig,
+} from "remotion";
+
+export const C = {
+  paper: "#F1EADF",
+  ink: "#3A302A",
+  mute: "#9A8B7D",
+  rule: "rgba(58,48,42,.22)",
+  tea: "#A8814A",
+};
+
+export const ease = Easing.bezier(0.22, 0.8, 0.2, 1);
+
+export const FontFaces: React.FC = () => (
+  <style>{`
+    @font-face { font-family: "Noto Serif TC"; src: url(${staticFile("fonts/NotoSerifTC-VF.ttf")}); font-weight: 200 900; }
+    @font-face { font-family: "Cormorant"; src: url(${staticFile("fonts/CormorantGaramond-VF.ttf")}); font-weight: 300 700; }
+    @font-face { font-family: "Cormorant"; src: url(${staticFile("fonts/CormorantGaramond-Italic-VF.ttf")}); font-weight: 300 700; font-style: italic; }
+  `}</style>
+);
+
+export const Paper: React.FC = () => (
+  <AbsoluteFill style={{ background: C.paper }}>
+    <AbsoluteFill
+      style={{
+        backgroundImage: "radial-gradient(rgba(0,0,0,.03) 1px, transparent 1px)",
+        backgroundSize: "3px 3px",
+      }}
+    />
+  </AbsoluteFill>
+);
+
+const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
+
+/** 0→1 progress between frames a and b, eased. */
+export const prog = (f: number, a: number, b: number) =>
+  interpolate(f, [a, b], [0, 1], { ...clamp, easing: ease });
+
+/** Photo inside a window: slow push-in, fade/blur in, optional exit. */
+export const Photo: React.FC<{
+  src: string;
+  from: number;
+  to: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  pos?: string;
+  zoom?: [number, number];
+  drift?: [number, number];
+  reveal?: "fade" | "wipeUp" | "wipeLeft" | "iris";
+  fadeOut?: boolean;
+  origin?: string;
+}> = ({ src, from, to, x, y, w, h, pos = "50% 50%", zoom = [1.04, 1.12], drift = [0, 0], reveal = "fade", fadeOut = true, origin = "50% 50%" }) => {
+  const f = useCurrentFrame();
+  if (f < from - 1 || f > to + 1) return null;
+  const inP = prog(f, from, from + 24);
+  const outP = fadeOut ? prog(f, to - 18, to) : 0;
+  const t = interpolate(f, [from, to], [0, 1], clamp);
+  const s = interpolate(t, [0, 1], zoom);
+  const dx = interpolate(t, [0, 1], [0, drift[0]]);
+  const dy = interpolate(t, [0, 1], [0, drift[1]]);
+
+  let clip = "none";
+  let opacity = 1;
+  if (reveal === "wipeUp") clip = `inset(${(1 - inP) * 100}% 0 0 0)`;
+  else if (reveal === "wipeLeft") clip = `inset(0 0 0 ${(1 - inP) * 100}%)`;
+  else if (reveal === "iris") clip = `circle(${inP * 75}% at 50% 50%)`;
+  else opacity = inP;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: x,
+        top: y,
+        width: w,
+        height: h,
+        overflow: "hidden",
+        clipPath: clip,
+        opacity: opacity * (1 - outP),
+      }}
+    >
+      <Img
+        src={staticFile(`assets/${src}`)}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          objectPosition: pos,
+          transform: `translate(${dx}px, ${dy}px) scale(${s})`,
+          transformOrigin: origin,
+          filter: `blur(${(1 - inP) * 6}px)`,
+        }}
+      />
+    </div>
+  );
+};
+
+/** Text that surfaces one character at a time: blur→sharp, rising, like steam settling. */
+export const Breathe: React.FC<{
+  text: string;
+  at: number;
+  out?: number;
+  stagger?: number;
+  vertical?: boolean;
+  style?: React.CSSProperties;
+}> = ({ text, at, out, stagger = 5, vertical = false, style }) => {
+  const f = useCurrentFrame();
+  const chars = Array.from(text);
+  const outP = out !== undefined ? prog(f, out, out + 20) : 0;
+  return (
+    <div style={{ writingMode: vertical ? "vertical-rl" : undefined, whiteSpace: "pre", ...style }}>
+      {chars.map((ch, i) => {
+        const p = prog(f, at + i * stagger, at + i * stagger + 26);
+        const shift = (1 - p) * 14;
+        return (
+          <span
+            key={i}
+            style={{
+              display: "inline-block",
+              opacity: p * (1 - outP),
+              filter: `blur(${(1 - p) * 8 + outP * 6}px)`,
+              transform: vertical ? `translateY(${-shift}px)` : `translateY(${shift}px)`,
+            }}
+          >
+            {ch}
+          </span>
+        );
+      })}
+    </div>
+  );
+};
+
+/** Hairline that draws itself. */
+export const Rule: React.FC<{ at: number; x: number; y: number; w: number; out?: number; vertical?: boolean; color?: string }> = ({
+  at, x, y, w, out, vertical = false, color = C.rule,
+}) => {
+  const f = useCurrentFrame();
+  const p = prog(f, at, at + 30);
+  const o = out !== undefined ? 1 - prog(f, out, out + 18) : 1;
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: x,
+        top: y,
+        width: vertical ? 1 : w * p,
+        height: vertical ? w * p : 1,
+        background: color,
+        opacity: o,
+      }}
+    />
+  );
+};
+
+export const zh: React.CSSProperties = { fontFamily: "Noto Serif TC", fontWeight: 300, color: C.ink };
+export const en: React.CSSProperties = { fontFamily: "Cormorant", fontStyle: "italic", fontWeight: 300, color: C.ink };
+export const meta: React.CSSProperties = {
+  fontFamily: "Cormorant",
+  fontWeight: 500,
+  fontSize: 17,
+  letterSpacing: "0.32em",
+  textTransform: "uppercase",
+  color: C.mute,
+};
+
+/**
+ * Frame-accurate port of the shadcn/fancy "VerticalCutReveal": every unit sits in its own
+ * clipping box and springs up from below. Same knobs as the React component
+ * (splitBy, staggerDuration in seconds, staggerFrom, spring damping/stiffness).
+ */
+export const VerticalCutReveal: React.FC<{
+  children: string;
+  at: number;
+  out?: number;
+  splitBy?: "characters" | "words";
+  staggerDuration?: number;
+  staggerFrom?: "first" | "last" | "center";
+  damping?: number;
+  stiffness?: number;
+  vertical?: boolean;
+  style?: React.CSSProperties;
+}> = ({
+  children, at, out, splitBy = "characters", staggerDuration = 0.04, staggerFrom = "center",
+  damping = 20, stiffness = 300, vertical = false, style,
+}) => {
+  const f = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const units = splitBy === "words" ? children.split(/(\s+)/) : Array.from(children);
+  const n = units.length;
+  const order = (i: number) =>
+    staggerFrom === "first" ? i : staggerFrom === "last" ? n - 1 - i : Math.abs(i - (n - 1) / 2);
+  const config = { damping, stiffness, mass: 1 };
+  return (
+    <div style={{ writingMode: vertical ? "vertical-rl" : undefined, whiteSpace: "pre", ...style }}>
+      {units.map((u, i) => {
+        const delay = Math.round(order(i) * staggerDuration * fps);
+        const pIn = spring({ frame: f - at - delay, fps, config });
+        const pOut = out !== undefined ? spring({ frame: f - out - delay, fps, config }) : 0;
+        const y = (1 - pIn) * 100 - pOut * 100;
+        return (
+          <span key={i} style={{ display: "inline-block", overflow: "hidden", verticalAlign: "top" }}>
+            <span style={{ display: "inline-block", transform: `translateY(${y}%)` }}>{u}</span>
+          </span>
+        );
+      })}
+    </div>
+  );
+};
