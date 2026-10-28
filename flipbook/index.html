@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Site Flipbook</title>
+<link rel="stylesheet" href="theme/fonts/fonts.css">
 <style>
   :root { --bg: #F6F6F6; }
   html, body { margin: 0; background: var(--bg); }
@@ -22,28 +23,43 @@
 </head>
 <body>
 <div class="track" id="track"><div class="sticky"><canvas id="stage"></canvas></div></div>
-<nav class="modes"><a href="?" id="m-scroll">Scroll</a><a href="?play" id="m-play">Play</a><a href="#" id="m-layout">9:16</a><a href="#" id="m-fs">Fullscreen</a></nav>
+<nav class="modes"><a href="?" id="m-scroll">Scroll</a><a href="?play" id="m-play">Play</a><a href="#" id="m-layout">9:16</a><a href="#" id="m-theme">Theme</a><a href="#" id="m-fs">Fullscreen</a></nav>
 <div class="hint" id="hint">Scroll ↓</div>
 <script src="flipbook.js"></script>
+<script src="theme/book.js"></script>
+<script src="theme/tst.book.js"></script>
 <script>
 (async () => {
   const q = new URLSearchParams(location.search);
-  // build_standalone.py inlines textures as window.FB_TEXTURES (same shape as below).
-  // ?tex=assets/ref/ loads the reference crops (they already contain hinge shading and a logo).
-  const tex = (q.get('tex') || 'assets/pages/').replace(/\/?$/, '/');
-  const ref = tex.includes('/ref/'), ext = ref ? 'png' : 'jpg';
-  const pages = window.FB_TEXTURES || {
-    logo: ref ? tex + 'logo.png' : null,
-    spreads: Array.from({ length: 10 }, (_, s) => ({
-      upper: s === 0 ? null : `${tex}S${s}_upper.${ext}`,
-      lower: `${tex}S${s}_lower.${ext}`,
-    })),
-  };
-  Flipbook.P.hingeShade = pages.hingeShade ?? !ref;
   // ?layout=full (16:9 full-bleed) | spread (reference 9:16); default follows the window shape.
   const layout = q.get('layout') || (innerWidth > innerHeight ? 'full' : 'spread');
   const canvas = document.getElementById('stage');
-  const R = window.__R = await Flipbook.build(canvas, pages, layout);
+  let book;
+  if (q.get('tex')) {
+    // Pre-rendered page images: ?tex=assets/pages/ (pages/render_pages.js) or assets/ref/ (the
+    // reference crops, which already contain hinge shading and a logo).
+    const tex = q.get('tex').replace(/\/?$/, '/'), ref = tex.includes('/ref/'), ext = ref ? 'png' : 'jpg';
+    book = { logo: ref ? tex + 'logo.png' : null, pages: [`${tex}S0_lower.${ext}`] };
+    for (let s = 1; s < 10; s++) book.pages.push(`${tex}S${s}_upper.${ext}`, `${tex}S${s}_lower.${ext}`);
+    Flipbook.P.hingeShade = !ref;
+  } else {
+    // Themed book (theme/book.js + window.FB_BOOK). ?theme= overrides the book's theme preset.
+    // Pages are rasterised at the resolution the window needs (16:9 page width in device px).
+    const dpr = devicePixelRatio || 1, need = layout === 'full' ? Math.max(innerWidth, innerHeight * 16 / 9) * dpr : 332 * 4;
+    const scale = Math.min(1.6, Math.max(1, need / FlipTheme.W));
+    const r = await FlipTheme.renderBook(window.FB_BOOK, { scale, theme: q.get('theme') || undefined });
+    const T = r.theme;
+    book = { pages: r.pages, surround: T.surround, paper: T.paper, back: T.back, ink: T.ink, rule: T.rule,
+      brand: { text: window.FB_BOOK.meta.brand, font: `400 24px ${FlipTheme.FACES.display}`, color: T.ink } };
+    document.documentElement.style.setProperty('--bg', T.surround);
+    const names = Object.keys(FlipTheme.THEMES), cur = names.indexOf(q.get('theme') || (typeof FB_BOOK.theme === 'string' ? FB_BOOK.theme : 'atlas'));
+    const tb = document.getElementById('m-theme'), next = names[(cur + 1) % names.length];
+    tb.textContent = FlipTheme.THEMES[names[Math.max(cur, 0)]].label;
+    tb.title = 'Next theme: ' + FlipTheme.THEMES[next].label;
+    tb.href = (() => { const u = new URLSearchParams(q); u.set('theme', next); return '?' + u; })();
+  }
+  if (q.get('tex')) document.getElementById('m-theme').remove();
+  const R = window.__R = await Flipbook.build(canvas, book, layout);
   const END = Flipbook.END_FRAME, G = Flipbook.G;
   // full fills the window (cropping any overhang), spread is letterboxed like the reference.
   const fitScale = () => (G.fit === 'cover' ? Math.max : Math.min)(innerHeight / G.h, innerWidth / G.w);

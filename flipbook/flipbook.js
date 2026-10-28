@@ -92,14 +92,22 @@
     im.onload = () => res(im); im.onerror = () => res(null); im.src = src;
   });
 
-  // pages.spreads: [{upper, lower}] for 10 spreads (spread 0 has only the cover as `lower`).
-  async function build(canvas, pages, layout = 'spread') {
-    G = LAYOUTS[layout];
-    const spreads = await Promise.all(pages.spreads.map(async (s) => ({ upper: await load(s.upper), lower: await load(s.lower) })));
-    // Full layout reads the pages in order: cover, then upper/lower of each spread.
-    const seq = [spreads[0].lower].concat(spreads.slice(1).flatMap((s) => [s.upper, s.lower])).filter(Boolean);
-    T = timeline(layout === 'full' ? seq.length - 1 : DUR.length);
-    return { canvas, ctx: canvas.getContext('2d'), layout, spreads, seq, logo: await load(pages.logo), scale: 1 };
+  // book.pages: page images in reading order (URLs, <img> or <canvas>), cover first.
+  // Optional theme colours: surround (stage background), paper (page fill), back (unprinted back),
+  // plus logo (image URL) or brand (wordmark text) for the spread layout.
+  // spread pairs the pages as cover | (1,2) | (3,4) ...; 19 pages give the measured 9 flips exactly,
+  // other counts resample the measured cadence. full turns every page (n pages -> n-1 flips).
+  async function build(canvas, book, layout = 'spread') {
+    G = Object.assign({}, LAYOUTS[layout], book.surround ? { bg: book.surround } : {});
+    if (book.back) P.paperBack = book.back;
+    const seq = await Promise.all(book.pages.map((p) => (typeof p === 'string' ? load(p) : p)));
+    const spreads = [{ upper: null, lower: seq[0] }];
+    for (let i = 1; i < seq.length; i += 2) spreads.push({ upper: seq[i], lower: seq[i + 1] || null });
+    T = timeline(layout === 'full' ? seq.length - 1 : spreads.length - 1);
+    return {
+      canvas, ctx: canvas.getContext('2d'), layout, spreads, seq, scale: 1,
+      logo: await load(book.logo), brand: book.brand || null, paper: book.paper || '#fff', ink: book.ink || '#181916', rule: book.rule || '#E9E9E9',
+    };
   }
 
   // Size the canvas backing store for a CSS scale factor (stage px -> CSS px).
@@ -112,10 +120,10 @@
     R.canvas.style.height = `${G.h * cssScale}px`;
   }
 
-  function drawPage(ctx, img, x, y, w, h, shadow) {
+  function drawPage(ctx, img, x, y, w, h, shadow, paper = '#fff') {
     ctx.save();
     if (shadow) { ctx.shadowColor = 'rgba(0,0,0,.10)'; ctx.shadowBlur = 12; ctx.shadowOffsetY = 2; }
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = paper;
     ctx.fillRect(x, y, w, h);
     ctx.restore();
     if (img) ctx.drawImage(img, x, y, w, h);
@@ -125,6 +133,12 @@
     if (!G.logo) return;
     const { ctx } = R, { cx, cy } = G.logo;
     if (R.logo) { ctx.drawImage(R.logo, cx - 60, cy - 18, 120, 37); return; }
+    if (R.brand) {
+      // Theme wordmark, set in the theme's display face (brand: {text, font, color}).
+      ctx.fillStyle = R.brand.color || R.ink; ctx.font = R.brand.font || '400 22px serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(R.brand.text, cx, cy);
+      ctx.textAlign = 'start'; return;
+    }
     // Generic mark: a circle split into four pastel quadrants + wordmark.
     const r = 8, mx = cx - 36;
     ['#F2D98A', '#F2B8B0', '#A8C3A0', '#B9CFE3'].forEach((c, i) => {
@@ -167,8 +181,9 @@
   function drawSheet(R, front, back, u, lead) {
     const { ctx } = R, H = G.lower.h, upH = G.upper ? G.upper.h : H;
     const STRIPS = stripsFor(G.pageW), sw = G.pageW / STRIPS, top = G.hingeY + 1;
-    const fk = front ? front.naturalHeight / H : 1, fx = front ? front.naturalWidth / G.pageW : 1;
-    const bk = back ? back.naturalHeight / upH : 1, bx = back ? back.naturalWidth / G.pageW : 1;
+    const iw = (im) => im.naturalWidth || im.width, ih = (im) => im.naturalHeight || im.height;
+    const fk = front ? ih(front) / H : 1, fx = front ? iw(front) / G.pageW : 1;
+    const bk = back ? ih(back) / upH : 1, bx = back ? iw(back) / G.pageW : 1;
     for (let j = 0; j < STRIPS; j++) {
       const x = (j + 0.5) / STRIPS;
       const { fold, ang } = pose(u * (1 + lead) - lead * (1 - x), H);
@@ -176,7 +191,7 @@
       const w = sw + 0.5;
       // Flat part between hinge and fold (front face, unrotated).
       if (fold > 0 && front) ctx.drawImage(front, j * sw * fx, 0, sw * fx, fold * fk, dx, top, w, fold);
-      else if (fold > 0) { ctx.fillStyle = '#fff'; ctx.fillRect(dx, top, w, fold); }
+      else if (fold > 0) { ctx.fillStyle = R.paper; ctx.fillRect(dx, top, w, fold); }
       if (L <= 0.01) continue;
       if (c >= 0) {
         // Flap still facing the viewer: front face foreshortened below the fold.
@@ -203,12 +218,12 @@
     const { ctx } = R;
     ctx.setTransform(R.scale, 0, 0, R.scale, 0, 0);
     ctx.fillStyle = G.bg; ctx.fillRect(0, 0, G.w, G.h);
-    if (G.hairline) { ctx.fillStyle = '#E9E9E9'; ctx.fillRect(G.pageX, 111, G.pageW, 2); }
+    if (G.hairline) { ctx.fillStyle = R.rule; ctx.fillRect(G.pageX, 111, G.pageW, 2); }
 
     const { k, flip } = stateAt(f);
     const pg = pagesFor(R, k, flip);
-    if (G.upper && pg.upper) drawPage(ctx, pg.upper, G.pageX, G.upper.y, G.pageW, G.upper.h, false);
-    drawPage(ctx, pg.lower, G.pageX, G.lower.y, G.pageW, G.lower.h, !!G.upper);
+    if (G.upper && pg.upper) drawPage(ctx, pg.upper, G.pageX, G.upper.y, G.pageW, G.upper.h, false, R.paper);
+    drawPage(ctx, pg.lower, G.pageX, G.lower.y, G.pageW, G.lower.h, !!G.upper, R.paper);
     hingeShade(ctx, !!pg.upper);
 
     if (flip) {

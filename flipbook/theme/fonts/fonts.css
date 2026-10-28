@@ -1,0 +1,7 @@
+/* Theme faces (SIL Open Font License, from Google Fonts). build_standalone.py inlines these. */
+@font-face { font-family: 'Instrument Serif'; font-style: normal; font-weight: 400; src: url(InstrumentSerif.woff2) format('woff2'); }
+@font-face { font-family: 'Instrument Serif'; font-style: italic; font-weight: 400; src: url(InstrumentSerif-Italic.woff2) format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 100 900; src: url(Inter.woff2) format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 100 800; src: url(JetBrainsMono.woff2) format('woff2'); }
+/* Subset to the Chinese characters in tst.book.js; other characters fall back to system CJK serifs. */
+@font-face { font-family: 'Noto Serif TC'; font-style: normal; font-weight: 500; src: url(NotoSerifTC-subset.woff2) format('woff2'); }
