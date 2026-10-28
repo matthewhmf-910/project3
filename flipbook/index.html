@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Site Flipbook</title>
+<link rel="stylesheet" href="theme/fonts/fonts.css">
+<style>
+  :root { --bg: #F6F6F6; }
+  html, body { margin: 0; background: var(--bg); }
+  .track { position: relative; }
+  .sticky { position: sticky; top: 0; height: 100vh; display: grid; place-items: center; overflow: hidden; }
+  canvas { display: block; }
+  body.capture .sticky { height: auto; display: block; }
+  .modes { position: fixed; right: 16px; bottom: 16px; display: flex; gap: 6px; font: 500 12px/1 system-ui, sans-serif; }
+  .modes a { padding: 8px 12px; border-radius: 999px; background: #fff; color: #181916; text-decoration: none; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+  .modes a[aria-current] { background: #181916; color: #fff; }
+  .hint { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); font: 500 12px/1 system-ui, sans-serif; color: #858480; transition: opacity .3s; }
+  .modes, .hint { transition: opacity .4s; }
+  body.idle .modes, body.idle .hint { opacity: 0; pointer-events: none; }
+  body.capture .modes, body.capture .hint, body.play .hint { display: none; }
+</style>
+</head>
+<body>
+<div class="track" id="track"><div class="sticky"><canvas id="stage"></canvas></div></div>
+<nav class="modes"><a href="?" id="m-scroll">Scroll</a><a href="?play" id="m-play">Play</a><a href="#" id="m-layout">9:16</a><a href="#" id="m-theme">Theme</a><a href="#" id="m-fs">Fullscreen</a></nav>
+<div class="hint" id="hint">Scroll ↓</div>
+<script src="flipbook.js"></script>
+<script src="theme/book.js"></script>
+<script src="theme/tst.book.js"></script>
+<script>
+(async () => {
+  const q = new URLSearchParams(location.search);
+  // ?layout=full (16:9 full-bleed) | spread (reference 9:16); default follows the window shape.
+  const layout = q.get('layout') || (innerWidth > innerHeight ? 'full' : 'spread');
+  const canvas = document.getElementById('stage');
+  let book;
+  if (q.get('tex')) {
+    // Pre-rendered page images: ?tex=assets/pages/ (pages/render_pages.js) or assets/ref/ (the
+    // reference crops, which already contain hinge shading and a logo).
+    const tex = q.get('tex').replace(/\/?$/, '/'), ref = tex.includes('/ref/'), ext = ref ? 'png' : 'jpg';
+    book = { logo: ref ? tex + 'logo.png' : null, pages: [`${tex}S0_lower.${ext}`] };
+    for (let s = 1; s < 10; s++) book.pages.push(`${tex}S${s}_upper.${ext}`, `${tex}S${s}_lower.${ext}`);
+    Flipbook.P.hingeShade = !ref;
+  } else {
+    // Themed book (theme/book.js + window.FB_BOOK). ?theme= overrides the book's theme preset.
+    // Pages are rasterised at the resolution the window needs (16:9 page width in device px).
+    const dpr = devicePixelRatio || 1, need = layout === 'full' ? Math.max(innerWidth, innerHeight * 16 / 9) * dpr : 332 * 4;
+    const scale = Math.min(1.6, Math.max(1, need / FlipTheme.W));
+    const r = await FlipTheme.renderBook(window.FB_BOOK, { scale, theme: q.get('theme') || undefined });
+    const T = r.theme;
+    book = { pages: r.pages, surround: T.surround, paper: T.paper, back: T.back, ink: T.ink, rule: T.rule,
+      brand: { text: window.FB_BOOK.meta.brand, font: `400 24px ${FlipTheme.FACES.display}`, color: T.ink } };
+    document.documentElement.style.setProperty('--bg', T.surround);
+    const names = Object.keys(FlipTheme.THEMES), cur = names.indexOf(q.get('theme') || (typeof FB_BOOK.theme === 'string' ? FB_BOOK.theme : 'atlas'));
+    const tb = document.getElementById('m-theme'), next = names[(cur + 1) % names.length];
+    tb.textContent = FlipTheme.THEMES[names[Math.max(cur, 0)]].label;
+    tb.title = 'Next theme: ' + FlipTheme.THEMES[next].label;
+    tb.href = (() => { const u = new URLSearchParams(q); u.set('theme', next); return '?' + u; })();
+  }
+  if (q.get('tex')) document.getElementById('m-theme').remove();
+  const R = window.__R = await Flipbook.build(canvas, book, layout);
+  const END = Flipbook.END_FRAME, G = Flipbook.G;
+  // full fills the window (cropping any overhang), spread is letterboxed like the reference.
+  const fitScale = () => (G.fit === 'cover' ? Math.max : Math.min)(innerHeight / G.h, innerWidth / G.w);
+
+  const link = (extra) => { const u = new URLSearchParams(extra); if (q.get('layout')) u.set('layout', q.get('layout')); return '?' + u; };
+  document.getElementById('m-scroll').href = link('');
+  document.getElementById('m-play').href = link('play');
+  const other = layout === 'full' ? 'spread' : 'full', lb = document.getElementById('m-layout');
+  lb.textContent = other === 'full' ? '16:9' : '9:16';
+  lb.href = (() => { const u = new URLSearchParams(q); u.set('layout', other); return '?' + u; })();
+  const fs = () => (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.());
+  document.getElementById('m-fs').addEventListener('click', (e) => { e.preventDefault(); fs(); });
+  addEventListener('keydown', (e) => { if (e.key === 'f') fs(); });
+  // Controls fade out after 2s without pointer/keyboard activity so the stage stays clean.
+  let idleT;
+  const wake = () => { document.body.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(() => document.body.classList.add('idle'), 2000); };
+  ['pointermove', 'pointerdown', 'keydown'].forEach((ev) => addEventListener(ev, wake, { passive: true }));
+  wake();
+
+  if (q.has('frame')) {
+    // Deterministic single-frame render at 1:1 for capture / validation.
+    document.body.classList.add('capture');
+    Flipbook.resize(R, parseFloat(q.get('scale') || '1'));
+    Flipbook.render(R, parseFloat(q.get('frame')));
+    document.body.dataset.ready = '1';
+    return;
+  }
+
+  let frame = 0, drawn = -1;
+  const draw = () => { if (frame !== drawn) { Flipbook.render(R, frame); drawn = frame; } };
+  const onResize = () => { Flipbook.resize(R, fitScale()); drawn = -1; draw(); };
+  addEventListener('resize', onResize);
+
+  if (q.has('play')) {
+    // Autoplay at source speed, looping with a 1s pause on the last frame.
+    document.body.classList.add('play');
+    document.getElementById('m-play').setAttribute('aria-current', 'page');
+    onResize();
+    let t0 = performance.now();
+    const tick = (now) => {
+      const t = (now - t0) / 1000;
+      frame = Math.min(t * Flipbook.FPS, END);
+      if (t > END / Flipbook.FPS + 1) t0 = now;
+      draw();
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    return;
+  }
+
+  // Scroll-driven: scroll distance maps linearly to source time, so a constant scroll speed
+  // reproduces the measured pacing exactly. px per frame is tunable with ?ppf=.
+  document.getElementById('m-scroll').setAttribute('aria-current', 'page');
+  const ppf = parseFloat(q.get('ppf') || '24');
+  const track = document.getElementById('track'), hint = document.getElementById('hint');
+  track.style.height = `${END * ppf}px`;
+  track.style.minHeight = `calc(100vh + ${END * ppf}px)`;
+  onResize();
+  let queued = false;
+  addEventListener('scroll', () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      frame = Math.min(Math.max(scrollY / ppf, 0), END);
+      hint.style.opacity = scrollY > 10 ? 0 : 1;
+      draw();
+    });
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

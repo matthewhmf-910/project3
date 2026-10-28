@@ -1,0 +1,67 @@
+{
+ "shape": {
+  "curl": 0.49999999999999994,
+  "curlAngle": 90.0,
+  "lead": 0.1,
+  "gamma": 2.0,
+  "angPow": 0.25
+ },
+ "timing": [
+  {
+   "flip": "F2",
+   "start": 24.25,
+   "dur": 8.5,
+   "land": 32.75,
+   "mae_px": 9.8
+  },
+  {
+   "flip": "F3",
+   "start": 43.5,
+   "dur": 7.75,
+   "land": 51.25,
+   "mae_px": 15.4
+  },
+  {
+   "flip": "F4",
+   "start": 59.5,
+   "dur": 7.0,
+   "land": 66.5,
+   "mae_px": 12.0
+  },
+  {
+   "flip": "F5",
+   "start": 72.5,
+   "dur": 6.75,
+   "land": 79.25,
+   "mae_px": 17.4
+  },
+  {
+   "flip": "F6",
+   "start": 83.5,
+   "dur": 5.75,
+   "land": 89.25,
+   "mae_px": 16.1
+  },
+  {
+   "flip": "F7",
+   "start": 92.75,
+   "dur": 5.5,
+   "land": 98.25,
+   "mae_px": 11.7
+  },
+  {
+   "flip": "F8",
+   "start": 100.75,
+   "dur": 4.75,
+   "land": 105.5,
+   "mae_px": 10.0
+  },
+  {
+   "flip": "F9",
+   "start": 107.5,
+   "dur": 4.25,
+   "land": 111.75,
+   "mae_px": 13.4
+  }
+ ]
+}
