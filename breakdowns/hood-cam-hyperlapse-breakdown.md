@@ -166,4 +166,36 @@ Feedback on v2: the ending drift (甩尾) does not read. Fixes:
 - It is spelled out in hood-cam terms: the nose rotates 90° right, the world slides right-to-left across frame, the horizon tilts with body roll, and tyre smoke rolls forward over the bonnet. After that the car snaps straight, does a hydraulic bounce and holds.
 - Audio drops out on the flick and slams back in on the catch.
 
-See the chat reply for the full v3 prompt.
+```
+STYLE: Cinematic live-action hood-mounted POV hyperlapse of a vintage mint-green 1960s lowrider tearing across Los Angeles from neon night to sun-bleached day at roughly 60x real-time speed, ending in one perfectly readable real-time drift; laid-back West-Coast cool, practical neon and sodium light at night grading to hazy golden sunrise then flat bright daylight, teal-and-amber night grade shifting to warm desaturated pastel day grade, rigid locked hood camera with constant aggressive forward momentum, speed-ramped frame-blended hyperlapse with whip-blur and light-streak cuts every 0.5-0.7 seconds, heavy directional motion blur at frame edges with a readable centre vanishing point, the final drift shot in real time with a slow-motion peak and no hyperlapse blur, fine 35mm film grain, neon halation, photoreal premium music-video finish.
+
+TECH: 1080x1920, 9:16 vertical, 24 fps, 10.0 seconds, one continuous hood-cam POV with invisible time-jump cuts, 11 hyperlapse locations from 0.0 to 5.8s each under 0.7 seconds, then a 3.6-second real-time drift finale and a 0.8-second hold, the car is never parked, no text overlays, no titles, no UI.
+
+LOCKED FOREGROUND (all shots): glossy curved car bonnet fills bottom 20% of frame; small chrome V-shaped hood-ornament crest on a short stalk dead centre at x50% y85%, about 6% of frame width, always in sharp focus; two bulbous rounded chrome fender bullets partly cropped at the bottom-left and bottom-right corners; the camera is bolted to the car, so during the drift the bonnet stays fixed in frame while the whole world rotates around it; bonnet paint shifts from near-black teal #0B1D16 at night to vivid mint #5CBF93 at midday.
+
+TIMELINE:
+0.0-0.6s - Rolling fast out of a 1960s Googie-style diner lot at night: red neon roofline tube #E0302A with bloom, warm yellow interior #C9B44A, canopy downlights, classic lowriders and silhouetted crowd sliding past left, pole sign on the right with red neon script "original" over white bold rounded caps "DOUBLE CHEESE / BURGERS", sign mirrored backwards in the dark glossy bonnet.
+0.6-0.9s - Hard left yaw onto the road, diner smears into a horizontal whip-blur of red and yellow light streaks.
+0.9-1.4s - Dark residential boulevard #0D1415 rushing toward centre, sodium streetlamps strobing past on the left, distant red tail-lights.
+1.4-1.9s - Downtown arterial: double yellow centre line #C99A2A sweeping from lower left, tungsten storefronts and a red neon shop sign streaking past, lit towers ahead.
+1.9-2.4s - Street lined with stacked vintage neon motel signs in pink, cyan and red stretched into long light trails.
+2.4-2.9s - Parking structure with strip-lit floors flashing past on the left as the road dives into an arched tunnel portal.
+2.9-3.5s - Inside the tunnel: grey concrete tube #6E6A60, ceiling lights streaking to centre, blue-violet LED arch ring #5A6CFF rushing at camera, radial zoom-blur, white exit flash.
+3.5-4.2s - Pre-dawn industrial highway: warehouses and steel pylons whipping past, downtown skyline silhouette ahead with the sun cresting just right of centre as a warm star flare #FFD9A0, sky #BBBDB2 to #E8D8B0; bonnet turns seafoam #84C4A1.
+4.2-4.8s - Concrete river bridge at golden hour, railing posts strobing past.
+4.8-5.3s - Palm-lined boulevard in soft morning light, palms flicking past both sides.
+5.3-5.8s - Freeway underpass, a quick shadow then a burst into bright sun.
+5.8-6.4s - Speed ramps hard down from hyperlapse to real time on a wide sunny daylight intersection: white zebra crosswalk #E4E3D3 under the bonnet, telephone poles and wires, and a blue-and-white walk-up stand clearly visible ahead and to the right of frame.
+6.4-6.8s - Feint flick: the world swings briefly 10 degrees to the right as the nose dips left, horizon tilting 4 degrees.
+6.8-8.6s - THE DRIFT, in real time with a 0.5x slow-motion peak from 7.4 to 8.0s: the nose rotates a full 90 degrees to the right in one smooth continuous arc while the car keeps sliding sideways; from the locked hood camera the entire street, poles and buildings sweep steadily from the right edge to the left edge of frame; the horizon tilts 6 degrees from body roll; thick white tyre smoke billows forward past both chrome fender bullets and rolls across the mint bonnet in soft clouds; small rubber debris skitters across the asphalt; orange bollards pass close on the left; the blue-and-white stand enters from the right edge and slides toward centre frame; the two customers at the window turn their heads to watch; sharp image with only light motion blur so every element reads clearly.
+8.6-9.2s - Catch: the car snaps straight, the stand locks dead centre filling the upper 60% of frame, the lowrider's hydraulics bounce the bonnet up and down twice, horizon levels, smoke drifts and thins.
+9.2-10.0s - Hold: car fully stopped facing the stand, last wisps of smoke curling off the bonnet edges, the two customers looking straight toward the camera.
+
+STAND DETAIL: boxy walk-up magazine-and-snack stand, royal-blue lower band and awning #2456A0, cream window frames, glass front crowded with colourful magazines and posters, white rooftop sign with red script "Corner Stand".
+
+TYPOGRAPHY (environmental signage only, no overlays): red neon brush-script lowercase for "original"; white bold rounded retro-display caps, slightly condensed, for "DOUBLE CHEESE / BURGERS"; red casual script on white for "Corner Stand"; all type physically lit or painted in-scene, never animated or overlaid.
+
+SOUND: 0.0s V8 rev and tyre chirp into a 95 BPM West-Coast soul groove (deep round bass, talkbox lead, Rhodes, vinyl crackle) with a downbeat on every location change; 0.6s whoosh on the whip-blur; 2.9s tunnel roar and reverb swell; 3.5s airy riser on the exit flash; 5.8s engine downshift blip as the speed ramps to real time; 6.4s music cuts to silence except the engine; 6.8-8.6s long high-pitched tyre screech rising and falling with the slide, deep V8 roar underneath, slowed and pitched down during the 7.4-8.0s slow-motion peak; 8.6s full beat slams back in on the catch with two hydraulic thunks on the bounce; 9.2s engine settles to a lopey idle; music sustains to the last frame.
+
+FINAL FRAME: daylight frame at 10.0s, car stopped facing the blue-and-white walk-up stand filling the upper 60% of frame with its white rooftop sign "Corner Stand" in red script, two customers at the window looking toward camera, orange bollards at left, thin wisps of white tyre smoke curling off the edges of the glossy vivid-mint bonnet across the bottom 20%, chrome V hood-ornament perfectly centred, two chrome fender bullets in the lower corners, horizon level, sharp with no motion blur, warm bright natural daylight, slight film grain.
+```
