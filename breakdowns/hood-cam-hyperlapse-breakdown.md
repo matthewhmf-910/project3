@@ -155,3 +155,15 @@ SOUND: 0.0s V8 rev and tyre chirp into a 95 BPM West-Coast soul groove (deep rou
 
 FINAL FRAME: daylight frame at 10.0s, blue-and-white walk-up stand filling the upper 60% of frame with its white rooftop sign "Corner Stand" in red script, two customers at the window, orange bollards at left, sharp with no motion blur, glossy vivid-mint bonnet across the bottom 20% with the chrome V hood-ornament perfectly centred and the two chrome fender bullets in the lower corners, warm bright natural daylight, slight film grain.
 ```
+
+---
+
+## 5. Revision v3: drift finale
+
+Feedback on v2: the ending drift (甩尾) does not read. Fixes:
+- Beats 0–5.8 s are tightened so the drift gets 3.6 s.
+- The drift plays at real time with a 0.5× slow-motion peak instead of hyperlapse speed, so it does not smear.
+- It is spelled out in hood-cam terms: the nose rotates 90° right, the world slides right-to-left across frame, the horizon tilts with body roll, and tyre smoke rolls forward over the bonnet. After that the car snaps straight, does a hydraulic bounce and holds.
+- Audio drops out on the flick and slams back in on the catch.
+
+See the chat reply for the full v3 prompt.
