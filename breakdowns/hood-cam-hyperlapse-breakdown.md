@@ -199,3 +199,27 @@ SOUND: 0.0s V8 rev and tyre chirp into a 95 BPM West-Coast soul groove (deep rou
 
 FINAL FRAME: daylight frame at 10.0s, car stopped facing the blue-and-white walk-up stand filling the upper 60% of frame with its white rooftop sign "Corner Stand" in red script, two customers at the window looking toward camera, orange bollards at left, thin wisps of white tyre smoke curling off the edges of the glossy vivid-mint bonnet across the bottom 20%, chrome V hood-ornament perfectly centred, two chrome fender bullets in the lower corners, horizon level, sharp with no motion blur, warm bright natural daylight, slight film grain.
 ```
+
+---
+
+## 6. v3 render review and v4 prompt
+
+The v3 render was 720×1280, 24 fps, 10.0 s. Measured motion energy per 0.5 s:
+`3.0 9.6 9.3 15.3 14.6 16.6 30.0 3.4 4.3 9.9 24.1 20.9 4.6 5.0 5.0 6.1 8.9 7.0 4.6 1.4`
+
+Flaws:
+1. **The drift is done by a second car.** A duplicate mint lowrider enters at about 6.5 s, drifts in front of the camera from 7.0 to 8.8 s, then parks facing the lens. The POV car never rotates. The model cannot rotate the world around a locked hood camera, so it moved the action onto another car.
+2. **Dead intersection.** From 6.0 to 7.0 s the camera sits nearly still (energy 4.6–5.0) waiting for the other car.
+3. **Sun blowout at 9.0 s.** A sun appears high in the top-right, 11 % of the top of frame clips to white, and it contradicts the low sunrise sun earlier.
+4. **Wrong hood hardware.** The fender bullets came out as large heart-shaped chrome lobes, the V ornament is tiny or missing, and the bonnet fills about 30 % of frame instead of 20 %.
+5. **Washed-out day hood.** The day bonnet measures about #A7DAC4, paler than the #5CBF93 target.
+6. **Pacing dips.** 3.5–4.5 s (sunrise, 3.4 / 4.3) had no hyperlapse blur. The river bridge beat and the neon motel beat were dropped, because 12 beats is too many for the model to follow.
+7. **Ending hold.** 1.4 energy for 1.2 s with static smoke.
+
+Fixes in v4:
+- At 5.4 s, hard cut to an exterior low tracking shot of the same single car for the drift. This is the only way the model shows a drift clearly.
+- State that only one car exists in the scene.
+- Cut the beats from 12 to 7.
+- Lock the sun to a low warm morning position with no flare blowout.
+- Simplify the hood hardware and force saturated mint #4FBF8F.
+- End on a moving smoke drift rather than a dead hold.
