@@ -1,7 +1,6 @@
 """SFX stem for the 3.0s one-take version (72 frames @24fps).
 Timeline: slash whoosh 0.45s -> hit/snap 0.583s -> 0.2s silence -> chopsticks POP 1.22s + tick 1.38s
--> lift whoosh 1.58s -> glide whoosh 1.72s -> noodles land on sword 2.04s -> chopsticks pull away 2.10s
--> slurp 2.30s -> chime 2.55s."""
+-> lift whoosh 1.58s -> one continuous right-to-left sweep 1.70-2.25s -> slurp 2.30s -> chime 2.55s."""
 import sys, wave
 import numpy as np
 
@@ -48,11 +47,9 @@ place(np.sin(2 * np.pi * np.cumsum(f) / SR) * env(n, 0.002, 0.025), 1.22, 0.7)
 n = int(0.05 * SR); t = np.arange(n) / SR
 tick = (np.sin(2 * np.pi * 1800 * t) + 0.5 * np.sin(2 * np.pi * 2700 * t)) * env(n, 0.0005, 0.008)
 place(tick, 1.38, 0.45)
-# noodles lifted out of the bowl, glide onto the sword, land (soft paper tick), chopsticks pull away
+# noodles lifted out of the bowl and carried in one continuous sweep right -> left into the mouth
 place(whoosh(0.16, 600, 1800), 1.58, 0.3)
-place(whoosh(0.28, 2200, 700), 1.72, 0.4)
-place(tick, 2.04, 0.35)
-place(whoosh(0.18, 1500, 3500), 2.10, 0.3)
+place(whoosh(0.55, 2600, 600), 1.70, 0.45)
 # slurp
 n = int(0.4 * SR); t = np.arange(n) / SR
 fc = 300 + 2200 * (t / t[-1]) ** 1.5

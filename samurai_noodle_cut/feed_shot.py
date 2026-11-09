@@ -1,57 +1,45 @@
-"""Build the 20-frame hand-off shot at native 720x1280:
-the right panel's chopsticks lift the soba out of the bowl, glide over and hang it on the
-samurai's broken-sword chopsticks, then pull back out of frame, leaving the noodles on his sword.
+"""Build the 20-frame continuous right-to-left noodle pass at native 720x1280.
+One unbroken move, no stops: the right panel's chopsticks lift the soba out of the bowl, sweep it past
+the samurai's broken-sword tip, carry it left across the divider and feed it into his mouth, landing
+where V3's first frame has the noodles (V3 dissolves in over the last 3 frames).
+The chopsticks+noodles stay one intact cutout: splitting them leaves holes in the noodle loop.
 Usage: feed_shot.py <plate_dir (V2 frames)> <bundle_dir (keyed RGBA)> <out_dir>"""
 import sys, os
-from PIL import Image, ImageDraw
+from PIL import Image
 
 plate_dir, bund_dir, out = sys.argv[1:4]
 os.makedirs(out, exist_ok=True)
 plates = sorted(os.listdir(plate_dir))
 bunds = sorted(os.listdir(bund_dir))
 
-ORIG = (470, 440)          # bundle top-left as it sits in V3
-TARGET = (400, 470)        # puts the noodle loop on the samurai's upper sword-chopstick near its tip (540,540)
-# Right-panel chopsticks (bundle-crop coords) past the noodle loop -> this part pulls away.
-STICKS_POLY = [(148, 52), (250, 20), (250, 88), (148, 104)]
-WITHDRAW_DIR = (0.92, -0.39)   # along the chopsticks' own axis, up and to the right
+LOOP = (105, 90)                 # noodle loop centre inside the bundle crop
+# path of the loop centre (native px) and bundle scale at each key point
+KEYS = [((575, 575), 1.00),      # in the bowl
+        ((585, 430), 1.00),      # lifted
+        ((527, 548), 0.92),      # sweeps past the broken-sword tip (540,540)
+        ((370, 470), 0.80),      # over the divider
+        ((215, 500), 0.68)]      # at the samurai's mouth (matches V3 frame 0)
+ARRIVE = 17                      # frame the noodles reach the mouth (V3 dissolves in f17-19)
 N = 20
 
-def ease(u):
+def smooth(u):
     u = min(max(u, 0.0), 1.0)
     return u * u * (3 - 2 * u)
 
-def split(b):
-    m = Image.new("L", b.size, 0)
-    ImageDraw.Draw(m).polygon(STICKS_POLY, fill=255)
-    sticks = Image.new("RGBA", b.size, (0, 0, 0, 0))
-    sticks.paste(b, (0, 0), Image.composite(b.getchannel("A"), Image.new("L", b.size, 0), m))
-    noodles = b.copy()
-    a = noodles.getchannel("A")
-    noodles.putalpha(Image.composite(Image.new("L", b.size, 0), a, m))
-    return sticks, noodles
+def catmull(p0, p1, p2, p3, t):
+    return tuple(0.5 * ((2 * b) + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t * t
+                        + (-a + 3 * b - 3 * c + d) * t ** 3) for a, b, c, d in zip(p0, p1, p2, p3))
 
-def lerp(p, q, u):
-    return (p[0] + (q[0] - p[0]) * u, p[1] + (q[1] - p[1]) * u)
+def path(u):
+    pts = [k[0] for k in KEYS]; sc = [k[1] for k in KEYS]
+    seg = min(int(u * 4), 3); t = u * 4 - seg
+    P = [pts[max(seg - 1, 0)], pts[seg], pts[seg + 1], pts[min(seg + 2, 4)]]
+    return catmull(*P, t), sc[seg] + (sc[seg + 1] - sc[seg]) * t
 
-HIGH = (470, 330)
 for i in range(N):
     plate = Image.open(os.path.join(plate_dir, plates[min(i // 2, len(plates) - 1)])).convert("RGBA")
-    sticks, noodles = split(Image.open(os.path.join(bund_dir, bunds[i % len(bunds)])))
-    w = 0.0                                                  # chopsticks withdraw distance
-    if i <= 3:                                               # lift out of the bowl
-        pos = lerp((ORIG[0], ORIG[1] + 40), HIGH, ease(i / 3))
-    elif i <= 10:                                            # glide down onto the sword tip
-        pos = lerp(HIGH, (TARGET[0], TARGET[1] + 10), ease((i - 3) / 7))
-    elif i == 11:                                            # settle (tiny bounce)
-        pos = (TARGET[0], TARGET[1] - 4)
-    else:
-        pos = TARGET
-        w = 320 * ease((i - 12) / 4)                         # f12-16 chopsticks pull out of frame
-    sway = 3 if i in (13, 15) else (-2 if i in (14, 16) else 0)
-    npos = (int(round(pos[0])), int(round(pos[1] + (sway if i >= 12 else 0))))
-    spos = (int(round(pos[0] + WITHDRAW_DIR[0] * w)), int(round(pos[1] + WITHDRAW_DIR[1] * w)))
-    plate.alpha_composite(noodles, npos)
-    if w < 320:
-        plate.alpha_composite(sticks, spos)
+    b = Image.open(os.path.join(bund_dir, bunds[i % len(bunds)]))
+    centre, scale = path(smooth(i / ARRIVE) if i < ARRIVE else 1.0)
+    b = b.resize((round(b.width * scale), round(b.height * scale)), Image.LANCZOS)
+    plate.alpha_composite(b, (round(centre[0] - LOOP[0] * scale), round(centre[1] - LOOP[1] * scale)))
     plate.convert("RGB").save(os.path.join(out, f"{i:03d}.png"))

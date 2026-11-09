@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # 3.0s one-take "wuxia" version (72 frames @24fps, 1080x1920):
 # sword points at the bowl -> slashed -> broken tip becomes chopsticks
-# -> right-panel chopsticks lift soba and hang it on the samurai's broken-sword chopsticks
-# -> right chopsticks pull away -> samurai eats.
+# -> right-panel chopsticks lift soba and carry it, in one continuous sweep past the broken-sword tip
+#    and across the divider, into the samurai's mouth -> he eats.
 # Usage: build_oneshot.sh <V1.mp4> <V2.mp4> <V3.mp4> <out_dir>
 set -euo pipefail
 V1=$1; V2=$2; V3=$3; OUT=$4
@@ -13,7 +13,7 @@ FONT=/usr/share/fonts/opentype/inter/Inter-ExtraBold.otf
 python3 "$HERE/slash_overlay.py" "$TMP/slash_%02d.png"
 python3 "$HERE/sfx_oneshot.py" "$OUT/samurai_oneshot_sfx_stem.wav"
 
-# Hand-off shot: key V3's chopsticks+noodle bundle, fly it onto the sword-chopsticks in a V2 plate.
+# Feed shot: key V3's chopsticks+noodle bundle and sweep it right -> left over a V2 plate.
 mkdir -p "$TMP/v3raw" "$TMP/plate"
 ffmpeg -v error -y -i "$V3" -frames:v 14 "$TMP/v3raw/%03d.png"
 ffmpeg -v error -y -i "$V2" -vf "select='between(n,96,105)'" -vsync 0 "$TMP/plate/%03d.png"
@@ -25,8 +25,8 @@ python3 "$HERE/feed_shot.py" "$TMP/plate" "$TMP/bund" "$TMP/feed"
 #  B1a V2 f0-7          1x   HIT: tip pieces fly off, shocked face            -> f14-21  (flash f14-15, shake f14-20)
 #  B1b V2 f8-63         ~11x shock hold, speed ramp                          -> f22-27
 #  B2  V2 f76-94        2x   broken tip straightens into chopsticks           -> f28-37
-#  D   hand-off shot    --   right chopsticks lift soba, hang it on the       -> f38-57
-#                            sword-chopsticks (lands f49), pull away (f50-54)
+#  D   feed shot        --   one sweep: bowl -> sword tip -> divider -> mouth -> f38-57
+#                            (arrives at the mouth f55)
 #  C   V3 f0-16         1x   samurai eats (3f dissolve in)                    -> f55-71
 UP="scale=1080:1920:flags=lanczos,setsar=1"
 ffmpeg -v error -y -i "$V1" -i "$V2" -i "$V3" -i "$OUT/samurai_oneshot_sfx_stem.wav" \
