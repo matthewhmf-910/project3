@@ -1,0 +1,27 @@
+{
+ "url": "http://127.0.0.1:45089/",
+ "errors": [],
+ "checks": {
+  "film-desktop.firstCanvasMs": 561,
+  "film-desktop.canvas": {
+   "w": 1080,
+   "h": 1920,
+   "webgl2": true
+  },
+  "film-desktop.horizontalOverflow": false,
+  "film-phone.firstCanvasMs": 1500,
+  "film-phone.canvas": {
+   "w": 1080,
+   "h": 1920,
+   "webgl2": true
+  },
+  "film-phone.horizontalOverflow": false,
+  "explore-desktop.firstCanvasMs": 252,
+  "explore-desktop.canvas": {
+   "w": 394,
+   "h": 702,
+   "webgl2": true
+  },
+  "explore-desktop.horizontalOverflow": false
+ }
+}

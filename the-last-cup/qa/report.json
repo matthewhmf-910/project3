@@ -1,0 +1,64 @@
+{
+ "file": "the-last-cup.mp4",
+ "format": {
+  "width": 1080,
+  "height": 1920,
+  "fps": "30/1",
+  "frames": 300,
+  "duration_s": 10.0,
+  "video_codec": "h264",
+  "pix_fmt": "yuv420p",
+  "audio": {
+   "codec": "aac",
+   "rate": "48000",
+   "channels": 2
+  },
+  "size_mb": 22.46
+ },
+ "luma": {
+  "mean_min": 79.3,
+  "mean_max": 204.2,
+  "frames_over_25pct_clipped_white": [],
+  "frames_over_40pct_crushed_black": [],
+  "detected_cuts_s": [
+   4.8,
+   5.0
+  ],
+  "frozen_runs": 0,
+  "nan_or_blank_frames": 0
+ },
+ "blackdetect": [],
+ "loudness": {
+  "integrated_lufs": -13.7,
+  "lra_lu": 4.3,
+  "true_peak_dbtp": -1.0,
+  "target_lufs": -14
+ },
+ "palette": {
+  "poster_dominant": [
+   "#f1ede6",
+   "#3d2915",
+   "#7d5c3c",
+   "#b38969",
+   "#ccc1af",
+   "#ded8ce"
+  ],
+  "film_dominant": [
+   "#8c8066",
+   "#685f46",
+   "#312313",
+   "#b0a083",
+   "#ccbfa7",
+   "#e6dbc6"
+  ],
+  "film_weights": [
+   0.313,
+   0.276,
+   0.134,
+   0.132,
+   0.077,
+   0.069
+  ],
+  "mean_deltaE_to_nearest_poster_colour": 11.5
+ }
+}

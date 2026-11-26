@@ -1,0 +1,38 @@
+{
+  "name": "the-last-cup",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "still": "node scripts/stills.mjs",
+    "render": "node scripts/render.mjs",
+    "preview:dev": "vite --config preview/vite.config.ts",
+    "preview:build": "vite build --config preview/vite.config.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@react-three/drei": "10.7.6",
+    "@react-three/fiber": "9.8.2",
+    "@react-three/postprocessing": "3.0.4",
+    "@remotion/bundler": "4.0.547",
+    "@remotion/cli": "4.0.547",
+    "@remotion/player": "4.0.547",
+    "@remotion/renderer": "4.0.547",
+    "@remotion/three": "4.0.547",
+    "postprocessing": "6.37.8",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "remotion": "4.0.547",
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.12",
+    "@types/react-dom": "19.1.9",
+    "@types/three": "0.180.0",
+    "@vitejs/plugin-react": "5.0.2",
+    "typescript": "5.9.2",
+    "vite": "7.1.5",
+    "vite-plugin-singlefile": "2.3.0"
+  }
+}
